@@ -11,7 +11,7 @@ export default function useSignWith({ email, password }) {
   const { callbackUrl } = router.query
 
   const signWith = useMemo(() => {
-    /**@type {(provider:'credentials'|'kakao'|'google'|'facebook')=>()=>void} */
+    /**@type {(provider:'credentials'|'kakao'|'google')=>()=>void} */
     function signWith(provider) {
       return () => {
         if (provider === 'credentials') {
@@ -26,3 +26,4 @@ export default function useSignWith({ email, password }) {
 
   return signWith
 }
+
