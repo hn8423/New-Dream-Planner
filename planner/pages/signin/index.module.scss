@@ -1,44 +1,25 @@
 .main {
   display: grid;
   grid-template-areas:
-    'main-img'
-    'welcome'
-    'main-social'
-    'main-input'
-    'main-input-button';
-  grid-template-rows: minmax(0, 45px) minmax(0, 135px) minmax(0, 50px) minmax(0, 250px) minmax(0, 50px);
+    'main-text'
+    'main-social';
+
+  grid-template-rows: minmax(0, 384px) minmax(0, 125px);
   grid-template-columns: minmax(0, 1fr);
   justify-items: center;
 
   padding: 15px;
 
-  .main-img {
-    grid-area: main-img;
+  .main-text {
+    grid-area: main-text;
     width: 100%;
     height: 100%;
-    text-align: center;
+    // text-align: center;
+    display: flex;
+    // justify-content: center;
+    align-items: center;
 
     padding: 15px;
-  }
-
-  .welcome {
-    grid-area: welcome;
-    width: 100%;
-    height: 100%;
-    padding-top: 30px;
-
-    .main-title {
-      text-align: center;
-    }
-
-    .main-subtitle {
-      display: flex;
-      justify-content: center;
-      padding: 20px;
-      .main-subtitle-span {
-        display: block;
-      }
-    }
   }
 
   .main-social {
@@ -51,61 +32,5 @@
     align-items: center;
     justify-content: space-evenly;
   }
-
-  .main-input {
-    grid-area: main-input;
-
-    width: 300px;
-    height: 100%;
-    display: flex;
-    flex-flow: column nowrap;
-
-    row-gap: 20px;
-    padding-top: 48px;
-
-    .main-input-title {
-      color: #767676;
-    }
-    .main-input-email {
-      width: 100%;
-
-      border: none;
-      border-bottom: 1px solid #b8b9c1;
-      padding: 5px 10px;
-      // outline: none;
-    }
-
-    .password-wrapper {
-      position: relative;
-
-      .main-input-password {
-        width: 100%;
-
-        border: none;
-        border-bottom: 1px solid #b8b9c1;
-        padding: 5px 10px;
-        // outline: none;
-      }
-      .main-input-i {
-        position: absolute;
-        right: 10px;
-        font-size: 25px;
-      }
-    }
-    .main-input-signup {
-      color: #4ac1eb;
-
-      .child {
-        width: auto;
-      }
-    }
-  }
-
-  .main-input-button {
-    grid-area: main-input-button;
-    width: 300px;
-    height: 100%;
-
-    margin-top: 24px;
-  }
 }
+
