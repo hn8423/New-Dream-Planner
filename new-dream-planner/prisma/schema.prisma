@@ -5,7 +5,46 @@ generator client {
   provider = "prisma-client-js"
 }
 
-datasource db {
+datasource planner_db {
   provider = "mysql"
   url      = env("DATABASE_URL")
+}
+
+model User {
+  id String @id @default(cuid())
+
+  name          String?
+  email         String?   @unique
+  emailVerified DateTime?
+  image         String?
+  countryCode   String    @default("KR")
+
+  password String?
+  isSigned Boolean @default(false)
+  lang     String  @default("en")
+
+  account Account?
+}
+
+model Account {
+  id     String @id @default(cuid())
+  userId String @unique
+  type   String
+
+  provider                 String?
+  providerAccountId        String?
+  refresh_token            String? @planner_db.Text
+  refresh_token_expires_in Int?
+  access_token             String? @planner_db.Text
+  expires_at               Int?
+  token_type               String?
+  scope                    String?
+  id_token                 String? @planner_db.Text
+  session_state            String?
+  oauth_token_secret       String?
+  oauth_token              String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
 }
