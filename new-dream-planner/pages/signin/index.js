@@ -3,6 +3,7 @@ import style from "./index.module.scss";
 import { useRouter } from "next/router";
 import React, { useRef, useState, useMemo, useEffect } from "react";
 import useSignWith from "hooks/useSignWith";
+import { signIn, signOut, useSession } from "next-auth/client";
 
 const classname = classOption(style);
 function MobileSignin() {
@@ -188,88 +189,26 @@ function MobileSignin() {
   return (
     <>
       <div className={classname("main")}>
-        <div className={classname("main-img")}>
-          <img
-            src="/images/mobile/layout/logo.png"
-            alt="menu"
-            onClick={onClickMoveToMain}
-          />
+        <div className={classname("text")}>
+          <h1 className={classname("new-dream")}>New Dream Planner</h1>
+          <h2 className={classname("intro")}>{`간편하게\n 가입하세요`}</h2>
         </div>
 
-        <div className={classname("welcome")}>
-          <h1 className={classname(["main-title"], "h1")}>WELCOME</h1>
-        </div>
         <div className={classname("main-social")}>
           <img
             className={classname("main-social-img")}
-            src="/images/mobile/social/Goole.png"
+            src="/image/signin/google.png"
             alt="google-icon"
             onClick={signWith("google")}
           />
-          <img
-            className={classname("main-social-img")}
-            src="/images/mobile/social/Facebook.png"
-            alt="facebook-icon"
-            onClick={signWith("facebook")}
-          />
-          <img
-            className={classname("main-social-img")}
-            src="/images/mobile/social/KaKao.png"
-            alt="kakao-icon"
-            onClick={signWith("kakao")}
-          />
-        </div>
-        <div className={classname("main-input")}>
-          <h1 className={classname(["main-input-title"], "subtitle2")}>
-            Email
-          </h1>
-          <input
-            className={classname("main-input-email")}
-            value={email}
-            onChange={(e) => {
-              setEmail(e.target.value);
-            }}
-            onKeyDown={pressEnter(inputPw)}
-            type="email"
-            placeholder={globalText.emailInput.en}
-          ></input>
-          <h1 className={classname(["main-input-title"], "subtitle2")}>
-            Password
-          </h1>
-          <div className={classname("password-wrapper")}>
-            <input
-              ref={inputPw}
-              className={classname("main-input-password")}
-              value={password}
-              onChange={(e) => {
-                setPassword(e.target.value);
-              }}
-              onKeyDown={pressEnter()}
-              type={passwordType.type}
-            ></input>
-            <span
-              className={classname("main-input-i")}
-              onClick={handlePasswordType}
-            >
-              {passwordType.visible === true ? (
-                <img src="/images/signin/action.svg" alt="visible" />
-              ) : (
-                <img src="/images/signin/noaction.svg" alt="invisible" />
-              )}
-            </span>
-          </div>
 
-          <span className={classname(["main-input-signup"])}>
-            <span
-              className={classname(["child"], "button")}
-              onClick={routerPush("/mobile/signup")}
-            ></span>
-          </span>
+          <img
+            className={classname("main-social-img")}
+            src="/image/signin/kakao.png"
+            alt="kakao-icon"
+            onClick={signIn}
+          />
         </div>
-        <button
-          className={classname("main-input-button")}
-          onClick={clickNext(signWith("credentials"))}
-        ></button>
       </div>
     </>
   );
