@@ -3,7 +3,6 @@ import style from "./index.module.scss";
 import { useRouter } from "next/router";
 import React, { useRef, useState, useMemo, useEffect } from "react";
 import useSignWith from "hooks/useSignWith";
-import { signIn, signOut, useSession } from "next-auth/client";
 
 const classname = classOption(style);
 function MobileSignin() {
@@ -206,7 +205,7 @@ function MobileSignin() {
             className={classname("main-social-img")}
             src="/image/signin/kakao.png"
             alt="kakao-icon"
-            onClick={signIn}
+            onClick={signWith("kakao")}
           />
         </div>
       </div>
