@@ -68,7 +68,7 @@
         color: #e1e1e5;
 
         .nav-text-color {
-          color: #4ac1e8;
+          color: #b00020;
         }
       }
 
@@ -84,4 +84,13 @@
       }
     }
   }
+}
+
+.side-bar {
+  position: absolute;
+
+  top: 0;
+  bottom: 70px;
+
+  overflow: auto;
 }

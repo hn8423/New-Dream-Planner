@@ -1,4 +1,6 @@
-import "../styles/globals.css";
+// import "../styles/globals.css";
+import "styles/reset.css";
+import "styles/globals.scss";
 import LayoutProvider from "providers/layoutProvider";
 import { SessionProvider } from "next-auth/react";
 

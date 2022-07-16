@@ -23,8 +23,8 @@
 
   display: grid;
   grid-template-areas:
-    'info-box'
-    'contents';
+    "info-box"
+    "contents";
 
   animation: open-slide 0.15s ease-in-out;
   animation-fill-mode: forwards;

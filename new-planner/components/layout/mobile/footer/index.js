@@ -1,6 +1,8 @@
 import _ from "lodash";
 import { useRouter } from "next/router";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
+import Sidebar from "components/mobile/sidebar/index";
+
 import { classOption } from "utill";
 import style from "./index.module.scss";
 const classname = classOption(style);
@@ -9,8 +11,17 @@ export default function Footer({ className }) {
   // data
   // data
   // data
+  const [isOpend, setOpened] = useState(false);
 
   const router = useRouter();
+
+  function open() {
+    setOpened(true);
+  }
+
+  function close() {
+    setOpened(false);
+  }
 
   const navItems = useMemo(() => {
     return [
@@ -19,10 +30,10 @@ export default function Footer({ className }) {
           on: <div className={classname("nav-text-color")}>사명</div>,
           off: "사명",
         },
-        location: "/",
+        location: "/mission",
         icon: {
-          on: "/images/mission/missionact.svg",
-          off: "/images/mission/missionunact.svg",
+          on: "/images/footer/missionact.svg",
+          off: "/images/footer/missionunact.svg",
         },
         bounce: false,
       },
@@ -31,10 +42,10 @@ export default function Footer({ className }) {
           on: <div className={classname("nav-text-color")}>월간</div>,
           off: "월간",
         },
-        location: "/",
+        location: "/month",
         icon: {
-          on: "/images/mission/monthact.png",
-          off: "/images/mission/monthunact.svg",
+          on: "/images/footer/monthact.png",
+          off: "/images/footer/monthunact.svg",
         },
         bounce: false,
       },
@@ -43,10 +54,10 @@ export default function Footer({ className }) {
           on: <div className={classname("nav-text-color")}>주간</div>,
           off: "주간",
         },
-        location: "/",
+        location: "/week",
         icon: {
-          on: "/images/mobile/bottom/actionapply.png",
-          off: "/images/mobile/bottom/inactionapply.png",
+          on: "/images/footer/weekact.png",
+          off: "/images/footer/weekunact.png",
         },
         bounce: false,
       },
@@ -55,10 +66,10 @@ export default function Footer({ className }) {
           on: <div className={classname("nav-text-color")}>시간</div>,
           off: "시간",
         },
-        location: "/",
+        location: "/timetable",
         icon: {
-          on: "/images/mobile/bottom/actionresult.png",
-          off: "/images/mobile/bottom/inactionresult.png",
+          on: "/images/footer/timeact.png",
+          off: "/images/footer/timeunact.png",
         },
         bounce: false,
       },
@@ -67,10 +78,10 @@ export default function Footer({ className }) {
           on: <div className={classname("nav-text-color")}>전체</div>,
           off: "전체",
         },
-        location: "/",
+        location: "sidebar",
         icon: {
-          on: "/images/mobile/bottom/actionmy.png",
-          off: "/images/mobile/bottom/inactionmy.png",
+          on: "/images/footer/allunact.png",
+          off: "/images/footer/allunact.png",
         },
         bounce: false,
       },
@@ -83,14 +94,14 @@ export default function Footer({ className }) {
 
   const routerPush = useMemo(() => {
     return function routerPush(location) {
-      const mobile = "/mobile";
+      // const mobile = "/mobile";
       if (location[0] === "/") {
         return () => {
-          router.push(mobile + location);
+          router.push(location);
         };
       } else {
         return () => {
-          router.push(mobile + "/" + location);
+          router.push("/" + location);
         };
       }
     };
@@ -106,12 +117,12 @@ export default function Footer({ className }) {
     return _(navItems)
       .map(({ name, location, icon, bounce }) => ({
         name:
-          "/mobile" + `${location !== "/" ? location : ""}` === currLocation
+          `${location !== "/" ? location : ""}` === currLocation
             ? name.on
             : name.off,
         location,
         icon:
-          "/mobile" + `${location !== "/" ? location : ""}` === currLocation
+          `${location !== "/" ? location : ""}` === currLocation
             ? icon.on
             : icon.off,
         bounce,
@@ -127,7 +138,7 @@ export default function Footer({ className }) {
     return navButtonsMap.map((v) => (
       <div
         className={classname("nav-button")}
-        onClick={routerPush(v.location)}
+        onClick={v.location === "sidebar" ? open : routerPush(v.location)}
         key={`${v.name}-${v.location}-${v.icon}`}
       >
         <img
@@ -135,7 +146,7 @@ export default function Footer({ className }) {
           src={v.icon}
           alt="icon"
         ></img>
-        <span className={classname(["nav-text"], "caption")}>{v.name}</span>
+        <span className={classname(["nav-text"], "cap10")}>{v.name}</span>
       </div>
     ));
   }, [navButtonsMap, routerPush]);
@@ -145,8 +156,11 @@ export default function Footer({ className }) {
   // render
 
   return (
-    <div className={classname(["footer", className])}>
-      <div className={classname("navigation")}>{renderNavButtons}</div>
-    </div>
+    <>
+      <div className={classname(["footer", className])}>
+        <div className={classname("navigation")}>{renderNavButtons}</div>
+      </div>
+      {isOpend && <Sidebar className={classname("side-bar")} close={close} />}
+    </>
   );
 }

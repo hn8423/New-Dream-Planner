@@ -11,53 +11,6 @@ import { useSession } from "next-auth/react";
 
 const classname = classOption(style);
 
-const globalText = {
-  login: {
-    en: "Log in",
-    ko: "로그인 하세요",
-  },
-  mypage: {
-    en: "My Page",
-    ko: "마이 페이지",
-  },
-  account: {
-    en: "Account Settings",
-    ko: "계정 설정",
-  },
-  payment: {
-    en: "Payment History",
-    ko: "결제 확인",
-  },
-  information: {
-    en: "Information",
-    ko: "정보",
-  },
-  toestIntro: {
-    en: "Toest Intro",
-    ko: "토스트 소개",
-  },
-  privacyPolicy: {
-    en: "Privacy Policy",
-    ko: "개인 정보 정책",
-  },
-  termsOfUse: {
-    en: "Terms of Use",
-    ko: "이용 약관",
-  },
-  NeedHelp: {
-    en: "Need a help?",
-    ko: "문의 안내",
-  },
-  logOut: {
-    en: "Log out",
-    ko: "로그아웃",
-  },
-  logIn: {
-    en: "Log In",
-    ko: "로그인",
-  },
-};
-
 export default function MobileSideBar({ className, close }) {
   // data
   // data
@@ -66,29 +19,32 @@ export default function MobileSideBar({ className, close }) {
   const [isClosing, setClosing] = useState(false);
   const sideBar = useRef(null);
   const router = useRouter();
-  const isLogined = useSelector((s) => s.isLogined);
+  // const isLogined = useSelector((s) => s.isLogined);
   const [name, setName] = useState("");
   const { data: session } = useSession();
-  const lang = useSelector((state) => state.lang);
+  // const lang = useSelector((state) => state.lang);
 
   const [menuTree, setMenu] = useState([
     {
-      name: globalText.mypage[lang],
+      name: "globalText.mypage[lang]",
       icon: "My-page_My-page",
       link: "",
       children: [
-        { name: globalText.account[lang], link: "/my_page?to=accountsetting" },
-        { name: globalText.payment[lang], link: "/my_page?to=payment" },
+        {
+          name: " globalText.account[lang]",
+          link: "/my_page?to=accountsetting",
+        },
+        { name: " globalText.payment[lang]", link: "/my_page?to=payment" },
       ],
     },
     {
-      name: globalText.information[lang],
+      name: "globalText.information[lang]",
       icon: "Information_My-page",
       link: "",
       children: [
-        { name: globalText.toestIntro[lang], link: "/toest_intro" },
-        { name: globalText.privacyPolicy[lang], link: "/Privacy_Policy" },
-        { name: globalText.termsOfUse[lang], link: "/Terms_of_Use" },
+        { name: "globalText.toestIntro[lang]", link: "/toest_intro" },
+        { name: " globalText.privacyPolicy[lang]", link: "/Privacy_Policy" },
+        { name: " globalText.termsOfUse[lang]", link: "/Terms_of_Use" },
       ],
     },
 
@@ -192,28 +148,28 @@ export default function MobileSideBar({ className, close }) {
   // mounted
   // mounted
 
-  useEffect(() => {
-    setMenu((s) => [
-      ...s,
-      isLogined
-        ? {
-            name: globalText.logOut[lang],
-            icon: "Logout_Navigation",
-            link: signOut,
-            gray: true,
-          }
-        : {
-            name: globalText.logIn[lang],
-            icon: "Login_Navigation",
-            link: signIn,
-          },
-    ]);
-  }, [isLogined, lang]);
-  useEffect(() => {
-    return () => {
-      clickClose();
-    };
-  }, [router.route, clickClose]);
+  // useEffect(() => {
+  //   setMenu((s) => [
+  //     ...s,
+  //     isLogined
+  //       ? {
+  //           name: "globalText.logOut[lang]",
+  //           icon: "Logout_Navigation",
+  //           link: signOut,
+  //           gray: true,
+  //         }
+  //       : {
+  //           name: "globalText.logIn[lang]",
+  //           icon: "Login_Navigation",
+  //           link: signIn,
+  //         },
+  //   ]);
+  // }, []);
+  // useEffect(() => {
+  //   return () => {
+  //     clickClose();
+  //   };
+  // }, [router.route, clickClose]);
 
   // render
   // render
@@ -227,24 +183,26 @@ export default function MobileSideBar({ className, close }) {
       <div className={classname("info-box")}>
         <div className={classname("info-area")}>
           <div className={classname(["info-name"], "h2")}>{name}</div>
-          {isLogined ? (
+          {/* {isLogined ? (
             <div className={classname(["info-email"], "body2")}>
               {isLocal ? `${session.user.email}` : "email@email.com"}
             </div>
-          ) : (
-            <div className={classname("login")} onClick={signIn}>
-              <h1>TOEST</h1>
-              <br />
-              <p>
-                {/* <R_icon className={classname('item-title-icon')}>enter</R_icon> */}
-                &nbsp;{globalText.login[lang]}
-              </p>
-            </div>
-          )}
+          ) : ( */}
+          <div className={classname("login")} onClick={signIn}>
+            <h1>TOEST</h1>
+            <br />
+            <p>
+              {/* <R_icon className={classname('item-title-icon')}>enter</R_icon> */}
+              &nbsp;
+            </p>
+          </div>
         </div>
-        {/* <R_icon className={classname('close-btn')} onClick={clickClose}>
-          Close_Navigation
-        </R_icon> */}
+        <img
+          className={classname("close-btn")}
+          src="/images/sidebar/close.svg"
+          alt="close"
+          onClick={clickClose}
+        />
       </div>
       <div className={classname("contents")}>{contentsItem}</div>
     </div>
