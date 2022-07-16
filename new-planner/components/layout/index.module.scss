@@ -1,0 +1,43 @@
+.layout-pc {
+  width: 100%;
+  min-height: 100%;
+
+  display: grid;
+  grid-template-areas: 'header-contents' 'footer';
+  grid-template-columns: 1fr;
+  grid-template-rows: minmax(auto, 1fr) auto;
+
+  min-width: 1700px;
+
+  .header-contents {
+    grid-area: header-contents;
+
+    position: relative;
+
+    .header {
+      width: 1280px;
+      height: 80px;
+
+      position: absolute;
+      transform: translateX(-50%);
+      top: 0;
+      left: 50%;
+    }
+
+    .contents {
+      width: 100%;
+      height: 100%;
+
+      display: flex;
+      flex-flow: column nowrap;
+      align-items: center;
+    }
+  }
+
+  .footer {
+    grid-area: footer;
+
+    width: 100%;
+    height: 350px;
+  }
+}
