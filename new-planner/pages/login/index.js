@@ -3,7 +3,10 @@ import { classOption } from "utill";
 const classname = classOption(style);
 import { signIn } from "next-auth/react";
 import useSignWith from "hooks/useSignWith";
+import { useRouter } from "next/router";
 export default function Login() {
+  const router = useRouter();
+  const { callbackUrl } = router.query;
   const signWith = useSignWith();
   return (
     <div className={classname("login")}>
@@ -22,13 +25,13 @@ export default function Login() {
           className={classname("kakao")}
           src="/images/login/kakao.png"
           alt="kakao"
-          onClick={signWith("kakao")}
+          onClick={() => signIn("kakao", { callbackUrl })}
         />
         <img
           className={classname("google")}
           src="/images/login/google.png"
           alt="google"
-          onClick={signWith("google")}
+          onClick={() => signIn("google", { callbackUrl })}
         />
       </div>
     </div>
