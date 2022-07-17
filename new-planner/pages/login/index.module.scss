@@ -1,0 +1,38 @@
+.login {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  // justify-content: center;
+  padding: 19px;
+
+  .login-text {
+    display: flex;
+    flex-direction: column;
+
+    padding-top: 96px;
+    .login-text-new {
+      width: 328px;
+    }
+    .login-text-easy {
+      width: 328px;
+      padding-top: 16px;
+    }
+  }
+  .social {
+    padding-top: 144px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    .google {
+      padding-top: 12px;
+      width: 328px;
+      cursor: pointer;
+    }
+    .kakao {
+      width: 328px;
+      cursor: pointer;
+    }
+  }
+}

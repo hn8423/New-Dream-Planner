@@ -71,4 +71,7 @@ export default NextAuth({
   theme: {
     colorScheme: "light",
   },
+  pages: {
+    signIn: "/login",
+  },
 });

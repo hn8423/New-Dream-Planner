@@ -25,42 +25,49 @@ export default function MobileSideBar({ className, close }) {
   // const lang = useSelector((state) => state.lang);
 
   const [menuTree, setMenu] = useState([
+    // {
+    //   name: "로그인",
+    //   icon: "/images/sidebar/login.png",
+    //   link: "/login",
+    //   disable: false,
+    //   gray: false,
+    // },
     {
-      name: "globalText.mypage[lang]",
-      icon: "My-page_My-page",
-      link: "",
-      children: [
-        {
-          name: " globalText.account[lang]",
-          link: "/my_page?to=accountsetting",
-        },
-        { name: " globalText.payment[lang]", link: "/my_page?to=payment" },
-      ],
+      name: "기도 노트",
+      icon: "/images/sidebar/pray.png",
+      link: "/",
+      disable: true,
+      gray: false,
     },
     {
-      name: "globalText.information[lang]",
-      icon: "Information_My-page",
-      link: "",
-      children: [
-        { name: "globalText.toestIntro[lang]", link: "/toest_intro" },
-        { name: " globalText.privacyPolicy[lang]", link: "/Privacy_Policy" },
-        { name: " globalText.termsOfUse[lang]", link: "/Terms_of_Use" },
-      ],
+      name: "설교 노트",
+      icon: "/images/sidebar/note.png",
+      link: "/",
+      disable: true,
+      gray: false,
+    },
+    {
+      name: "이용약관",
+      icon: "/images/sidebar/term.png",
+      link: "/",
+      disable: true,
+      gray: false,
     },
 
     {
-      name: (
-        <a
-          className={classname("help-link")}
-          href="mailto:support@metavity.world"
-        >
-          Need A Help ?
-        </a>
-      ),
-      icon: "Email_Payment-Statement",
-      link: "",
-      // disable: true,
+      name: "개인정보처리방침",
+      icon: "/images/sidebar/privacy.png",
+      link: "/",
+      disable: true,
+      gray: false,
     },
+    // {
+    //   name: "로그아웃",
+    //   icon: "/images/sidebar/logout.png",
+    //   link: signOut,
+    //   disable: true,
+    //   gray: true,
+    // },
   ]);
 
   // method
@@ -108,37 +115,23 @@ export default function MobileSideBar({ className, close }) {
   const contentsItem = useMemo(() => {
     return _(menuTree)
       .map((v) => {
-        const child =
-          v.children &&
-          _(v.children)
-            .map((j) => (
-              <div
-                key={j.name}
-                className={classname(
-                  ["item-child", { disable: !!j.disable }, { gary: !!j.gray }],
-                  "subtitle2"
-                )}
-                onClick={gotoLink(j.link)}
-              >
-                {j.name}
-              </div>
-            ))
-            .value();
-
         return (
-          <ContentBox className={classname(["contents-item"])} key={v.name}>
+          <div className={classname(["contents-item"])} key={v.name}>
             <div
               className={classname(
                 ["item-title", { disable: !!v.disable }, { gray: !!v.gray }],
-                "subtitle1"
+                "sub16"
               )}
               onClick={gotoLink(v.link)}
             >
-              {/* <R_icon className={classname('item-title-icon')}>{v.icon}</R_icon> */}
-              <span>{v.name}</span>
+              <img
+                className={classname(["contents-icon"])}
+                src={v.icon}
+                alt="icon"
+              />
+              <div className={classname(["contents-title"])}>{v.name}</div>
             </div>
-            {child}
-          </ContentBox>
+          </div>
         );
       })
       .value();
@@ -180,31 +173,35 @@ export default function MobileSideBar({ className, close }) {
       className={classname(["side-bar", { closing: isClosing }, className])}
       ref={sideBar}
     >
-      <div className={classname("info-box")}>
-        <div className={classname("info-area")}>
-          <div className={classname(["info-name"], "h2")}>{name}</div>
-          {/* {isLogined ? (
-            <div className={classname(["info-email"], "body2")}>
-              {isLocal ? `${session.user.email}` : "email@email.com"}
-            </div>
-          ) : ( */}
-          <div className={classname("login")} onClick={signIn}>
-            <h1>TOEST</h1>
-            <br />
-            <p>
-              {/* <R_icon className={classname('item-title-icon')}>enter</R_icon> */}
-              &nbsp;
-            </p>
-          </div>
-        </div>
+      <div className={classname("top")}>
+        <div></div>
+        <div className={classname("top-title")}>전체</div>
         <img
-          className={classname("close-btn")}
-          src="/images/sidebar/close.svg"
+          className={classname("top-close")}
+          src="/images/sidebar/close.png"
           alt="close"
           onClick={clickClose}
         />
       </div>
-      <div className={classname("contents")}>{contentsItem}</div>
+      <div className={classname("contents")}>
+        {contentsItem}
+        <div className={classname(["contents-item"])}>
+          <div
+            className={classname(
+              ["item-title", { disable: false }, { gray: true }],
+              "sub16"
+            )}
+            onClick={signOut}
+          >
+            <img
+              className={classname(["contents-icon"])}
+              src="/images/sidebar/logout.png"
+              alt="icon"
+            />
+            <div className={classname(["contents-title"])}>로그아웃</div>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

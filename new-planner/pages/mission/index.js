@@ -1,19 +1,70 @@
 import style from "./index.module.scss";
 import { classOption, enterToBr } from "utill";
 const classname = classOption(style);
-import { useState, useMemo, useEffect, useCallback } from "react";
+import { useState, useRef, useCallback, useEffect } from "react";
 import ContentBox from "components/mobile/contentsBox";
 import { useSession, signIn, getSession } from "next-auth/react";
+import req2srv from "lib/req2srv/mission";
+import useSignCheck from "hooks/useSignCheck";
 
-export default function Week() {
+/**@type {import('next').GetServerSideProps} */
+export async function getServerSideProps(ctx) {
+  /**@type {import('next-auth').Session&{user:{id:string}}} */
+  const session = await getSession(ctx);
+
+  if (!session) {
+    return {
+      props: {
+        missionText: [],
+      },
+    };
+  }
+
+  try {
+    const missionText = await prisma.mission.findMany({
+      where: {
+        userId: session.user.id,
+      },
+    });
+
+    return {
+      props: {
+        missionText: JSON.parse(JSON.stringify(missionText)),
+        session,
+      },
+    };
+  } catch (err) {
+    return {
+      props: {
+        missionText: [],
+      },
+    };
+  }
+}
+
+/**
+ * @type {(props:{missionText: (import('@prisma/client').Mission)[]
+ * session: commons.session
+ * })}
+ */
+export default function Week({ missionText }) {
   //data
   //data
   //data
+  const isLoading = useSignCheck();
+  const identityRef = useRef(null);
+  const hurtRef = useRef(null);
+  const experienceRef = useRef(null);
+  const myRef = useRef(null);
   /**@type {{data: commons.session}} */
   const { data: session } = useSession();
   const [selectedBar, setBar] = useState("purpose");
   const [page, setPage] = useState(0);
   const [name, setName] = useState(session ? session.user.name : "");
+  const [identity, setIdentity] = useState("");
+  const [hurt, setHurt] = useState("");
+  const [experience, setExperience] = useState("");
+  const [myMission, setMyMission] = useState("");
 
   //function
   //function
@@ -35,8 +86,58 @@ export default function Week() {
       fn(e.target.value);
     };
   }
+
+  const identityRefResize = useCallback(() => {
+    if (identityRef === null || identityRef.current === null) {
+      return;
+    }
+    identityRef.current.style.height = "38px";
+    identityRef.current.style.height = identityRef.current.scrollHeight + "px";
+  }, []);
+  const hurtRefResize = useCallback(() => {
+    if (hurtRef === null || hurtRef.current === null) {
+      return;
+    }
+    hurtRef.current.style.height = "38px";
+    hurtRef.current.style.height = hurtRef.current.scrollHeight + "px";
+  }, []);
+  const experienceRefResize = useCallback(() => {
+    if (experienceRef === null || experienceRef.current === null) {
+      return;
+    }
+    experienceRef.current.style.height = "38px";
+    experienceRef.current.style.height =
+      experienceRef.current.scrollHeight + "px";
+  }, []);
+  const myRefResize = useCallback(() => {
+    if (myRef === null || myRef.current === null) {
+      return;
+    }
+    myRef.current.style.height = "38px";
+    myRef.current.style.height = myRef.current.scrollHeight + "px";
+  }, []);
+
+  const clickChange = useCallback(
+    async function clickChange() {
+      try {
+        await req2srv.changeMission({
+          identity,
+          hurt,
+          experience,
+          myMission,
+        });
+
+        Router.reload();
+      } catch (err) {}
+    },
+    [identity, hurt, experience, myMission]
+  );
+
+  useEffect(() => {
+    console.log(missionText);
+  }, [missionText]);
   return (
-    <div className={classname("mission")}>
+    <div className={classname("mission", { loading: isLoading })}>
       <div className={classname("tab")}>
         <div className={classname("tab-wrapper")}>
           <div
@@ -171,14 +272,73 @@ export default function Week() {
                 1. 나의 정체성
               </div>
 
-              <input
+              <textarea
+                ref={identityRef}
                 className={classname(["identity-input", "sub16"])}
-                type="textarea"
+                type="text"
                 placeholder="나의 정체성을 적어보세요"
-                // defaultValue={name}
-                onChange={setTargetValue(setName)}
-                // style="word-wrap:break-word"
+                onKeyDown={identityRefResize} // keydown이되엇을때마다 autoResizeTextarea실행
+                onKeyUp={identityRefResize} // keyup이되엇을때마다 autoResizeTextarea실행
+                defaultValue={missionText[0].identity}
+                onChange={setTargetValue(setIdentity)}
               />
+            </div>
+
+            <div className={classname(["mission-hurt"])}>
+              <div className={classname(["identity-subtitle"], "sub16")}>
+                2. 나를 아프게 하는 세상
+              </div>
+
+              <textarea
+                ref={hurtRef}
+                className={classname(["identity-input", "sub16"])}
+                type="text"
+                placeholder="나를 아프게 하는 세상을 적어보세요"
+                onKeyDown={hurtRefResize} // keydown이되엇을때마다 autoResizeTextarea실행
+                onKeyUp={hurtRefResize} // keyup이되엇을때마다 autoResizeTextarea실행
+                defaultValue={missionText[0].hurt}
+                onChange={setTargetValue(setHurt)}
+              />
+            </div>
+            <div className={classname(["mission-experience"])}>
+              <div className={classname(["identity-subtitle"], "sub16")}>
+                3. 연속된 경험
+              </div>
+
+              <textarea
+                ref={experienceRef}
+                className={classname(["identity-input", "sub16"])}
+                type="text"
+                placeholder="나의 연속된 경험을 적어보세요"
+                onKeyDown={experienceRefResize} // keydown이되엇을때마다 autoResizeTextarea실행
+                onKeyUp={experienceRefResize} // keyup이되엇을때마다 autoResizeTextarea실행
+                defaultValue={missionText[0].experience}
+                onChange={setTargetValue(setExperience)}
+              />
+            </div>
+            <div className={classname(["mission-my"])}>
+              <div className={classname(["identity-subtitle"], "sub16")}>
+                4. 나의 사명 선언
+              </div>
+
+              <textarea
+                ref={myRef}
+                className={classname(["identity-input", "sub16"])}
+                type="text"
+                placeholder="나의 사명 선언서를 적어보세요"
+                onKeyDown={myRefResize} // keydown이되엇을때마다 autoResizeTextarea실행
+                onKeyUp={myRefResize} // keyup이되엇을때마다 autoResizeTextarea실행
+                defaultValue={missionText[0].myMission}
+                onChange={setTargetValue(setMyMission)}
+              />
+            </div>
+            <div className={classname(["mission-save"])}>
+              <div
+                className={classname(["mission-button"], "btn")}
+                onClick={clickChange}
+              >
+                저장하기
+              </div>
             </div>
           </div>
         </>
