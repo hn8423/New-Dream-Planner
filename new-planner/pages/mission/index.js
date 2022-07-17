@@ -3,9 +3,21 @@ import { classOption, enterToBr } from "utill";
 const classname = classOption(style);
 import { useState, useMemo, useEffect, useCallback } from "react";
 import ContentBox from "components/mobile/contentsBox";
+import { useSession, signIn, getSession } from "next-auth/react";
+
 export default function Week() {
+  //data
+  //data
+  //data
+  /**@type {{data: commons.session}} */
+  const { data: session } = useSession();
   const [selectedBar, setBar] = useState("purpose");
   const [page, setPage] = useState(0);
+  const [name, setName] = useState(session ? session.user.name : "");
+
+  //function
+  //function
+  //function
   function select(tab) {
     return () => {
       if (tab === "purpose") {
@@ -16,6 +28,11 @@ export default function Week() {
         setPage(2);
       }
       setBar(tab);
+    };
+  }
+  function setTargetValue(fn) {
+    return (e) => {
+      fn(e.target.value);
     };
   }
   return (
@@ -145,6 +162,23 @@ export default function Week() {
                 모든 그리스도인은 복음을 전하고 모든 민족을 제자로 삼는 사명을
                 받았습니다. 우리의 사명을 토대로 나의 선언서를 적어보세요.
               </div>
+            </div>
+            <div className={classname(["mission-identity"])}>
+              <div className={classname(["identity-title"], "sub18")}>
+                나의 선언서
+              </div>
+              <div className={classname(["identity-subtitle"], "sub16")}>
+                1. 나의 정체성
+              </div>
+
+              <input
+                className={classname(["identity-input", "sub16"])}
+                type="textarea"
+                placeholder="나의 정체성을 적어보세요"
+                // defaultValue={name}
+                onChange={setTargetValue(setName)}
+                // style="word-wrap:break-word"
+              />
             </div>
           </div>
         </>
