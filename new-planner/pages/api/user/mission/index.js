@@ -7,7 +7,8 @@ function invalidCall(res) {
 }
 
 function errHandler(res, err) {
-  res.status(500).json({ message: err.code });
+  // res.status(500).json({ message: err.code });
+  console.log("err :", err.message);
 }
 
 /**@type {import('next').NextApiHandler} */
