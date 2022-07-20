@@ -120,13 +120,13 @@ export default function Week({ missionText }) {
   const clickChange = useCallback(
     async function clickChange() {
       try {
-        await req2srv.changeMission({
+        const result = await req2srv.changeMission({
           identity,
           hurt,
           experience,
           myMission,
         });
-
+        alert("나의 선언서가 저장되었습니다.");
         Router.reload();
       } catch (err) {}
     },
@@ -134,8 +134,16 @@ export default function Week({ missionText }) {
   );
 
   useEffect(() => {
-    console.log(missionText);
-  }, [missionText]);
+    // console.log(missionText);
+    if (identityRef === null || identityRef.current === null) {
+      return;
+    }
+    identityRef.current.style.height = identityRef.current.scrollHeight + "px";
+    hurtRef.current.style.height = hurtRef.current.scrollHeight + "px";
+    experienceRef.current.style.height =
+      experienceRef.current.scrollHeight + "px";
+    myRef.current.style.height = myRef.current.scrollHeight + "px";
+  }, []);
   return (
     <div className={classname("mission", { loading: isLoading })}>
       <div className={classname("tab")}>
@@ -279,7 +287,9 @@ export default function Week({ missionText }) {
                 placeholder="나의 정체성을 적어보세요"
                 onKeyDown={identityRefResize} // keydown이되엇을때마다 autoResizeTextarea실행
                 onKeyUp={identityRefResize} // keyup이되엇을때마다 autoResizeTextarea실행
-                defaultValue={missionText[0].identity}
+                defaultValue={
+                  missionText.length === 0 ? "" : missionText[0].identity
+                }
                 onChange={setTargetValue(setIdentity)}
               />
             </div>
@@ -296,7 +306,9 @@ export default function Week({ missionText }) {
                 placeholder="나를 아프게 하는 세상을 적어보세요"
                 onKeyDown={hurtRefResize} // keydown이되엇을때마다 autoResizeTextarea실행
                 onKeyUp={hurtRefResize} // keyup이되엇을때마다 autoResizeTextarea실행
-                defaultValue={missionText[0].hurt}
+                defaultValue={
+                  missionText.length === 0 ? "" : missionText[0].hurt
+                }
                 onChange={setTargetValue(setHurt)}
               />
             </div>
@@ -312,7 +324,9 @@ export default function Week({ missionText }) {
                 placeholder="나의 연속된 경험을 적어보세요"
                 onKeyDown={experienceRefResize} // keydown이되엇을때마다 autoResizeTextarea실행
                 onKeyUp={experienceRefResize} // keyup이되엇을때마다 autoResizeTextarea실행
-                defaultValue={missionText[0].experience}
+                defaultValue={
+                  missionText.length === 0 ? "" : missionText[0].experience
+                }
                 onChange={setTargetValue(setExperience)}
               />
             </div>
@@ -328,7 +342,9 @@ export default function Week({ missionText }) {
                 placeholder="나의 사명 선언서를 적어보세요"
                 onKeyDown={myRefResize} // keydown이되엇을때마다 autoResizeTextarea실행
                 onKeyUp={myRefResize} // keyup이되엇을때마다 autoResizeTextarea실행
-                defaultValue={missionText[0].myMission}
+                defaultValue={
+                  missionText.length === 0 ? "" : missionText[0].myMission
+                }
                 onChange={setTargetValue(setMyMission)}
               />
             </div>

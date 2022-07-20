@@ -21,18 +21,22 @@ export default function Login() {
         </div>
       </div>
       <div className={classname("social")}>
-        <img
+        <div
           className={classname("kakao")}
-          src="/images/login/kakao.png"
-          alt="kakao"
           onClick={() => signIn("kakao", { callbackUrl })}
-        />
-        <img
+        >
+          <img src="/images/login/kakao.png" alt="kakao" />
+          <div className={classname("btn")}>카카오로 계속하기</div>
+          <div></div>
+        </div>
+        <div
           className={classname("google")}
-          src="/images/login/google.png"
-          alt="google"
           onClick={() => signIn("google", { callbackUrl })}
-        />
+        >
+          <img src="/images/login/google.png" alt="google" />
+          <div className={classname("btn")}>Google로 계속하기</div>
+          <div></div>
+        </div>
       </div>
     </div>
   );

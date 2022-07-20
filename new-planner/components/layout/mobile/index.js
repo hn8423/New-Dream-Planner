@@ -10,7 +10,6 @@ export default function MobileLayout(props) {
       <div className={classname("contents")}>{props.children}</div>
 
       <Footer className={classname("footer")} />
-      {/* <Header className={classname("header")} /> */}
     </div>
   );
 }

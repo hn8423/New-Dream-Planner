@@ -5,9 +5,9 @@
   position: relative;
   display: grid;
   grid-template-areas:
-    'header'
-    'contents'
-    'footer';
+    "header"
+    "contents"
+    "footer";
   grid-template-columns: 1fr;
   grid-template-rows: auto 1fr auto;
 

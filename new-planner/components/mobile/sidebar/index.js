@@ -90,7 +90,7 @@ export default function MobileSideBar({ className, close }) {
       }
 
       if (typeof link === "string") {
-        router.push(`/mobile${link}`);
+        router.push(`/${link}`);
         clickClose();
       } else if (typeof link === "function") {
         link();
@@ -184,22 +184,46 @@ export default function MobileSideBar({ className, close }) {
         />
       </div>
       <div className={classname("contents")}>
+        <div className={classname(["contents-item"])}>
+          {!session ? (
+            <div
+              className={classname(
+                ["item-title", { disable: false }, { gray: true }],
+                "sub16"
+              )}
+              onClick={signIn}
+            >
+              <img
+                className={classname(["contents-icon"])}
+                src="/images/sidebar/login.png"
+                alt="icon"
+              />
+              <div className={classname(["contents-title"])}>로그인</div>
+            </div>
+          ) : (
+            ""
+          )}
+        </div>
         {contentsItem}
         <div className={classname(["contents-item"])}>
-          <div
-            className={classname(
-              ["item-title", { disable: false }, { gray: true }],
-              "sub16"
-            )}
-            onClick={signOut}
-          >
-            <img
-              className={classname(["contents-icon"])}
-              src="/images/sidebar/logout.png"
-              alt="icon"
-            />
-            <div className={classname(["contents-title"])}>로그아웃</div>
-          </div>
+          {session ? (
+            <div
+              className={classname(
+                ["item-title", { disable: false }, { gray: true }],
+                "sub16"
+              )}
+              onClick={signOut}
+            >
+              <img
+                className={classname(["contents-icon"])}
+                src="/images/sidebar/logout.png"
+                alt="icon"
+              />
+              <div className={classname(["contents-title"])}>로그아웃</div>
+            </div>
+          ) : (
+            ""
+          )}
         </div>
       </div>
     </div>
