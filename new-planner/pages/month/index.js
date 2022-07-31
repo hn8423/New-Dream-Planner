@@ -39,7 +39,7 @@ export default function Month() {
   const [data, setData] = useState(appointments);
   const [currentViewName, setCurrentViewName] = useState("Month");
   const router = useRouter();
-  const [isOpend, setOpened] = useState(true);
+  const [isOpend, setOpened] = useState(false);
 
   //function
   //function
@@ -88,8 +88,8 @@ export default function Month() {
   );
 
   return (
-    <div className={classname("month")}>
-      <div className={classname("month-header")}>
+    <div className={classname(["month", { open: isOpend }])}>
+      <div className={classname(["month-header"])}>
         <img src="/images/header/arrow.png" alt="arrows" onClick={goToBack} />
         <div>2022년 6월</div>
         <img
@@ -110,10 +110,9 @@ export default function Month() {
           <Appointments appointmentComponent={Appointment} />
         </Scheduler>
       </Paper>
-      {/* {isOpend && (
+      {isOpend && (
         <MobileBottomSheet className={classname("side-bar")} close={close} />
-      )} */}
-      <MobileBottomSheet className={classname("side-bar")} close={close} />
+      )}
     </div>
   );
 }
