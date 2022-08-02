@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
-import { getYear } from "date-fns";
 import DatePicker, { registerLocale } from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import ko from "date-fns/locale/ko";
@@ -10,26 +9,10 @@ import { classOption } from "utill/index";
 import style from "./index.module.scss";
 const classname = classOption(style);
 import "./index.module.scss";
-export default function TimePickers({ className, close }) {
+export default function TimePickers({ pick, setPick }) {
   // data
   // data
   // data
-  const [startDate, setStartDate] = useState(new Date());
-  const years = _.range(1999, getYear(new Date()) + 1, 1);
-  const months = [
-    "1월",
-    "2월",
-    "3월",
-    "4월",
-    "5월",
-    "6월",
-    "7월",
-    "8월",
-    "9월",
-    "10월",
-    "11월",
-    "12월",
-  ];
 
   //render
   //render
@@ -56,8 +39,8 @@ export default function TimePickers({ className, close }) {
   return (
     <div>
       <DatePicker
-        selected={startDate}
-        onChange={(date) => setStartDate(date)}
+        selected={pick}
+        onChange={(date) => setPick(date)}
         showTimeSelect
         showTimeSelectOnly
         timeIntervals={15}

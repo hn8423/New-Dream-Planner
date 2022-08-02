@@ -10,11 +10,11 @@ import { classOption } from "utill/index";
 import style from "./index.module.scss";
 const classname = classOption(style);
 import "./index.module.scss";
-export default function DatePickers({ pickDate, setDate }) {
+export default function MonthPickers({ Pickmonth, setPickMonth }) {
   // data
   // data
   // data
-  // const [startDate, setStartDate] = useState(new Date());
+
   const years = _.range(1999, getYear(new Date()) + 1, 1);
   const months = [
     "1월",
@@ -46,18 +46,20 @@ export default function DatePickers({ pickDate, setDate }) {
       className={classname("datepicker-input")}
       onChange={onChange}
       placeholder={placeholder}
-      value={value}
+      // value={value}
       isSecure={isSecure}
       id={id}
       onClick={onClick}
+      type="image"
+      src="/images/bottom/down.png"
     />
   );
   return (
-    <div>
+    <div className={classname("monthpicker")}>
       <DatePicker
         locale="ko"
-        selected={pickDate}
-        onChange={(date) => setDate(date)}
+        selected={Pickmonth}
+        onChange={(date) => setPickMonth(date)}
         showPopperArrow={false}
         fixedHeight
         dateFormat="yyyy년MM월dd일"

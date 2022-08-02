@@ -38,6 +38,8 @@
     "sass": "^1.53.0"
   },
   "devDependencies": {
+    "@types/lodash": "^4.14.182",
+    "@types/moment": "^2.13.0",
     "eslint": "^8.19.0",
     "eslint-config-next": "12.2.1",
     "prisma": "^4.0.0"

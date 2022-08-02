@@ -1,7 +1,6 @@
 import { classOption } from "utill/index";
 import style from "./index.module.scss";
 import { useRouter } from "next/router";
-import ContentBox from "components/mobile/contentsBox";
 import { useSelector } from "react-redux";
 import { signIn, signOut } from "next-auth/react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -19,6 +18,7 @@ export default function MobileBottomSheet({ className, close }) {
   const [isClosing, setClosing] = useState(false);
   const [isAllDay, setIsAllDay] = useState(false);
   const [isRepeat, setIsRepeat] = useState(false);
+  const [isDatePick, setIsDatePick] = useState(false);
   const [day, setDay] = useState([
     false,
     false,
@@ -28,45 +28,15 @@ export default function MobileBottomSheet({ className, close }) {
     false,
     false,
   ]);
+  const [repeatLastDay, setRepeatLastDay] = useState(new Date());
+  const [startDate, setStartDate] = useState(new Date());
+  const [startTime, setStartTime] = useState(new Date());
+  const [endTime, setEndTime] = useState(new Date());
   const [pickTimeMetrix, setPickTimeMetrix] = useState("");
   const sideBar = useRef(null);
   const router = useRouter();
 
-  const [name, setName] = useState("");
-  const { data: session } = useSession();
-  const years = [2020, 2021, 2022, 2023, 2022];
-
-  const [menuTree, setMenu] = useState([
-    {
-      name: "기도 노트",
-      icon: "/images/sidebar/pray.png",
-      link: "/",
-      disable: true,
-      gray: false,
-    },
-    {
-      name: "설교 노트",
-      icon: "/images/sidebar/note.png",
-      link: "/",
-      disable: true,
-      gray: false,
-    },
-    {
-      name: "이용약관",
-      icon: "/images/sidebar/term.png",
-      link: "/",
-      disable: true,
-      gray: false,
-    },
-
-    {
-      name: "개인정보처리방침",
-      icon: "/images/sidebar/privacy.png",
-      link: "/",
-      disable: true,
-      gray: false,
-    },
-  ]);
+  const [title, setTitle] = useState("");
 
   const timeMetrixList = [
     { type: "A", sub: "급하고 중요한 일" },
@@ -88,6 +58,16 @@ export default function MobileBottomSheet({ className, close }) {
   // method
   // method
   // method
+
+  const setTargetValue = (fn) => {
+    return (e) => {
+      fn(e.target.value);
+    };
+  };
+
+  const onClickDatePick = () => {
+    setIsDatePick(!isDatePick);
+  };
 
   const onClickDay = (v) => {
     return () => {
@@ -111,23 +91,6 @@ export default function MobileBottomSheet({ className, close }) {
     setClosing(true);
   }, [close]);
 
-  const gotoLink = useCallback(
-    (link) => () => {
-      if (!link) {
-        return;
-      }
-
-      if (typeof link === "string") {
-        router.push(`/${link}`);
-        clickClose();
-      } else if (typeof link === "function") {
-        link();
-        clickClose();
-      }
-    },
-    [router, clickClose]
-  );
-
   const onClickTimeMetrix = (v) => {
     return () => {
       setPickTimeMetrix(v);
@@ -140,6 +103,63 @@ export default function MobileBottomSheet({ className, close }) {
   const onClickRepeat = (v) => {
     setIsRepeat(!isRepeat);
   };
+  const CreateSchedule = useCallback(
+    async function clickCreate() {
+      try {
+        if (!title) {
+          alert("일정을 입력해주세요");
+          return;
+        }
+        if (!pickTimeMetrix) {
+          alert("일정 타입을 선택해주세요");
+          return;
+        }
+        if (startTime > endTime) {
+          alert("시작 시간이 종료시간보다 커야 합니다.");
+          return;
+        }
+        if (isRepeat) {
+          let check = false;
+
+          day.forEach((e) => {
+            if (e === true) {
+              check = true;
+            }
+          });
+          if (check === false) {
+            alert("반복할 요일을 지정해주세요");
+            return;
+          }
+          if (startDate >= repeatLastDay) {
+            alert("반복할 마지막 날짜가 시작할 날짜보다 커야 합니다.");
+            return;
+          }
+        }
+        await req2srv.createPlan({
+          repeatLastDay,
+          startTime,
+          endTime,
+          startDate,
+          pickTimeMetrix,
+          title,
+          day,
+          isRepeat,
+        });
+      } catch (err) {
+        console.err(err);
+      }
+    },
+    [
+      day,
+      endTime,
+      isRepeat,
+      pickTimeMetrix,
+      repeatLastDay,
+      startDate,
+      startTime,
+      title,
+    ]
+  );
 
   // renderMap
   // renderMap
@@ -158,6 +178,7 @@ export default function MobileBottomSheet({ className, close }) {
       <div
         className={classname(["picker-repeat-item", { pickday: day[v.num] }])}
         key={v.num}
+        onClick={onClickDay(v.num)}
       >
         {v.name}
       </div>
@@ -169,7 +190,7 @@ export default function MobileBottomSheet({ className, close }) {
       <div
         key={v.type}
         className={classname([
-          "time-metrix-item",
+          `time-metrix-item${v.type}`,
           { pick: pickTimeMetrix === v.type },
         ])}
         onClick={onClickTimeMetrix(v.type)}
@@ -195,29 +216,6 @@ export default function MobileBottomSheet({ className, close }) {
     );
   });
 
-  const InputCustom = ({
-    onChange,
-    placeholder,
-    value,
-    isSecure,
-    id,
-    onClick,
-  }) => (
-    <input
-      className={classname("datepicker-input")}
-      onChange={onChange}
-      placeholder={placeholder}
-      value={value}
-      isSecure={isSecure}
-      id={id}
-      onClick={onClick}
-    />
-  );
-
-  useEffect(() => {
-    console.log(pickTimeMetrix);
-  }, [pickTimeMetrix]);
-
   return (
     <div
       className={classname(["side-bar", { closing: isClosing }, className])}
@@ -231,7 +229,11 @@ export default function MobileBottomSheet({ className, close }) {
           onClick={clickClose}
         />
         <div className={classname("top-title")}>전체</div>
-        <img src="/images/bottom/check.png" alt="check" />
+        <img
+          src="/images/bottom/check.png"
+          alt="check"
+          onClick={CreateSchedule}
+        />
       </div>
       <div className={classname("contents")}>
         <div className={classname("contents-title", "sub16")}>
@@ -243,73 +245,84 @@ export default function MobileBottomSheet({ className, close }) {
           어떤 일정을 추가 할까요?
         </div>
         <input
-          className={classname("contents-input")}
+          className={classname(["contents-input", "body14"])}
           type="text"
           placeholder="일정을  입력해주세요"
           // defaultValue={}
-          // onChange={setTargetValue(setName)}
+          onChange={setTargetValue(setTitle)}
         />
       </div>
       <div className={classname("time-metrix")}>{timeMetrix}</div>
-      <div className={classname("pick-date")}>
+      <div className={classname("pick-date")} onClick={onClickDatePick}>
         <div className={classname("pick-date-img")}></div>
         <div className={classname("pick-date-text")}>날짜를 선택해주세요</div>
-        <div className={classname("pick-date-down")}></div>
-      </div>
-      <div className={classname("pick-control")}>
-        <div
-          className={classname([
-            "pick-control-option",
-            "sub16",
-            { allday: isAllDay },
-          ])}
-          onClick={onClickAllDay}
-        >
-          하루 종일
-        </div>
-
-        <div className={classname("picker")}>
-          <div className={classname("picker-time")}>
-            {" "}
-            날짜
-            <DatePickers />
-          </div>
-          {!isAllDay && (
-            <>
-              <div className={classname("picker-time")}>
-                {" "}
-                시작 시간
-                <TimePickers />
-              </div>
-              <div className={classname("picker-time")}>
-                {" "}
-                종료 시간
-                <TimePickers />
-              </div>
-            </>
+        <div className={classname("pick-date-down")}>
+          {!isDatePick ? (
+            <img src="/images/bottom/down.png" alt="down" />
+          ) : (
+            <img src="/images/bottom/up.png" alt="up" />
           )}
         </div>
-        <div
-          className={classname([
-            "pick-control-option",
-            "sub16",
-            { reapeat: isRepeat },
-          ])}
-          onClick={onClickRepeat}
-        >
-          반복 하기
-        </div>
-
-        {isRepeat && (
-          <>
-            <div className={classname("picker-repeat")}>{repeatDay}</div>
-            <div className={classname("picker-repeat-done")}>
-              <DatePickers />{" "}
-              <div className={classname("body14")}>까지 반복</div>
-            </div>
-          </>
-        )}
       </div>
+      {isDatePick && (
+        <div className={classname("pick-control")}>
+          <div
+            className={classname([
+              "pick-control-option",
+              "sub16",
+              { allday: isAllDay },
+            ])}
+            onClick={onClickAllDay}
+          >
+            하루 종일
+          </div>
+
+          <div className={classname("picker")}>
+            <div className={classname("picker-time")}>
+              {" "}
+              날짜
+              <DatePickers pickDate={startDate} setDate={setStartDate} />
+            </div>
+            {!isAllDay && (
+              <>
+                <div className={classname("picker-time")}>
+                  {" "}
+                  시작 시간
+                  <TimePickers pick={startTime} setPick={setStartTime} />
+                </div>
+                <div className={classname("picker-time")}>
+                  {" "}
+                  종료 시간
+                  <TimePickers pick={endTime} setPick={setEndTime} />
+                </div>
+              </>
+            )}
+          </div>
+          <div
+            className={classname([
+              "pick-control-option",
+              "sub16",
+              { reapeat: isRepeat },
+            ])}
+            onClick={onClickRepeat}
+          >
+            반복 하기
+          </div>
+
+          {isRepeat && (
+            <div>
+              <div className={classname("picker-repeat")}>{repeatDay}</div>
+              <div className={classname("picker-repeat-done")}>
+                <DatePickers
+                  pickDate={repeatLastDay}
+                  setDate={setRepeatLastDay}
+                />{" "}
+                <div className={classname("body14")}>까지 반복</div>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }
