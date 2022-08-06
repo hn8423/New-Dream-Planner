@@ -32,3 +32,6 @@ yarn-error.log*
 
 # vercel
 .vercel
+
+# C:tmpnodejsnpm 맥북 만만세잉
+/C:tmpnodejsnpm-cache

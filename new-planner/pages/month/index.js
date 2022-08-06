@@ -1,6 +1,8 @@
 import style from "./index.module.scss";
 import { classOption, enterToBr } from "utill";
 const classname = classOption(style);
+import { styled } from "@mui/material/styles";
+import IconButton from "@mui/material/IconButton";
 
 import Paper from "@mui/material/Paper";
 import Radio from "@mui/material/Radio";
@@ -21,14 +23,61 @@ import {
   Toolbar,
 } from "@devexpress/dx-react-scheduler-material-ui";
 import { useRouter } from "next/router";
+import { getSession } from "next-auth/react";
 
 import { useEffect, useMemo, useState } from "react";
 import MobileBottomSheet from "components/mobile/bottomSheet";
 import _ from "lodash";
 import moment from "moment";
 import MonthPickers from "components/monthpicker";
+import prisma from "lib/prisma";
+
+/**@type {import('next').GetServerSideProps} */
+export async function getServerSideProps(ctx) {
+  /**@type {import('next-auth').Session&{user:{id:string}}} */
+  const session = await getSession(ctx);
+  console.log(session.user.id);
+
+  try {
+    const scheduleList = await prisma.schedule.findMany({
+      where: { userId: session.user.id },
+    });
+
+    // let simpleData = await prisma.testSimpleData.findUnique({ where: { userId_testLevelId: { userId, testLevelId } }, select: { resultGPSTScoreBoard: true } })
+    // if (!(simpleData && simpleData.resultGPSTScoreBoard)) {
+    //   return redirect
+    // }
+
+    // const resultInfo = await getResultInfo({ testLevelId, userId })
+    // const resultComment = await getResultComment({ testLevelId })
+    // const resultAIRecommendation = await getAIRecommendation({ testLevelId, userId })
+
+    return {
+      props: {
+        scheduleList: JSON.parse(JSON.stringify(scheduleList)),
+        // testName,
+        // times,
+        // level,
+        // resultInfo: JSON.parse(JSON.stringify(resultInfo)),
+        // resultComment: JSON.parse(JSON.stringify(resultComment)),
+        // resultAIRecommendation: JSON.parse(JSON.stringify(resultAIRecommendation)),
+        // session,
+      },
+    };
+  } catch (err) {
+    console.error(err);
+    return redirect;
+  }
+}
 
 function Header({ children, appointmentData, ...restProps }) {
+  const PREFIX = "Demo";
+  // #FOLD_BLOCK
+  const classes = {
+    container: `${PREFIX}-container`,
+    text: `${PREFIX}-text`,
+    formControlLabel: `${PREFIX}-formControlLabel`,
+  };
   const StyledIconButton = styled(IconButton)(() => ({
     [`&.${classes.commandButton}`]: {
       backgroundColor: "rgba(255,255,255,0.65)",
@@ -46,37 +95,13 @@ function Header({ children, appointmentData, ...restProps }) {
   );
 }
 
-export default function Month() {
+export default function Month({ scheduleList }) {
   //data
   //data
   //data
   const [Pickmonth, setPickMonth] = useState(new Date());
 
-  const [data, setData] = useState([
-    {
-      startDate: new Date(2022, 7, 2, 12, 0),
-      endDate: new Date(2022, 7, 2, 13, 0),
-      title: "Meeting",
-      color: "red",
-      repeatDay: "012",
-      repeatLastDay: new Date(`2022-09-02 00:00:00`),
-      id: 1,
-      isrepeat: true,
-      type: "A",
-    },
-
-    {
-      startDate: "2022-08-01T12:00",
-      endDate: "2022-08-01T13:30",
-      title: "Go to a gym",
-      color: "green",
-      repeatDay: null,
-      repeatLastDay: null,
-      id: 3,
-      isrepeat: false,
-      type: "B",
-    },
-  ]);
+  const [data, setData] = useState(scheduleList);
   const router = useRouter();
   const [isOpend, setOpened] = useState(false);
 
@@ -147,6 +172,23 @@ export default function Month() {
     router.back();
   };
 
+  // useEffect(() => {
+  //   console.log(scheduleList);
+  // }, [scheduleList]);
+
+  const Appointment = ({ children, style, data, ...restProps }) => (
+    <Appointments.Appointment
+      {...restProps}
+      style={{
+        ...style,
+        backgroundColor: data.color,
+        borderRadius: "8px",
+      }}
+    >
+      {children}
+    </Appointments.Appointment>
+  );
+
   return (
     <div className={classname(["month", { open: isOpend }])}>
       <div className={classname(["month-header"])}>
@@ -172,7 +214,7 @@ export default function Month() {
 
           <MonthView />
 
-          <Appointments />
+          <Appointments appointmentComponent={Appointment} />
           <AppointmentTooltip headerComponent={Header} />
         </Scheduler>
       </Paper>

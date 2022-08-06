@@ -2,10 +2,6 @@
 // type
 // type
 
-// /**
-//  * @typedef {import("@prisma/client").PayInfo & {payResult: import("@prisma/client").PayResult}} PayInfoIncludePayResult
-//  */
-
 import axios from "axios";
 
 const errHandler = (err) => {
@@ -15,12 +11,13 @@ const errHandler = (err) => {
 };
 
 const req2srv = {
-  /**@type {(body:{title: string, startDate: Date, pickTimeMetrix:string,repeatLastDay:string,startTime:Date,endTime:Date,day:string,isRepeat:boolean })} */
+  /**@type {(body:{title: string, startDate: Date, endDate: Date, color: string, repeatDay: string, repeatLastDay: Date, isrepeat: boolean, type: string })} */
   async createPlan(body) {
+    // console.log(body);
     const result = await axios
-      .post("/api/plan", body)
+      .post("/api/plan/create", body)
       .catch((err) => errHandler(err));
-    return result.data;
+    return result;
   },
 };
 

@@ -6,99 +6,183 @@ import Paper from "@mui/material/Paper";
 import Radio from "@mui/material/Radio";
 import RadioGroup from "@mui/material/RadioGroup";
 import FormControlLabel from "@mui/material/FormControlLabel";
-import { ViewState } from "@devexpress/dx-react-scheduler";
+import {
+  ViewState,
+  EditingState,
+  IntegratedEditing,
+} from "@devexpress/dx-react-scheduler";
 import {
   Scheduler,
   WeekView,
   MonthView,
+  AppointmentTooltip,
   Appointments,
+  DateNavigator,
+  Toolbar,
+  AllDayPanel,
 } from "@devexpress/dx-react-scheduler-material-ui";
-
 import { useRouter } from "next/router";
 
-import { useState } from "react";
-const appointments = [
-  {
-    startDate: "2018-11-01T09:45",
-    endDate: "2018-11-01T11:00",
-    title: "Meeting",
-    color: "red",
-  },
-  {
-    startDate: "2018-11-01T12:00",
-    endDate: "2018-11-01T13:30",
-    title: "Go to a gym",
-    color: "green",
-  },
-];
+import { useEffect, useMemo, useState } from "react";
+import MobileBottomSheet from "components/mobile/bottomSheet";
+import _ from "lodash";
+import moment from "moment";
+import MonthPickers from "components/monthpicker";
 
-export default function Timetable() {
+function Header({ children, appointmentData, ...restProps }) {
+  const StyledIconButton = styled(IconButton)(() => ({
+    [`&.${classes.commandButton}`]: {
+      backgroundColor: "rgba(255,255,255,0.65)",
+    },
+  }));
+  return (
+    <AppointmentTooltip.Header {...restProps} appointmentData={appointmentData}>
+      <StyledIconButton onClick={() => alert("open")} size="large">
+        open
+      </StyledIconButton>
+      <StyledIconButton onClick={() => alert("delete")} size="large">
+        delete
+      </StyledIconButton>
+    </AppointmentTooltip.Header>
+  );
+}
+
+export default function Month() {
   //data
   //data
   //data
-  const [data, setData] = useState(appointments);
-  const [currentViewName, setCurrentViewName] = useState("Week");
+  const [Pickmonth, setPickMonth] = useState(new Date());
+
+  const [data, setData] = useState([
+    {
+      startDate: new Date(2022, 7, 2, 12, 0),
+      endDate: new Date(2022, 7, 2, 13, 0),
+      title: "Meeting",
+      color: "red",
+      repeatDay: "012",
+      repeatLastDay: new Date(`2022-09-02 00:00:00`),
+      id: 1,
+      isrepeat: true,
+      type: "A",
+    },
+
+    {
+      // startDate: "2022-08-01T12:00",
+      // endDate: "2022-08-01T13:30",
+      startDate: "2022-08-01",
+      endDate: "2022-08-02",
+      title: "Go to a gym",
+      color: "green",
+      repeatDay: null,
+      repeatLastDay: null,
+      id: 3,
+      isrepeat: false,
+      type: "B",
+    },
+  ]);
   const router = useRouter();
-  const currentViewNameChange = (e) => {
-    return setCurrentViewName(e.target.value);
-  };
+  const [isOpend, setOpened] = useState(false);
+
+  const plan = useMemo(() => {
+    let [reapeatList, unReapeatList] = _(data)
+      .partition((v) => v.isrepeat)
+      .value();
+
+    let createdList = _(reapeatList)
+      .flatMap(
+        ({
+          color,
+          endDate,
+          id,
+          isrepeat,
+          repeatLastDay,
+          startDate,
+          title,
+          repeatDay,
+        }) => {
+          let result = [];
+          let temp_startDate = moment(startDate);
+          let temp_endDate = moment(endDate);
+          while (temp_startDate <= repeatLastDay) {
+            [...repeatDay].forEach((e) => {
+              if (`${e}` === temp_startDate.format("d")) {
+                let temp = {
+                  color,
+                  title,
+                  id,
+                  isrepeat,
+                  repeatLastDay,
+                  repeatDay,
+                  startDate,
+                  endDate,
+                };
+                temp.startDate = temp_startDate;
+                temp.endDate = temp_endDate;
+                result.push(temp);
+              }
+            });
+            temp_startDate = moment(temp_startDate).add(1, "d");
+            temp_endDate = moment(temp_endDate).add(1, "d");
+          }
+          return result;
+        }
+      )
+      .value();
+
+    return [...createdList, ...unReapeatList];
+
+    // data 가져 와서 isrepeat true 인것 가져오기
+    // startDate에서 repeatLastDay 까지 일정 가져오기
+    // 요일별 숫자로 체크 해서 해당 요일 반복 된 것 만 필터링
+    // 새롭게 data 값에 반복된 값들 추가된 값 넣기
+  }, [data]);
+
+  //function
+  //function
+  function open() {
+    setOpened(true);
+  }
+  function close() {
+    setOpened(false);
+  }
+
   const goToBack = () => {
     router.back();
   };
-  const ExternalViewSwitcher = ({ currentViewName, onChange }) => (
-    <RadioGroup
-      aria-label="Views"
-      style={{ flexDirection: "row" }}
-      name="views"
-      value={currentViewName}
-      onChange={onChange}
-    >
-      <FormControlLabel value="Week" control={<Radio />} label="Week" />
-      <FormControlLabel
-        value="Work Week"
-        control={<Radio />}
-        label="Work Week"
-      />
-      <FormControlLabel value="Month" control={<Radio />} label="Month" />
-    </RadioGroup>
-  );
-  const Appointment = ({ children, style, ...restProps }) => (
-    <Appointments.Appointment
-      {...restProps}
-      style={{
-        ...style,
-        backgroundColor: "#FFC107",
-        borderRadius: "8px",
-      }}
-    >
-      {children}
-    </Appointments.Appointment>
-  );
 
   return (
-    <>
-      <div className={classname("timetable-header")}>
+    <div className={classname(["month", { open: isOpend }])}>
+      <div className={classname(["month-header"])}>
         <img src="/images/header/arrow.png" alt="arrows" onClick={goToBack} />
-        <div>2022년 6월</div>
-        <img src="/images/header/createplan.png" alt="createplan" />
+        <div className={classname(["month-title"])}>
+          <div className={classname(["sub15"])}>
+            {moment(Pickmonth).format("yyyy년 M월")}
+          </div>
+          <MonthPickers Pickmonth={Pickmonth} setPickMonth={setPickMonth} />
+        </div>
+        <img
+          className={classname(["month-header-createplan"])}
+          src="/images/header/createTime.png"
+          alt="createplan"
+          onClick={open}
+        />
       </div>
       <Paper>
-        <Scheduler data={data} height={660} locale="ko-KR">
-          <ViewState
-            defaultCurrentDate="2022-07-27"
-            currentViewName={currentViewName}
-          />
-          <WeekView startDayHour={10} endDayHour={19} />
-          <WeekView
-            name="Work Week"
-            excludedDays={[0, 6]}
-            startDayHour={9}
-            endDayHour={19}
-          />
+        <Scheduler data={plan} height={660} locale="ko-KR">
+          <EditingState />
 
-          <Appointments appointmentComponent={Appointment} />
+          <ViewState currentDate={Pickmonth} />
+
+          <WeekView startDayHour={4} endDayHour={24} />
+
+          <AllDayPanel />
+          <Appointments />
+          <AppointmentTooltip headerComponent={Header} />
         </Scheduler>
       </Paper>
-    </>
+      {isOpend && (
+        <MobileBottomSheet className={classname("side-bar")} close={close} />
+      )}
+    </div>
   );
 }

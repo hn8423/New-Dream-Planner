@@ -1,4 +1,11 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  forwardRef,
+} from "react";
 
 import { getYear } from "date-fns";
 import DatePicker, { registerLocale } from "react-datepicker";
@@ -47,13 +54,14 @@ export default function MonthPickers({ Pickmonth, setPickMonth }) {
       onChange={onChange}
       placeholder={placeholder}
       // value={value}
-      isSecure={isSecure}
+      issecure={isSecure}
       id={id}
       onClick={onClick}
       type="image"
       src="/images/bottom/down.png"
     />
   );
+
   return (
     <div className={classname("monthpicker")}>
       <DatePicker

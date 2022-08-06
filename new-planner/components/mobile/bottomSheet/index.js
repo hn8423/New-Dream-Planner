@@ -8,6 +8,8 @@ import _ from "lodash";
 import { useSession } from "next-auth/react";
 import DatePickers from "components/datepicker";
 import TimePickers from "components/timepicker";
+import req2srv from "lib/req2srv/plan";
+import moment from "moment";
 
 const classname = classOption(style);
 
@@ -33,6 +35,7 @@ export default function MobileBottomSheet({ className, close }) {
   const [startTime, setStartTime] = useState(new Date());
   const [endTime, setEndTime] = useState(new Date());
   const [pickTimeMetrix, setPickTimeMetrix] = useState("");
+  // const [type, setType] = useState("");
   const sideBar = useRef(null);
   const router = useRouter();
 
@@ -114,7 +117,7 @@ export default function MobileBottomSheet({ className, close }) {
           alert("일정 타입을 선택해주세요");
           return;
         }
-        if (startTime > endTime) {
+        if (!isAllDay && startTime >= endTime) {
           alert("시작 시간이 종료시간보다 커야 합니다.");
           return;
         }
@@ -135,26 +138,119 @@ export default function MobileBottomSheet({ className, close }) {
             return;
           }
         }
-        await req2srv.createPlan({
-          repeatLastDay,
-          startTime,
-          endTime,
-          startDate,
-          pickTimeMetrix,
-          title,
-          day,
-          isRepeat,
-        });
+        // new Date(`2022-09-02 00:00:00`),
+        // console.log(
+        //   new Date(
+        //     `${moment(startDate).add(1, "d").format("YYYY-MM-DD 00:00:00")}`
+        //   )
+        // );
+        let pickColor = "";
+        switch (pickTimeMetrix) {
+          case "A":
+            pickColor = "#B00020";
+            break;
+          case "B":
+            pickColor = "#EE7A48";
+            break;
+          case "C":
+            pickColor = "#4880EE";
+            break;
+          case "D":
+            pickColor = "#5BC184";
+            break;
+        }
+
+        let repeatDay = day
+          .map((v, i) => {
+            if (v === true) {
+              return i;
+            } else {
+              return;
+            }
+          })
+          .join("");
+
+        if (!isAllDay && !isRepeat) {
+          let result = await req2srv.createPlan({
+            startDate: new Date(
+              `${moment(startDate).format("YYYY-MM-DD")} ${moment(
+                startTime
+              ).format("h:mm:ss")}`
+            ),
+            endDate: new Date(
+              `${moment(startDate).format("YYYY-MM-DD")} ${moment(
+                endTime
+              ).format("h:mm:ss")}`
+            ),
+            title,
+            color: pickColor,
+            isrepeat: isRepeat,
+            type: pickTimeMetrix,
+          });
+        } else if (isAllDay && !isRepeat) {
+          let result = await req2srv.createPlan({
+            startDate: new Date(
+              `${moment(startDate).format("YYYY-MM-DD 00:00:00")}`
+            ),
+            endDate: new Date(
+              `${moment(startDate).add(1, "d").format("YYYY-MM-DD 00:00:00")}`
+            ),
+            title,
+            color: pickColor,
+            isrepeat: isRepeat,
+            type: pickTimeMetrix,
+          });
+        } else if (isAllDay && isRepeat) {
+          let result = await req2srv.createPlan({
+            startDate: new Date(
+              `${moment(startDate).format("YYYY-MM-DD 00:00:00")}`
+            ),
+            endDate: new Date(
+              `${moment(startDate).add(1, "d").format("YYYY-MM-DD 00:00:00")}`
+            ),
+            title,
+            color: pickColor,
+            isrepeat: isRepeat,
+            type: pickTimeMetrix,
+            repeatLastDay,
+            repeatDay: repeatDay,
+          });
+        } else if (!isAllDay && isRepeat) {
+          let result = await req2srv.createPlan({
+            startDate: new Date(
+              `${moment(startDate).format("YYYY-MM-DD")} ${moment(
+                startTime
+              ).format("h:mm:ss")}`
+            ),
+            endDate: new Date(
+              `${moment(startDate).format("YYYY-MM-DD")} ${moment(
+                endTime
+              ).format("h:mm:ss")}`
+            ),
+            title,
+            color: pickColor,
+            isrepeat: isRepeat,
+            type: pickTimeMetrix,
+            repeatLastDay,
+            repeatDay,
+          });
+        }
+        alert("일정을 등록 했습니다.");
+        close();
+        router.reload();
       } catch (err) {
-        console.err(err);
+        console.log(err);
       }
     },
     [
+      close,
       day,
       endTime,
+      isAllDay,
       isRepeat,
       pickTimeMetrix,
       repeatLastDay,
+      router,
       startDate,
       startTime,
       title,
@@ -172,6 +268,10 @@ export default function MobileBottomSheet({ className, close }) {
   // render
   // render
   // render
+
+  // useEffect(() => {
+  //   console.log(day);
+  // }, [day]);
 
   const repeatDay = dayList.map((v) => {
     return (
@@ -230,6 +330,7 @@ export default function MobileBottomSheet({ className, close }) {
         />
         <div className={classname("top-title")}>전체</div>
         <img
+          className={classname("top-check")}
           src="/images/bottom/check.png"
           alt="check"
           onClick={CreateSchedule}
