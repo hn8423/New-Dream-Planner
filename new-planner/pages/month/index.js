@@ -27,6 +27,7 @@ import { getSession } from "next-auth/react";
 
 import { useEffect, useMemo, useState } from "react";
 import MobileBottomSheet from "components/mobile/bottomSheet";
+import MobileBottomSheetUD from "components/mobile/bottomSheetUD";
 import _ from "lodash";
 import moment from "moment";
 import MonthPickers from "components/monthpicker";
@@ -83,9 +84,13 @@ function Header({ children, appointmentData, ...restProps }) {
       backgroundColor: "rgba(255,255,255,0.65)",
     },
   }));
+  // console.log(JSON.stringify(appointmentMeta));
   return (
     <AppointmentTooltip.Header {...restProps} appointmentData={appointmentData}>
-      <StyledIconButton onClick={() => alert("open")} size="large">
+      <StyledIconButton
+        onClick={() => alert(JSON.stringify(appointmentData))}
+        size="large"
+      >
         open
       </StyledIconButton>
       <StyledIconButton onClick={() => alert("delete")} size="large">
@@ -104,6 +109,8 @@ export default function Month({ scheduleList }) {
   const [data, setData] = useState(scheduleList);
   const router = useRouter();
   const [isOpend, setOpened] = useState(false);
+  const [isUDOpend, setUDOpened] = useState(false);
+  const [pickData, setPickData] = useState({});
 
   const plan = useMemo(() => {
     let [reapeatList, unReapeatList] = _(data)
@@ -167,14 +174,25 @@ export default function Month({ scheduleList }) {
   function close() {
     setOpened(false);
   }
+  function UDclose() {
+    setUDOpened(false);
+  }
 
   const goToBack = () => {
     router.back();
   };
 
+  const AppointmentClick = (v) => {
+    // alert("oh yeah");
+    return () => {
+      setPickData(v);
+      setUDOpened(true);
+    };
+  };
+
   // useEffect(() => {
-  //   console.log(scheduleList);
-  // }, [scheduleList]);
+  //   console.log(pickData);
+  // }, [pickData]);
 
   const Appointment = ({ children, style, data, ...restProps }) => (
     <Appointments.Appointment
@@ -184,13 +202,14 @@ export default function Month({ scheduleList }) {
         backgroundColor: data.color,
         borderRadius: "8px",
       }}
+      onClick={AppointmentClick(data)}
     >
       {children}
     </Appointments.Appointment>
   );
 
   return (
-    <div className={classname(["month", { open: isOpend }])}>
+    <div className={classname(["month", { open: isOpend || isUDOpend }])}>
       <div className={classname(["month-header"])}>
         <img src="/images/header/arrow.png" alt="arrows" onClick={goToBack} />
         <div className={classname(["month-title"])}>
@@ -215,11 +234,18 @@ export default function Month({ scheduleList }) {
           <MonthView />
 
           <Appointments appointmentComponent={Appointment} />
-          <AppointmentTooltip headerComponent={Header} />
+          {/* <AppointmentTooltip headerComponent={Header} /> */}
         </Scheduler>
       </Paper>
       {isOpend && (
         <MobileBottomSheet className={classname("side-bar")} close={close} />
+      )}
+      {isUDOpend && (
+        <MobileBottomSheetUD
+          className={classname("side-bar")}
+          close={UDclose}
+          data={pickData}
+        />
       )}
     </div>
   );
