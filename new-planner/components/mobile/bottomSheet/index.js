@@ -138,12 +138,7 @@ export default function MobileBottomSheet({ className, close }) {
             return;
           }
         }
-        // new Date(`2022-09-02 00:00:00`),
-        // console.log(
-        //   new Date(
-        //     `${moment(startDate).add(1, "d").format("YYYY-MM-DD 00:00:00")}`
-        //   )
-        // );
+
         let pickColor = "";
         switch (pickTimeMetrix) {
           case "A":
@@ -186,6 +181,7 @@ export default function MobileBottomSheet({ className, close }) {
             color: pickColor,
             isrepeat: isRepeat,
             type: pickTimeMetrix,
+            isComplete: true,
           });
         } else if (isAllDay && !isRepeat) {
           let result = await req2srv.createPlan({
@@ -199,6 +195,7 @@ export default function MobileBottomSheet({ className, close }) {
             color: pickColor,
             isrepeat: isRepeat,
             type: pickTimeMetrix,
+            isComplete: true,
           });
         } else if (isAllDay && isRepeat) {
           let result = await req2srv.createPlan({
@@ -214,6 +211,7 @@ export default function MobileBottomSheet({ className, close }) {
             type: pickTimeMetrix,
             repeatLastDay,
             repeatDay: repeatDay,
+            isComplete: true,
           });
         } else if (!isAllDay && isRepeat) {
           let result = await req2srv.createPlan({
@@ -233,6 +231,7 @@ export default function MobileBottomSheet({ className, close }) {
             type: pickTimeMetrix,
             repeatLastDay,
             repeatDay,
+            isComplete: true,
           });
         }
         alert("일정을 등록 했습니다.");
@@ -268,10 +267,6 @@ export default function MobileBottomSheet({ className, close }) {
   // render
   // render
   // render
-
-  // useEffect(() => {
-  //   console.log(day);
-  // }, [day]);
 
   const repeatDay = dayList.map((v) => {
     return (

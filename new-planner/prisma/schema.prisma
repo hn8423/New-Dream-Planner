@@ -81,6 +81,7 @@ model Schedule {
   repeatLastDay DateTime?
   isrepeat      Boolean
   type          String
+  isComplete    Boolean?
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }

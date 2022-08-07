@@ -1,95 +1,104 @@
-import Paper from "@mui/material/Paper";
-import Radio from "@mui/material/Radio";
-import RadioGroup from "@mui/material/RadioGroup";
-import FormControlLabel from "@mui/material/FormControlLabel";
-import { ViewState } from "@devexpress/dx-react-scheduler";
-import {
-  Scheduler,
-  WeekView,
-  MonthView,
-  Appointments,
-} from "@devexpress/dx-react-scheduler-material-ui";
+import style from "./index.module.scss";
+import { classOption, enterToBr } from "utill";
+const classname = classOption(style);
 
-import { useState } from "react";
-const appointments = [
-  {
-    startDate: "2018-11-01T09:45",
-    endDate: "2018-11-01T11:00",
-    title: "Meeting",
-    color: "red",
-  },
-  {
-    startDate: "2018-11-01T12:00",
-    endDate: "2018-11-01T13:30",
-    title: "Go to a gym",
-    color: "green",
-  },
-];
+import { useRouter } from "next/router";
+import moment from "moment";
+import useSignCheck from "hooks/useSignCheck";
+import { useSession, signIn, getSession } from "next-auth/react";
 
-export default function Week() {
+/**@type {import('next').GetServerSideProps} */
+export async function getServerSideProps(ctx) {
+  /**@type {import('next-auth').Session&{user:{id:string}}} */
+  const session = await getSession(ctx);
+
+  if (!session) {
+    return {
+      props: {
+        missionText: [],
+      },
+    };
+  }
+
+  try {
+    const missionText = await prisma.mission.findMany({
+      where: {
+        userId: session.user.id,
+      },
+    });
+
+    return {
+      props: {
+        missionText: JSON.parse(JSON.stringify(missionText)),
+        session,
+      },
+    };
+  } catch (err) {
+    return {
+      props: {
+        missionText: [],
+      },
+    };
+  }
+}
+
+/**
+ * @type {(props:{missionText: (import('@prisma/client').Mission)[]
+ * session: commons.session
+ * })}
+ */
+export default function Week({ missionText }) {
   //data
   //data
   //data
-  const [data, setData] = useState(appointments);
-  const [currentViewName, setCurrentViewName] = useState("Week");
+  const router = useRouter();
+  const isLoading = useSignCheck();
+  //function
+  //function
+  //function
 
-  const currentViewNameChange = (e) => {
-    return setCurrentViewName(e.target.value);
+  const goToBack = () => {
+    router.back();
   };
-  const ExternalViewSwitcher = ({ currentViewName, onChange }) => (
-    <RadioGroup
-      aria-label="Views"
-      style={{ flexDirection: "row" }}
-      name="views"
-      value={currentViewName}
-      onChange={onChange}
-    >
-      <FormControlLabel value="Week" control={<Radio />} label="Week" />
-      <FormControlLabel
-        value="Work Week"
-        control={<Radio />}
-        label="Work Week"
-      />
-      <FormControlLabel value="Month" control={<Radio />} label="Month" />
-    </RadioGroup>
-  );
-  const Appointment = ({ children, style, ...restProps }) => (
-    <Appointments.Appointment
-      {...restProps}
-      style={{
-        ...style,
-        backgroundColor: "#FFC107",
-        borderRadius: "8px",
-      }}
-    >
-      {children}
-    </Appointments.Appointment>
-  );
-
+  const weekOfMonth = (m) => m.week() - moment(m).startOf("month").week();
   return (
     <>
-      <div className={classname("week-header")}>
-        <img src="/images/header/arrow.png" alt="arrows" />
-        <div>2022년 6월</div>
-        <img src="/images/header/createplan.png" alt="createplan" />
+      <div className={classname("week", { loading: isLoading })}>
+        <div className={classname(["week-header"])}>
+          <img
+            className={classname(["week-header-arrows"])}
+            src="/images/header/arrow.png"
+            alt="arrows"
+            onClick={goToBack}
+          />
+          <div className={classname(["week-title"])}>
+            <div className={classname(["sub15"])}>주간 미션 </div>
+          </div>
+          <div className={classname(["week-count", "sub15"])}>
+            <span red="">{moment().format("M")}</span>월 /{" "}
+            <span red="">{weekOfMonth(moment())}</span>
+            째주
+          </div>
+        </div>
+        <div className={classname(["week-mymission"])}>
+          {" "}
+          <div className={classname(["week-mymission-title", "sub18"])}>
+            나의 사명
+          </div>{" "}
+          <textarea
+            // ref={identityRef}
+            className={classname(["week-mymission-input", "sub16"])}
+            type="text"
+            // placeholder="나의 정체성을 적어보세요"
+            // onKeyDown={identityRefResize} // keydown이되엇을때마다 autoResizeTextarea실행
+            // onKeyUp={identityRefResize} // keyup이되엇을때마다 autoResizeTextarea실행
+            defaultValue={
+              missionText.length === 0 ? "" : missionText[0].myMission
+            }
+            // onChange={setTargetValue(setIdentity)}
+          />
+        </div>
       </div>
-      <Paper>
-        <Scheduler data={data} height={660} locale="ko-KR">
-          <ViewState
-            defaultCurrentDate="2018-11-01"
-            currentViewName={currentViewName}
-          />
-          <WeekView startDayHour={10} endDayHour={19} />
-          <WeekView
-            name="Work Week"
-            excludedDays={[0, 6]}
-            startDayHour={9}
-            endDayHour={19}
-          />
-
-          <Appointments appointmentComponent={Appointment} />
-        </Scheduler>
-      </Paper>
     </>
   );
 }

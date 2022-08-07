@@ -47,7 +47,7 @@ export async function getServerSideProps(ctx) {
  * session: commons.session
  * })}
  */
-export default function Week({ missionText }) {
+export default function Mission({ missionText }) {
   //data
   //data
   //data
@@ -134,7 +134,6 @@ export default function Week({ missionText }) {
   );
 
   useEffect(() => {
-    // console.log(missionText);
     if (identityRef === null || identityRef.current === null) {
       return;
     }
@@ -149,28 +148,37 @@ export default function Week({ missionText }) {
       <div className={classname("tab")}>
         <div className={classname("tab-wrapper")}>
           <div
-            className={classname(["tab-detail"], "sub16")}
-            style={{
-              borderBottom: selectedBar === "purpose" ? "1px black solid" : "",
-            }}
+            className={classname(
+              ["tab-detail", { selected: selectedBar === "purpose" }],
+              "sub16"
+            )}
+            // style={{
+            //   borderBottom: selectedBar === "purpose" ? "1px black solid" : "",
+            // }}
             onClick={select("purpose")}
           >
             목적
           </div>
           <div
-            className={classname(["tab-detail"], "sub16")}
-            style={{
-              borderBottom: selectedBar === "program" ? "1px black solid" : "",
-            }}
+            className={classname(
+              ["tab-detail", { selected: selectedBar === "program" }],
+              "sub16"
+            )}
+            // style={{
+            //   borderBottom: selectedBar === "program" ? "1px black solid" : "",
+            // }}
             onClick={select("program")}
           >
             강령
           </div>
           <div
-            className={classname(["tab-detail"], "sub16")}
-            style={{
-              borderBottom: selectedBar === "mission" ? "1px black solid" : "",
-            }}
+            className={classname(
+              ["tab-detail", { selected: selectedBar === "mission" }],
+              "sub16"
+            )}
+            // style={{
+            //   borderBottom: selectedBar === "mission" ? "1px black solid" : "",
+            // }}
             onClick={select("mission")}
           >
             사명

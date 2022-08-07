@@ -17,6 +17,7 @@ import { classOption } from "utill/index";
 import style from "./index.module.scss";
 const classname = classOption(style);
 import "./index.module.scss";
+
 export default function MonthPickers({ Pickmonth, setPickMonth }) {
   // data
   // data
@@ -41,25 +42,20 @@ export default function MonthPickers({ Pickmonth, setPickMonth }) {
   //render
   //render
   //render
-  const CustomInput = ({
-    onChange,
-    placeholder,
-    value,
-    isSecure,
-    id,
-    onClick,
-  }) => (
-    <input
-      className={classname("datepicker-input")}
-      onChange={onChange}
-      placeholder={placeholder}
-      // value={value}
-      issecure={isSecure}
-      id={id}
-      onClick={onClick}
-      type="image"
-      src="/images/bottom/down.png"
-    />
+  const CustomInput = forwardRef(
+    ({ onChange, placeholder, value, isSecure, id, onClick }, ref) => (
+      <input
+        className={classname("datepicker-input")}
+        onChange={onChange}
+        placeholder={placeholder}
+        ref={ref}
+        issecure={isSecure}
+        id={id}
+        onClick={onClick}
+        type="image"
+        src="/images/bottom/down.png"
+      />
+    )
   );
 
   return (

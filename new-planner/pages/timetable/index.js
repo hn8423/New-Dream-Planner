@@ -1,87 +1,58 @@
 import style from "./index.module.scss";
-import { classOption, enterToBr } from "utill";
+import { classOption } from "utill";
 const classname = classOption(style);
 
 import Paper from "@mui/material/Paper";
-import Radio from "@mui/material/Radio";
-import RadioGroup from "@mui/material/RadioGroup";
-import FormControlLabel from "@mui/material/FormControlLabel";
-import {
-  ViewState,
-  EditingState,
-  IntegratedEditing,
-} from "@devexpress/dx-react-scheduler";
+import { ViewState, EditingState } from "@devexpress/dx-react-scheduler";
 import {
   Scheduler,
   WeekView,
-  MonthView,
-  AppointmentTooltip,
   Appointments,
-  DateNavigator,
-  Toolbar,
   AllDayPanel,
 } from "@devexpress/dx-react-scheduler-material-ui";
 import { useRouter } from "next/router";
+import { getSession } from "next-auth/react";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import MobileBottomSheet from "components/mobile/bottomSheet";
+import MobileBottomSheetUD from "components/mobile/bottomSheetUD";
 import _ from "lodash";
 import moment from "moment";
 import MonthPickers from "components/monthpicker";
+import prisma from "lib/prisma";
 
-function Header({ children, appointmentData, ...restProps }) {
-  const StyledIconButton = styled(IconButton)(() => ({
-    [`&.${classes.commandButton}`]: {
-      backgroundColor: "rgba(255,255,255,0.65)",
-    },
-  }));
-  return (
-    <AppointmentTooltip.Header {...restProps} appointmentData={appointmentData}>
-      <StyledIconButton onClick={() => alert("open")} size="large">
-        open
-      </StyledIconButton>
-      <StyledIconButton onClick={() => alert("delete")} size="large">
-        delete
-      </StyledIconButton>
-    </AppointmentTooltip.Header>
-  );
+/**@type {import('next').GetServerSideProps} */
+export async function getServerSideProps(ctx) {
+  /**@type {import('next-auth').Session&{user:{id:string}}} */
+  const session = await getSession(ctx);
+
+  try {
+    const scheduleList = await prisma.schedule.findMany({
+      where: { userId: session.user.id },
+    });
+
+    return {
+      props: {
+        scheduleList: JSON.parse(JSON.stringify(scheduleList)),
+      },
+    };
+  } catch (err) {
+    console.error(err);
+    return redirect;
+  }
 }
 
-export default function Month() {
+export default function TimeTable({ scheduleList }) {
   //data
   //data
   //data
   const [Pickmonth, setPickMonth] = useState(new Date());
 
-  const [data, setData] = useState([
-    {
-      startDate: new Date(2022, 7, 2, 12, 0),
-      endDate: new Date(2022, 7, 2, 13, 0),
-      title: "Meeting",
-      color: "red",
-      repeatDay: "012",
-      repeatLastDay: new Date(`2022-09-02 00:00:00`),
-      id: 1,
-      isrepeat: true,
-      type: "A",
-    },
-
-    {
-      // startDate: "2022-08-01T12:00",
-      // endDate: "2022-08-01T13:30",
-      startDate: "2022-08-01",
-      endDate: "2022-08-02",
-      title: "Go to a gym",
-      color: "green",
-      repeatDay: null,
-      repeatLastDay: null,
-      id: 3,
-      isrepeat: false,
-      type: "B",
-    },
-  ]);
+  const [data] = useState(scheduleList);
   const router = useRouter();
   const [isOpend, setOpened] = useState(false);
+  const [isUDOpend, setUDOpened] = useState(false);
+  const [pickData, setPickData] = useState({});
 
   const plan = useMemo(() => {
     let [reapeatList, unReapeatList] = _(data)
@@ -99,11 +70,14 @@ export default function Month() {
           startDate,
           title,
           repeatDay,
+          type,
         }) => {
           let result = [];
           let temp_startDate = moment(startDate);
           let temp_endDate = moment(endDate);
-          while (temp_startDate <= repeatLastDay) {
+          let temp_repeatLastDay = moment(repeatLastDay);
+
+          while (temp_startDate <= temp_repeatLastDay) {
             [...repeatDay].forEach((e) => {
               if (`${e}` === temp_startDate.format("d")) {
                 let temp = {
@@ -115,6 +89,7 @@ export default function Month() {
                   repeatDay,
                   startDate,
                   endDate,
+                  type,
                 };
                 temp.startDate = temp_startDate;
                 temp.endDate = temp_endDate;
@@ -124,6 +99,7 @@ export default function Month() {
             temp_startDate = moment(temp_startDate).add(1, "d");
             temp_endDate = moment(temp_endDate).add(1, "d");
           }
+
           return result;
         }
       )
@@ -145,15 +121,44 @@ export default function Month() {
   function close() {
     setOpened(false);
   }
+  function UDclose() {
+    setUDOpened(false);
+  }
 
   const goToBack = () => {
     router.back();
   };
 
+  const AppointmentClick = (v) => {
+    return () => {
+      setPickData(v);
+      setUDOpened(true);
+    };
+  };
+
+  const Appointment = ({ children, style, data, ...restProps }) => (
+    <Appointments.Appointment
+      {...restProps}
+      style={{
+        ...style,
+        backgroundColor: data.color,
+        borderRadius: "8px",
+      }}
+      onClick={AppointmentClick(data)}
+    >
+      {children}
+    </Appointments.Appointment>
+  );
+
   return (
-    <div className={classname(["month", { open: isOpend }])}>
+    <div className={classname(["month", { open: isOpend || isUDOpend }])}>
       <div className={classname(["month-header"])}>
-        <img src="/images/header/arrow.png" alt="arrows" onClick={goToBack} />
+        <img
+          className={classname(["month-header-arrows"])}
+          src="/images/header/arrow.png"
+          alt="arrows"
+          onClick={goToBack}
+        />
         <div className={classname(["month-title"])}>
           <div className={classname(["sub15"])}>
             {moment(Pickmonth).format("yyyy년 M월")}
@@ -163,7 +168,7 @@ export default function Month() {
         <img
           className={classname(["month-header-createplan"])}
           src="/images/header/createTime.png"
-          alt="createplan"
+          alt="createTime"
           onClick={open}
         />
       </div>
@@ -173,15 +178,21 @@ export default function Month() {
 
           <ViewState currentDate={Pickmonth} />
 
-          <WeekView startDayHour={4} endDayHour={24} />
-
+          <WeekView startDayHour={4} />
           <AllDayPanel />
-          <Appointments />
-          <AppointmentTooltip headerComponent={Header} />
+
+          <Appointments appointmentComponent={Appointment} />
         </Scheduler>
       </Paper>
       {isOpend && (
         <MobileBottomSheet className={classname("side-bar")} close={close} />
+      )}
+      {isUDOpend && (
+        <MobileBottomSheetUD
+          className={classname("side-bar")}
+          close={UDclose}
+          data={pickData}
+        />
       )}
     </div>
   );

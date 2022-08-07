@@ -8,6 +8,7 @@ import { classOption } from "utill/index";
 import style from "./index.module.scss";
 const classname = classOption(style);
 import "./index.module.scss";
+import { forwardRef } from "react";
 export default function DatePickers({ pickDate, setDate }) {
   // data
   // data
@@ -32,23 +33,19 @@ export default function DatePickers({ pickDate, setDate }) {
   //render
   //render
   //render
-  const CustomInput = ({
-    onChange,
-    placeholder,
-    value,
-    isSecure,
-    id,
-    onClick,
-  }) => (
-    <input
-      className={classname("datepicker-input")}
-      onChange={onChange}
-      placeholder={placeholder}
-      value={value}
-      isSecure={isSecure}
-      id={id}
-      onClick={onClick}
-    />
+  const CustomInput = forwardRef(
+    ({ onChange, placeholder, value, isSecure, id, onClick }, ref) => (
+      <input
+        className={classname("datepicker-input")}
+        onChange={onChange}
+        placeholder={placeholder}
+        value={value}
+        issecure={isSecure}
+        id={id}
+        onClick={onClick}
+        ref={ref}
+      />
+    )
   );
   return (
     <div>

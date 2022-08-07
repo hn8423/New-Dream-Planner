@@ -1,31 +1,18 @@
 import style from "./index.module.scss";
-import { classOption, enterToBr } from "utill";
+import { classOption } from "utill";
 const classname = classOption(style);
-import { styled } from "@mui/material/styles";
-import IconButton from "@mui/material/IconButton";
 
 import Paper from "@mui/material/Paper";
-import Radio from "@mui/material/Radio";
-import RadioGroup from "@mui/material/RadioGroup";
-import FormControlLabel from "@mui/material/FormControlLabel";
-import {
-  ViewState,
-  EditingState,
-  IntegratedEditing,
-} from "@devexpress/dx-react-scheduler";
+import { ViewState, EditingState } from "@devexpress/dx-react-scheduler";
 import {
   Scheduler,
-  WeekView,
   MonthView,
-  AppointmentTooltip,
   Appointments,
-  DateNavigator,
-  Toolbar,
 } from "@devexpress/dx-react-scheduler-material-ui";
 import { useRouter } from "next/router";
 import { getSession } from "next-auth/react";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import MobileBottomSheet from "components/mobile/bottomSheet";
 import MobileBottomSheetUD from "components/mobile/bottomSheetUD";
 import _ from "lodash";
@@ -37,32 +24,15 @@ import prisma from "lib/prisma";
 export async function getServerSideProps(ctx) {
   /**@type {import('next-auth').Session&{user:{id:string}}} */
   const session = await getSession(ctx);
-  console.log(session.user.id);
 
   try {
     const scheduleList = await prisma.schedule.findMany({
       where: { userId: session.user.id },
     });
 
-    // let simpleData = await prisma.testSimpleData.findUnique({ where: { userId_testLevelId: { userId, testLevelId } }, select: { resultGPSTScoreBoard: true } })
-    // if (!(simpleData && simpleData.resultGPSTScoreBoard)) {
-    //   return redirect
-    // }
-
-    // const resultInfo = await getResultInfo({ testLevelId, userId })
-    // const resultComment = await getResultComment({ testLevelId })
-    // const resultAIRecommendation = await getAIRecommendation({ testLevelId, userId })
-
     return {
       props: {
         scheduleList: JSON.parse(JSON.stringify(scheduleList)),
-        // testName,
-        // times,
-        // level,
-        // resultInfo: JSON.parse(JSON.stringify(resultInfo)),
-        // resultComment: JSON.parse(JSON.stringify(resultComment)),
-        // resultAIRecommendation: JSON.parse(JSON.stringify(resultAIRecommendation)),
-        // session,
       },
     };
   } catch (err) {
@@ -71,42 +41,13 @@ export async function getServerSideProps(ctx) {
   }
 }
 
-function Header({ children, appointmentData, ...restProps }) {
-  const PREFIX = "Demo";
-  // #FOLD_BLOCK
-  const classes = {
-    container: `${PREFIX}-container`,
-    text: `${PREFIX}-text`,
-    formControlLabel: `${PREFIX}-formControlLabel`,
-  };
-  const StyledIconButton = styled(IconButton)(() => ({
-    [`&.${classes.commandButton}`]: {
-      backgroundColor: "rgba(255,255,255,0.65)",
-    },
-  }));
-  // console.log(JSON.stringify(appointmentMeta));
-  return (
-    <AppointmentTooltip.Header {...restProps} appointmentData={appointmentData}>
-      <StyledIconButton
-        onClick={() => alert(JSON.stringify(appointmentData))}
-        size="large"
-      >
-        open
-      </StyledIconButton>
-      <StyledIconButton onClick={() => alert("delete")} size="large">
-        delete
-      </StyledIconButton>
-    </AppointmentTooltip.Header>
-  );
-}
-
 export default function Month({ scheduleList }) {
   //data
   //data
   //data
   const [Pickmonth, setPickMonth] = useState(new Date());
 
-  const [data, setData] = useState(scheduleList);
+  const [data] = useState(scheduleList);
   const router = useRouter();
   const [isOpend, setOpened] = useState(false);
   const [isUDOpend, setUDOpened] = useState(false);
@@ -128,11 +69,14 @@ export default function Month({ scheduleList }) {
           startDate,
           title,
           repeatDay,
+          type,
         }) => {
           let result = [];
           let temp_startDate = moment(startDate);
           let temp_endDate = moment(endDate);
-          while (temp_startDate <= repeatLastDay) {
+          let temp_repeatLastDay = moment(repeatLastDay);
+
+          while (temp_startDate <= temp_repeatLastDay) {
             [...repeatDay].forEach((e) => {
               if (`${e}` === temp_startDate.format("d")) {
                 let temp = {
@@ -144,6 +88,7 @@ export default function Month({ scheduleList }) {
                   repeatDay,
                   startDate,
                   endDate,
+                  type,
                 };
                 temp.startDate = temp_startDate;
                 temp.endDate = temp_endDate;
@@ -153,6 +98,7 @@ export default function Month({ scheduleList }) {
             temp_startDate = moment(temp_startDate).add(1, "d");
             temp_endDate = moment(temp_endDate).add(1, "d");
           }
+
           return result;
         }
       )
@@ -183,16 +129,11 @@ export default function Month({ scheduleList }) {
   };
 
   const AppointmentClick = (v) => {
-    // alert("oh yeah");
     return () => {
       setPickData(v);
       setUDOpened(true);
     };
   };
-
-  // useEffect(() => {
-  //   console.log(pickData);
-  // }, [pickData]);
 
   const Appointment = ({ children, style, data, ...restProps }) => (
     <Appointments.Appointment
@@ -211,7 +152,12 @@ export default function Month({ scheduleList }) {
   return (
     <div className={classname(["month", { open: isOpend || isUDOpend }])}>
       <div className={classname(["month-header"])}>
-        <img src="/images/header/arrow.png" alt="arrows" onClick={goToBack} />
+        <img
+          className={classname(["month-header-arrows"])}
+          src="/images/header/arrow.png"
+          alt="arrows"
+          onClick={goToBack}
+        />
         <div className={classname(["month-title"])}>
           <div className={classname(["sub15"])}>
             {moment(Pickmonth).format("yyyy년 M월")}
@@ -234,7 +180,6 @@ export default function Month({ scheduleList }) {
           <MonthView />
 
           <Appointments appointmentComponent={Appointment} />
-          {/* <AppointmentTooltip headerComponent={Header} /> */}
         </Scheduler>
       </Paper>
       {isOpend && (

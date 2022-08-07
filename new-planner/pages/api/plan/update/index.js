@@ -19,6 +19,7 @@ export default async function apiHandler(req, res) {
   }
 
   const {
+    id,
     startDate,
     endDate,
     title,
@@ -27,7 +28,7 @@ export default async function apiHandler(req, res) {
     type,
     repeatLastDay,
     repeatDay,
-    isComplete,
+    // isComplete,
   } = req.body;
   // console.log(req.body);
 
@@ -41,7 +42,10 @@ export default async function apiHandler(req, res) {
   try {
     // console.log(repeatDay);
     if (isrepeat === false) {
-      let result = await prisma.schedule.create({
+      let result = await prisma.schedule.update({
+        where: {
+          id,
+        },
         data: {
           startDate,
           endDate,
@@ -49,7 +53,7 @@ export default async function apiHandler(req, res) {
           color,
           isrepeat,
           type,
-          isComplete,
+          // isComplete,
           // repeatLastDay,
           // repeatDay,
 
@@ -66,6 +70,9 @@ export default async function apiHandler(req, res) {
       }
     } else {
       let result = await prisma.schedule.create({
+        where: {
+          id,
+        },
         data: {
           startDate,
           endDate,
@@ -75,7 +82,8 @@ export default async function apiHandler(req, res) {
           type,
           repeatLastDay,
           repeatDay,
-          isComplete,
+          // isComplete,
+
           user: {
             connect: {
               id: session.user.id,

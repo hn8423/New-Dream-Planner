@@ -30,16 +30,18 @@
     margin-top: 0;
     padding-top: 0.33em;
     height: 2.05em;
-    // height: 100%;
   }
 
-  .Appointment-appointment {
-    height: 22px;
-    // padding: 0;
+  .VerticalAppointment-time {
+    display: none;
   }
-  .Cell-cell {
-    border-right: none;
+  .VerticalAppointment-title {
+    white-space: pre-wrap;
   }
+  .HorizontalAppointment-title {
+    white-space: pre-wrap;
+  }
+
   .Cell-dayOfMonth {
     font-size: 0.25rem;
   }
