@@ -12,7 +12,7 @@ import {
 import { useRouter } from "next/router";
 import { getSession } from "next-auth/react";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import MobileBottomSheet from "components/mobile/bottomSheet";
 import MobileBottomSheetUD from "components/mobile/bottomSheetUD";
 import _ from "lodash";
@@ -36,8 +36,7 @@ export async function getServerSideProps(ctx) {
       },
     };
   } catch (err) {
-    console.error(err);
-    return redirect;
+    console.log(err);
   }
 }
 

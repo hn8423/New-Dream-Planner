@@ -12,14 +12,6 @@ export async function getServerSideProps(ctx) {
   /**@type {import('next-auth').Session&{user:{id:string}}} */
   const session = await getSession(ctx);
 
-  if (!session) {
-    return {
-      props: {
-        missionText: [],
-      },
-    };
-  }
-
   try {
     const missionText = await prisma.mission.findMany({
       where: {
@@ -152,9 +144,6 @@ export default function Mission({ missionText }) {
               ["tab-detail", { selected: selectedBar === "purpose" }],
               "sub16"
             )}
-            // style={{
-            //   borderBottom: selectedBar === "purpose" ? "1px black solid" : "",
-            // }}
             onClick={select("purpose")}
           >
             목적
@@ -164,9 +153,6 @@ export default function Mission({ missionText }) {
               ["tab-detail", { selected: selectedBar === "program" }],
               "sub16"
             )}
-            // style={{
-            //   borderBottom: selectedBar === "program" ? "1px black solid" : "",
-            // }}
             onClick={select("program")}
           >
             강령
@@ -176,9 +162,6 @@ export default function Mission({ missionText }) {
               ["tab-detail", { selected: selectedBar === "mission" }],
               "sub16"
             )}
-            // style={{
-            //   borderBottom: selectedBar === "mission" ? "1px black solid" : "",
-            // }}
             onClick={select("mission")}
           >
             사명
