@@ -32,6 +32,9 @@
         padding-bottom: 8px;
 
         cursor: pointer;
+        &.selected {
+          border-bottom: 1px black solid;
+        }
       }
     }
   }

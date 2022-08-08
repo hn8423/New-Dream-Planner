@@ -1,0 +1,20 @@
+.monthpicker {
+  z-index: 3;
+  .datepicker-input {
+    border-radius: 8px;
+    text-align: center;
+    font-weight: 400;
+    font-size: 14px;
+  }
+
+  .datepicker-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+
+    .datepicker-arrow {
+      width: 20px;
+      background-color: #fff;
+    }
+  }
+}

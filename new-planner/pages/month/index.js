@@ -1,47 +1,116 @@
 import style from "./index.module.scss";
-import { classOption, enterToBr } from "utill";
+import { classOption } from "utill";
 const classname = classOption(style);
 
 import Paper from "@mui/material/Paper";
-import Radio from "@mui/material/Radio";
-import RadioGroup from "@mui/material/RadioGroup";
-import FormControlLabel from "@mui/material/FormControlLabel";
-import { ViewState } from "@devexpress/dx-react-scheduler";
+import { ViewState, EditingState } from "@devexpress/dx-react-scheduler";
 import {
   Scheduler,
-  WeekView,
   MonthView,
   Appointments,
 } from "@devexpress/dx-react-scheduler-material-ui";
 import { useRouter } from "next/router";
+import { getSession } from "next-auth/react";
 
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import MobileBottomSheet from "components/mobile/bottomSheet";
-const appointments = [
-  {
-    startDate: "2018-11-01T09:45",
-    endDate: "2018-11-01T11:00",
-    title: "Meeting",
-    color: "red",
-  },
-  {
-    startDate: "2018-11-01T12:00",
-    endDate: "2018-11-01T13:30",
-    title: "Go to a gym",
-    color: "green",
-  },
-];
+import MobileBottomSheetUD from "components/mobile/bottomSheetUD";
+import _ from "lodash";
+import moment from "moment";
+import MonthPickers from "components/monthpicker";
+import prisma from "lib/prisma";
 
-export default function Month() {
+/**@type {import('next').GetServerSideProps} */
+export async function getServerSideProps(ctx) {
+  /**@type {import('next-auth').Session&{user:{id:string}}} */
+  const session = await getSession(ctx);
+
+  try {
+    const scheduleList = await prisma.schedule.findMany({
+      where: { userId: session.user.id },
+    });
+
+    return {
+      props: {
+        scheduleList: JSON.parse(JSON.stringify(scheduleList)),
+      },
+    };
+  } catch (err) {
+    console.log(err);
+  }
+}
+
+export default function Month({ scheduleList }) {
   //data
   //data
   //data
-  const [data, setData] = useState(appointments);
-  const [currentViewName, setCurrentViewName] = useState("Month");
+  const [Pickmonth, setPickMonth] = useState(new Date());
+
+  const [data] = useState(scheduleList);
   const router = useRouter();
-  const [isOpend, setOpened] = useState(true);
+  const [isOpend, setOpened] = useState(false);
+  const [isUDOpend, setUDOpened] = useState(false);
+  const [pickData, setPickData] = useState({});
 
-  //function
+  const plan = useMemo(() => {
+    let [reapeatList, unReapeatList] = _(data)
+      .partition((v) => v.isrepeat)
+      .value();
+
+    let createdList = _(reapeatList)
+      .flatMap(
+        ({
+          color,
+          endDate,
+          id,
+          isrepeat,
+          repeatLastDay,
+          startDate,
+          title,
+          repeatDay,
+          type,
+        }) => {
+          let result = [];
+          let temp_startDate = moment(startDate);
+          let temp_endDate = moment(endDate);
+          let temp_repeatLastDay = moment(repeatLastDay);
+
+          while (temp_startDate <= temp_repeatLastDay) {
+            [...repeatDay].forEach((e) => {
+              if (`${e}` === temp_startDate.format("d")) {
+                let temp = {
+                  color,
+                  title,
+                  id,
+                  isrepeat,
+                  repeatLastDay,
+                  repeatDay,
+                  startDate,
+                  endDate,
+                  type,
+                };
+                temp.startDate = temp_startDate;
+                temp.endDate = temp_endDate;
+                result.push(temp);
+              }
+            });
+            temp_startDate = moment(temp_startDate).add(1, "d");
+            temp_endDate = moment(temp_endDate).add(1, "d");
+          }
+
+          return result;
+        }
+      )
+      .value();
+
+    return [...createdList, ...unReapeatList];
+
+    // data 가져 와서 isrepeat true 인것 가져오기
+    // startDate에서 repeatLastDay 까지 일정 가져오기
+    // 요일별 숫자로 체크 해서 해당 요일 반복 된 것 만 필터링
+    // 새롭게 data 값에 반복된 값들 추가된 값 넣기
+  }, [data]);
+
   //function
   //function
   function open() {
@@ -50,30 +119,21 @@ export default function Month() {
   function close() {
     setOpened(false);
   }
+  function UDclose() {
+    setUDOpened(false);
+  }
 
   const goToBack = () => {
     router.back();
   };
-  const currentViewNameChange = (e) => {
-    return setCurrentViewName(e.target.value);
+
+  const AppointmentClick = (v) => {
+    return () => {
+      setPickData(v);
+      setUDOpened(true);
+    };
   };
-  const ExternalViewSwitcher = ({ currentViewName, onChange }) => (
-    <RadioGroup
-      aria-label="Views"
-      style={{ flexDirection: "row" }}
-      name="views"
-      value={currentViewName}
-      onChange={onChange}
-    >
-      <FormControlLabel value="Week" control={<Radio />} label="Week" />
-      <FormControlLabel
-        value="Work Week"
-        control={<Radio />}
-        label="Work Week"
-      />
-      <FormControlLabel value="Month" control={<Radio />} label="Month" />
-    </RadioGroup>
-  );
+
   const Appointment = ({ children, style, data, ...restProps }) => (
     <Appointments.Appointment
       {...restProps}
@@ -82,38 +142,55 @@ export default function Month() {
         backgroundColor: data.color,
         borderRadius: "8px",
       }}
+      onClick={AppointmentClick(data)}
     >
       {children}
     </Appointments.Appointment>
   );
 
   return (
-    <div className={classname("month")}>
-      <div className={classname("month-header")}>
-        <img src="/images/header/arrow.png" alt="arrows" onClick={goToBack} />
-        <div>2022년 6월</div>
+    <div className={classname(["month", { open: isOpend || isUDOpend }])}>
+      <div className={classname(["month-header"])}>
         <img
+          className={classname(["month-header-arrows"])}
+          src="/images/header/arrow.png"
+          alt="arrows"
+          onClick={goToBack}
+        />
+        <div className={classname(["month-title"])}>
+          <div className={classname(["sub15"])}>
+            {moment(Pickmonth).format("yyyy년 M월")}
+          </div>
+          <MonthPickers Pickmonth={Pickmonth} setPickMonth={setPickMonth} />
+        </div>
+        <img
+          className={classname(["month-header-createplan"])}
           src="/images/header/createplan.png"
           alt="createplan"
           onClick={open}
         />
       </div>
       <Paper>
-        <Scheduler data={data} height={660} locale="ko-KR">
-          <ViewState
-            defaultCurrentDate="2022-07-28"
-            currentViewName={currentViewName}
-          />
+        <Scheduler data={plan} height={660} locale="ko-KR">
+          <EditingState />
+
+          <ViewState currentDate={Pickmonth} />
 
           <MonthView />
 
           <Appointments appointmentComponent={Appointment} />
         </Scheduler>
       </Paper>
-      {/* {isOpend && (
+      {isOpend && (
         <MobileBottomSheet className={classname("side-bar")} close={close} />
-      )} */}
-      <MobileBottomSheet className={classname("side-bar")} close={close} />
+      )}
+      {isUDOpend && (
+        <MobileBottomSheetUD
+          className={classname("side-bar")}
+          close={UDclose}
+          data={pickData}
+        />
+      )}
     </div>
   );
 }

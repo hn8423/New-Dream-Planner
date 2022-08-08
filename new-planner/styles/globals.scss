@@ -10,16 +10,42 @@
   width: 100%;
   height: 100%;
   font-family: "Roboto", "Noto Sans KR", sans-serif;
-  // font-family: "Spoqa Han Sans Neo";
 
   & * {
     font-family: "Roboto", "Noto Sans KR", sans-serif;
-    // font-family: "Spoqa Han Sans Neo";
   }
 
-  // font style
+  .MuiPaper-root {
+    box-shadow: none;
+  }
 
-  // [class*="layout-mobile"] {
+  .react-datepicker__header {
+    background-color: #fff;
+  }
+
+  .Cell-today {
+    background: var(--primary-0);
+    border-radius: 0;
+    width: 100%;
+    margin-top: 0;
+    padding-top: 0.33em;
+    height: 2.05em;
+  }
+
+  .VerticalAppointment-time {
+    display: none;
+  }
+  .VerticalAppointment-title {
+    white-space: pre-wrap;
+  }
+  .HorizontalAppointment-title {
+    white-space: pre-wrap;
+  }
+
+  .Cell-dayOfMonth {
+    font-size: 0.25rem;
+  }
+
   .h32 {
     font-family: "Spoqa Han Sans Neo";
     font-style: normal;
@@ -67,7 +93,6 @@
     /* identical to box height, or 133% */
 
     letter-spacing: -0.04em;
-    // text-transform: uppercase;
   }
   .sub16 {
     font-family: "Spoqa Han Sans Neo";

@@ -1,9 +1,8 @@
-import { useRef, useEffect, useMemo } from 'react'
-import { classOption } from 'utill'
-import style from './index.module.scss'
-const classname = classOption(style)
+import { classOption } from "utill";
+import style from "./index.module.scss";
+const classname = classOption(style);
 
 /**@type {(props: {children:JSX.Element}) => JSX.Element} */
 export default function PcNone({ children }) {
-  return <div className={classname('layout-pc')}>{children}</div>
+  return <div className={classname("layout-pc")}>{children}</div>;
 }

@@ -19,6 +19,7 @@ export default async function apiHandler(req, res) {
   }
 
   const { identity, hurt, experience, myMission } = req.body;
+  /**@type {import('next-auth').Session&{user:{id:string}}} */
   const session = await getSession({ req });
 
   try {

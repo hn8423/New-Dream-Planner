@@ -1,12 +1,8 @@
 import { classOption } from "utill/index";
 import style from "./index.module.scss";
 import { useRouter } from "next/router";
-import { useSelector } from "react-redux";
-import { signIn, signOut } from "next-auth/react";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import _ from "lodash";
-import { useSession } from "next-auth/react";
-import DatePickers from "components/datepicker";
 import TimePickers from "components/timepicker";
 import req2srv from "lib/req2srv/plan";
 import moment from "moment";
@@ -19,8 +15,8 @@ export default function MobileBottomSheet({ className, close }) {
   // data
   const [isClosing, setClosing] = useState(false);
   const [isAllDay, setIsAllDay] = useState(false);
-  const [isRepeat, setIsRepeat] = useState(false);
-  const [isDatePick, setIsDatePick] = useState(false);
+  const [isRepeat, setIsRepeat] = useState(true);
+  const [isDatePick, setIsDatePick] = useState(true);
   const [day, setDay] = useState([
     false,
     false,
@@ -30,23 +26,17 @@ export default function MobileBottomSheet({ className, close }) {
     false,
     false,
   ]);
-  const [repeatLastDay, setRepeatLastDay] = useState(new Date());
-  const [startDate, setStartDate] = useState(new Date());
+  const [repeatLastDay, setRepeatLastDay] = useState(new Date(moment().day(7)));
+  const [startDate, setStartDate] = useState(new Date(moment().day(0)));
   const [startTime, setStartTime] = useState(new Date());
   const [endTime, setEndTime] = useState(new Date());
-  const [pickTimeMetrix, setPickTimeMetrix] = useState("");
-  // const [type, setType] = useState("");
+  const [pickTimeMetrix, setPickTimeMetrix] = useState("S");
   const sideBar = useRef(null);
   const router = useRouter();
 
   const [title, setTitle] = useState("");
 
-  const timeMetrixList = [
-    { type: "A", sub: "급하고 중요한 일" },
-    { type: "B", sub: "급하지 않지만, 중요한 일" },
-    { type: "C", sub: "급하지만 중요하지 않는 일" },
-    { type: "D", sub: "급하지도 않고 중요하지도 않은 일" },
-  ];
+  const timeMetrixList = [{ type: "S", sub: "이번주 중요한 실행 계획" }];
 
   const dayList = [
     { name: "월", num: 0 },
@@ -94,18 +84,10 @@ export default function MobileBottomSheet({ className, close }) {
     setClosing(true);
   }, [close]);
 
-  const onClickTimeMetrix = (v) => {
-    return () => {
-      setPickTimeMetrix(v);
-    };
-  };
-
   const onClickAllDay = (v) => {
     setIsAllDay(!isAllDay);
   };
-  const onClickRepeat = (v) => {
-    setIsRepeat(!isRepeat);
-  };
+
   const CreateSchedule = useCallback(
     async function clickCreate() {
       try {
@@ -141,8 +123,8 @@ export default function MobileBottomSheet({ className, close }) {
 
         let pickColor = "";
         switch (pickTimeMetrix) {
-          case "A":
-            pickColor = "#B00020";
+          case "S":
+            pickColor = "#F6C55B";
             break;
           case "B":
             pickColor = "#EE7A48";
@@ -288,7 +270,6 @@ export default function MobileBottomSheet({ className, close }) {
           `time-metrix-item${v.type}`,
           { pick: pickTimeMetrix === v.type },
         ])}
-        onClick={onClickTimeMetrix(v.type)}
       >
         <div
           className={classname([
@@ -352,13 +333,6 @@ export default function MobileBottomSheet({ className, close }) {
       <div className={classname("pick-date")} onClick={onClickDatePick}>
         <div className={classname("pick-date-img")}></div>
         <div className={classname("pick-date-text")}>날짜를 선택해주세요</div>
-        <div className={classname("pick-date-down")}>
-          {!isDatePick ? (
-            <img src="/images/bottom/down.png" alt="down" />
-          ) : (
-            <img src="/images/bottom/up.png" alt="up" />
-          )}
-        </div>
       </div>
       {isDatePick && (
         <div className={classname("pick-control")}>
@@ -374,11 +348,6 @@ export default function MobileBottomSheet({ className, close }) {
           </div>
 
           <div className={classname("picker")}>
-            <div className={classname("picker-time")}>
-              {" "}
-              날짜
-              <DatePickers pickDate={startDate} setDate={setStartDate} />
-            </div>
             {!isAllDay && (
               <>
                 <div className={classname("picker-time")}>
@@ -394,27 +363,10 @@ export default function MobileBottomSheet({ className, close }) {
               </>
             )}
           </div>
-          <div
-            className={classname([
-              "pick-control-option",
-              "sub16",
-              { reapeat: isRepeat },
-            ])}
-            onClick={onClickRepeat}
-          >
-            반복 하기
-          </div>
 
           {isRepeat && (
             <div>
               <div className={classname("picker-repeat")}>{repeatDay}</div>
-              <div className={classname("picker-repeat-done")}>
-                <DatePickers
-                  pickDate={repeatLastDay}
-                  setDate={setRepeatLastDay}
-                />{" "}
-                <div className={classname("body14")}>까지 반복</div>
-              </div>
             </div>
           )}
         </div>

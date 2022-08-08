@@ -3,7 +3,6 @@
 
 generator client {
   provider = "prisma-client-js"
-
 }
 
 datasource db {
@@ -40,14 +39,16 @@ model Session {
 }
 
 model User {
-  id            String    @id @default(cuid())
+  id            String           @id @default(cuid())
   name          String?
-  email         String?   @unique
+  email         String?          @unique
   emailVerified DateTime?
   image         String?
   accounts      Account[]
   sessions      Session[]
   mission       Mission?
+  schedule      Schedule[]
+  weekanalysis  WeeklyAnalysis[]
 }
 
 model VerificationToken {
@@ -67,6 +68,37 @@ model Mission {
   experience String? @db.Text
   myMission  String? @db.Text
 
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model WeeklyAnalysis {
+  id String @id @default(cuid())
+
+  userId      String  @unique
+  year        String?
+  month       String?
+  week        String?
+  coreMission String? @db.Text
+  lookInside  String? @db.Text
+  mainFocus   String? @db.Text
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([year, month, week])
+}
+
+model Schedule {
+  id            String    @id @default(cuid())
+  userId        String
+  startDate     DateTime
+  endDate       DateTime
+  title         String
+  color         String
+  repeatDay     String?
+  repeatLastDay DateTime?
+  isrepeat      Boolean
+  type          String
+  isComplete    Boolean?
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }

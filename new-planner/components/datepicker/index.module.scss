@@ -1,0 +1,23 @@
+.datepicker-input {
+  width: 236px;
+  height: 32px;
+
+  /* Line */
+
+  border: 1px solid #e7e7e7;
+  border-radius: 8px;
+  text-align: center;
+  font-weight: 400;
+  font-size: 14px;
+}
+
+.datepicker-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+
+  .datepicker-arrow {
+    width: 20px;
+    background-color: #fff;
+  }
+}
