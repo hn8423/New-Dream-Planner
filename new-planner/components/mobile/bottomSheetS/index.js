@@ -246,6 +246,10 @@ export default function MobileBottomSheet({ className, close }) {
   // mounted
   // mounted
 
+  useEffect(() => {
+    console.log(new Date(`${moment(startDate).format("YYYY-MM-DD 00:00:00")}`));
+  }, []);
+
   // render
   // render
   // render

@@ -69,7 +69,7 @@ export default async function apiHandler(req, res) {
         res.status(200).json({ message: `done` });
       }
     } else {
-      let result = await prisma.schedule.create({
+      let result = await prisma.schedule.update({
         where: {
           id,
         },

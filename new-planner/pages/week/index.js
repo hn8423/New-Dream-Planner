@@ -1,7 +1,7 @@
 import style from "./index.module.scss";
 import { classOption, enterToBr } from "utill";
 const classname = classOption(style);
-
+import Board from "components/board";
 import { useRouter } from "next/router";
 import moment from "moment";
 import useSignCheck from "hooks/useSignCheck";
@@ -10,6 +10,8 @@ import { useEffect, useState, useCallback, useMemo } from "react";
 
 import req2srv from "lib/req2srv/weekly";
 import MobileBottomSheetS from "components/mobile/bottomSheetS";
+import DayBottomSheet from "components/mobile/bottomSheetDay";
+import BottomSheetStype from "components/mobile/bottomSheetSUD";
 
 const weekOfMonth = (m) => m.week() - moment(m).startOf("month").week();
 
@@ -33,7 +35,13 @@ export async function getServerSideProps(ctx) {
       },
     });
     const scheduleList = await prisma.schedule.findMany({
-      where: { userId: session.user.id },
+      where: {
+        userId: session.user.id,
+        endDate: {
+          gte: new Date(moment().day(0).hour(0).minute(0).second(0)),
+          lt: new Date(moment().day(7).hour(0).minute(0).second(0)),
+        },
+      },
     });
 
     return {
@@ -66,6 +74,10 @@ export async function getServerSideProps(ctx) {
  */
 export default function Week({ missionText, weeklyText, scheduleList }) {
   const [isSOpen, setSOpen] = useState(false);
+  const [isUDSOpened, setUDSOpened] = useState(false);
+  const [isDayOpen, setDayOpen] = useState(false);
+  const [dayNum, setDayNum] = useState(0);
+  const [pickData, setPickData] = useState({});
 
   //data
   //data
@@ -125,6 +137,17 @@ export default function Week({ missionText, weeklyText, scheduleList }) {
     [coreMission, lookInside, mainFocus]
   );
 
+  //function
+  //function
+  //function
+
+  const updateStype = (v) => {
+    return () => {
+      setPickData(v);
+      setUDSOpened(true);
+    };
+  };
+
   const goToBack = () => {
     router.back();
   };
@@ -135,6 +158,17 @@ export default function Week({ missionText, weeklyText, scheduleList }) {
   const close = () => {
     setSOpen(false);
   };
+  const closeDay = () => {
+    setDayOpen(false);
+  };
+  const openDay = () => {
+    setDayOpen(true);
+  };
+
+  // useEffect(() => {
+  //   // console.log("scheduleLists :", scheduleLists);
+  //   console.log("scheduleLists :", scheduleLists);
+  // }, []);
 
   //render
   //render
@@ -146,6 +180,7 @@ export default function Week({ missionText, weeklyText, scheduleList }) {
         <div
           className={classname(["week-plan-list-item", "sub16"])}
           key={`sPlan: ${v}${i}`}
+          onClick={updateStype(v)}
         >
           <div className={classname(["week-plan-list-item-type", "sub16"])}>
             {v.type}
@@ -161,15 +196,16 @@ export default function Week({ missionText, weeklyText, scheduleList }) {
   }, []);
 
   useEffect(() => {
-    console.log(sItem);
-  }, [sItem]);
+    // console.log(new Date(moment().day(0)));
+    // console.log(moment().day(0).hour(0).minute(0).second(0));
+  }, []);
   return (
     <>
       <div
         className={classname([
           "week",
           { loading: isLoading },
-          { openChange: isSOpen },
+          { openChange: isSOpen || isDayOpen },
         ])}
       >
         <div className={classname(["week-header"])}>
@@ -281,8 +317,28 @@ export default function Week({ missionText, weeklyText, scheduleList }) {
           </div>
           <div className={classname(["week-plan-list"])}>{sPlan}</div>
         </div>
+        <Board
+          scheduleLists={scheduleLists}
+          setDayNum={setDayNum}
+          openDay={openDay}
+        />
+
         {isSOpen && (
           <MobileBottomSheetS className={classname("side-bar")} close={close} />
+        )}
+        {isDayOpen && (
+          <DayBottomSheet
+            className={classname("side-bar")}
+            dayNum={dayNum}
+            close={closeDay}
+          />
+        )}
+        {isUDSOpened && (
+          <BottomSheetStype
+            className={classname("side-bar")}
+            data={pickData}
+            close={closeDay}
+          />
         )}
       </div>
     </>

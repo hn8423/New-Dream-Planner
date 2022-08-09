@@ -13,15 +13,14 @@ import moment from "moment";
 
 const classname = classOption(style);
 
-export default function MobileBottomSheet({ className, close, data }) {
+export default function DayBottomSheet({ className, close, dayNum }) {
   // data
   // data
   // data
-  const [appointmentItem] = useState(data);
   const [isClosing, setClosing] = useState(false);
   const [isAllDay, setIsAllDay] = useState(false);
-  const [isRepeat, setIsRepeat] = useState(appointmentItem.isrepeat);
-  const [isDatePick, setIsDatePick] = useState(true);
+  const [isRepeat, setIsRepeat] = useState(false);
+  const [isDatePick, setIsDatePick] = useState(false);
   const [day, setDay] = useState([
     false,
     false,
@@ -31,22 +30,16 @@ export default function MobileBottomSheet({ className, close, data }) {
     false,
     false,
   ]);
-  const [repeatLastDay, setRepeatLastDay] = useState(
-    new Date(appointmentItem.repeatLastDay)
-  );
-  const [startDate, setStartDate] = useState(
-    new Date(appointmentItem.startDate)
-  );
-  const [startTime, setStartTime] = useState(
-    new Date(appointmentItem.startDate)
-  );
+  const [repeatLastDay, setRepeatLastDay] = useState(new Date());
+  const [startDate, setStartDate] = useState(new Date(moment().day(dayNum)));
+  const [startTime, setStartTime] = useState(new Date());
   const [endTime, setEndTime] = useState(new Date());
-  const [pickTimeMetrix, setPickTimeMetrix] = useState(appointmentItem.type);
+  const [pickTimeMetrix, setPickTimeMetrix] = useState("");
   // const [type, setType] = useState("");
   const sideBar = useRef(null);
   const router = useRouter();
 
-  const [title, setTitle] = useState(appointmentItem.title);
+  const [title, setTitle] = useState("");
 
   const timeMetrixList = [
     { type: "A", sub: "급하고 중요한 일" },
@@ -172,27 +165,28 @@ export default function MobileBottomSheet({ className, close, data }) {
           })
           .join("");
 
+        console.log(moment(startTime).format("h:mm:ss"));
+
         if (!isAllDay && !isRepeat) {
           let result = await req2srv.createPlan({
-            id: appointmentItem.id,
             startDate: new Date(
               `${moment(startDate).format("YYYY-MM-DD")} ${moment(
                 startTime
-              ).format("h:mm:ss")}`
+              ).format("HH:mm:ss")}`
             ),
             endDate: new Date(
               `${moment(startDate).format("YYYY-MM-DD")} ${moment(
                 endTime
-              ).format("h:mm:ss")}`
+              ).format("HH:mm:ss")}`
             ),
             title,
             color: pickColor,
             isrepeat: isRepeat,
             type: pickTimeMetrix,
+            isComplete: true,
           });
         } else if (isAllDay && !isRepeat) {
           let result = await req2srv.createPlan({
-            id: appointmentItem.id,
             startDate: new Date(
               `${moment(startDate).format("YYYY-MM-DD 00:00:00")}`
             ),
@@ -203,10 +197,10 @@ export default function MobileBottomSheet({ className, close, data }) {
             color: pickColor,
             isrepeat: isRepeat,
             type: pickTimeMetrix,
+            isComplete: true,
           });
         } else if (isAllDay && isRepeat) {
           let result = await req2srv.createPlan({
-            id: appointmentItem.id,
             startDate: new Date(
               `${moment(startDate).format("YYYY-MM-DD 00:00:00")}`
             ),
@@ -219,19 +213,19 @@ export default function MobileBottomSheet({ className, close, data }) {
             type: pickTimeMetrix,
             repeatLastDay,
             repeatDay: repeatDay,
+            isComplete: true,
           });
         } else if (!isAllDay && isRepeat) {
           let result = await req2srv.createPlan({
-            id: appointmentItem.id,
             startDate: new Date(
               `${moment(startDate).format("YYYY-MM-DD")} ${moment(
                 startTime
-              ).format("h:mm:ss")}`
+              ).format("HH:mm:ss")}`
             ),
             endDate: new Date(
               `${moment(startDate).format("YYYY-MM-DD")} ${moment(
                 endTime
-              ).format("h:mm:ss")}`
+              ).format("HH:mm:ss")}`
             ),
             title,
             color: pickColor,
@@ -239,9 +233,10 @@ export default function MobileBottomSheet({ className, close, data }) {
             type: pickTimeMetrix,
             repeatLastDay,
             repeatDay,
+            isComplete: true,
           });
         }
-        alert("일정이 수정 되었습니다.");
+        alert("일정을 등록 했습니다.");
         close();
         router.reload();
       } catch (err) {
@@ -249,7 +244,6 @@ export default function MobileBottomSheet({ className, close, data }) {
       }
     },
     [
-      appointmentItem.id,
       close,
       day,
       endTime,
@@ -262,19 +256,6 @@ export default function MobileBottomSheet({ className, close, data }) {
       startTime,
       title,
     ]
-  );
-
-  const DeleteSchedule = useCallback(
-    async function onClickDelete() {
-      let result = await req2srv.deletePlan({
-        id: appointmentItem.id,
-      });
-
-      alert(`${title}일정이 삭제 되었습니다.`);
-      close();
-      router.reload();
-    },
-    [appointmentItem.id, close, router, title]
   );
 
   // renderMap
@@ -332,32 +313,6 @@ export default function MobileBottomSheet({ className, close, data }) {
     );
   });
 
-  useEffect(() => {
-    if (appointmentItem === null) {
-      return;
-    }
-    let copyArr = new Array(6).fill(false);
-    if (appointmentItem.repeatDay !== null) {
-      [...appointmentItem.repeatDay].forEach((e) => {
-        copyArr[e] = true;
-      });
-      setDay(copyArr);
-    }
-    if (
-      moment(appointmentItem.startDate).format("hh:mm:ss") ===
-      moment(appointmentItem.endDate).format("hh:mm:ss")
-    ) {
-      setIsAllDay(true);
-    } else {
-      setStartTime(new Date(appointmentItem.startDate));
-      setEndTime(new Date(appointmentItem.endDate));
-    }
-  }, [
-    appointmentItem,
-    appointmentItem.endDate,
-    appointmentItem.repeatDay,
-    appointmentItem.startDate,
-  ]);
   return (
     <div
       className={classname(["side-bar", { closing: isClosing }, className])}
@@ -370,7 +325,7 @@ export default function MobileBottomSheet({ className, close, data }) {
           alt="close"
           onClick={clickClose}
         />
-        <div className={classname("top-title")}>수정 및 삭제</div>
+        <div className={classname("top-title")}>전체</div>
         <img
           className={classname("top-check")}
           src="/images/bottom/check.png"
@@ -380,23 +335,33 @@ export default function MobileBottomSheet({ className, close, data }) {
       </div>
       <div className={classname("contents")}>
         <div className={classname("contents-title", "sub16")}>
-          {/* <img
+          <img
             className={classname("contents-img")}
             src="/images/bottom/pen.png"
             alt="pen"
-          /> */}
-          일정 제목
+          />
+          어떤 일정을 추가 할까요?
         </div>
         <input
           className={classname(["contents-input", "body14"])}
           type="text"
           placeholder="일정을  입력해주세요"
-          defaultValue={appointmentItem.title}
+          // defaultValue={}
           onChange={setTargetValue(setTitle)}
         />
       </div>
       <div className={classname("time-metrix")}>{timeMetrix}</div>
-
+      <div className={classname("pick-date")} onClick={onClickDatePick}>
+        <div className={classname("pick-date-img")}></div>
+        <div className={classname("pick-date-text")}>날짜를 선택해주세요</div>
+        <div className={classname("pick-date-down")}>
+          {!isDatePick ? (
+            <img src="/images/bottom/down.png" alt="down" />
+          ) : (
+            <img src="/images/bottom/up.png" alt="up" />
+          )}
+        </div>
+      </div>
       {isDatePick && (
         <div className={classname("pick-control")}>
           <div
@@ -456,9 +421,6 @@ export default function MobileBottomSheet({ className, close, data }) {
           )}
         </div>
       )}
-      <div className={classname("picker-garbage")} onClick={DeleteSchedule}>
-        <img src="/images/bottom/garbage.png" alt="garbage" />{" "}
-      </div>
     </div>
   );
 }

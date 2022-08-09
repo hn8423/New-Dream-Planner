@@ -165,17 +165,19 @@ export default function MobileBottomSheet({ className, close }) {
           })
           .join("");
 
+        console.log(moment(startTime).format("h:mm:ss"));
+
         if (!isAllDay && !isRepeat) {
           let result = await req2srv.createPlan({
             startDate: new Date(
               `${moment(startDate).format("YYYY-MM-DD")} ${moment(
                 startTime
-              ).format("h:mm:ss")}`
+              ).format("HH:mm:ss")}`
             ),
             endDate: new Date(
               `${moment(startDate).format("YYYY-MM-DD")} ${moment(
                 endTime
-              ).format("h:mm:ss")}`
+              ).format("HH:mm:ss")}`
             ),
             title,
             color: pickColor,
@@ -218,12 +220,12 @@ export default function MobileBottomSheet({ className, close }) {
             startDate: new Date(
               `${moment(startDate).format("YYYY-MM-DD")} ${moment(
                 startTime
-              ).format("h:mm:ss")}`
+              ).format("HH:mm:ss")}`
             ),
             endDate: new Date(
               `${moment(startDate).format("YYYY-MM-DD")} ${moment(
                 endTime
-              ).format("h:mm:ss")}`
+              ).format("HH:mm:ss")}`
             ),
             title,
             color: pickColor,

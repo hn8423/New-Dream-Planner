@@ -13,14 +13,14 @@ import moment from "moment";
 
 const classname = classOption(style);
 
-export default function MobileBottomSheet({ className, close, data }) {
+export default function BottomSheetStype({ className, close, data }) {
   // data
   // data
   // data
   const [appointmentItem] = useState(data);
   const [isClosing, setClosing] = useState(false);
   const [isAllDay, setIsAllDay] = useState(false);
-  const [isRepeat, setIsRepeat] = useState(appointmentItem.isrepeat);
+  const [isRepeat, setIsRepeat] = useState(true);
   const [isDatePick, setIsDatePick] = useState(true);
   const [day, setDay] = useState([
     false,
@@ -41,19 +41,14 @@ export default function MobileBottomSheet({ className, close, data }) {
     new Date(appointmentItem.startDate)
   );
   const [endTime, setEndTime] = useState(new Date());
-  const [pickTimeMetrix, setPickTimeMetrix] = useState(appointmentItem.type);
+  const [pickTimeMetrix, setPickTimeMetrix] = useState("S");
   // const [type, setType] = useState("");
   const sideBar = useRef(null);
   const router = useRouter();
 
   const [title, setTitle] = useState(appointmentItem.title);
 
-  const timeMetrixList = [
-    { type: "A", sub: "급하고 중요한 일" },
-    { type: "B", sub: "급하지 않지만, 중요한 일" },
-    { type: "C", sub: "급하지만 중요하지 않는 일" },
-    { type: "D", sub: "급하지도 않고 중요하지도 않은 일" },
-  ];
+  const timeMetrixList = [{ type: "S", sub: "이번주 중요한 실행 계획" }];
 
   const dayList = [
     { name: "월", num: 0 },
@@ -148,8 +143,8 @@ export default function MobileBottomSheet({ className, close, data }) {
 
         let pickColor = "";
         switch (pickTimeMetrix) {
-          case "A":
-            pickColor = "#B00020";
+          case "S":
+            pickColor = "#F6C55B";
             break;
           case "B":
             pickColor = "#EE7A48";
@@ -173,7 +168,7 @@ export default function MobileBottomSheet({ className, close, data }) {
           .join("");
 
         if (!isAllDay && !isRepeat) {
-          let result = await req2srv.createPlan({
+          let result = await req2srv.updatePlan({
             id: appointmentItem.id,
             startDate: new Date(
               `${moment(startDate).format("YYYY-MM-DD")} ${moment(
@@ -191,7 +186,7 @@ export default function MobileBottomSheet({ className, close, data }) {
             type: pickTimeMetrix,
           });
         } else if (isAllDay && !isRepeat) {
-          let result = await req2srv.createPlan({
+          let result = await req2srv.updatePlan({
             id: appointmentItem.id,
             startDate: new Date(
               `${moment(startDate).format("YYYY-MM-DD 00:00:00")}`
@@ -205,7 +200,7 @@ export default function MobileBottomSheet({ className, close, data }) {
             type: pickTimeMetrix,
           });
         } else if (isAllDay && isRepeat) {
-          let result = await req2srv.createPlan({
+          let result = await req2srv.updatePlan({
             id: appointmentItem.id,
             startDate: new Date(
               `${moment(startDate).format("YYYY-MM-DD 00:00:00")}`
@@ -221,7 +216,7 @@ export default function MobileBottomSheet({ className, close, data }) {
             repeatDay: repeatDay,
           });
         } else if (!isAllDay && isRepeat) {
-          let result = await req2srv.createPlan({
+          let result = await req2srv.updatePlan({
             id: appointmentItem.id,
             startDate: new Date(
               `${moment(startDate).format("YYYY-MM-DD")} ${moment(
@@ -411,11 +406,11 @@ export default function MobileBottomSheet({ className, close, data }) {
           </div>
 
           <div className={classname("picker")}>
-            <div className={classname("picker-time")}>
+            {/* <div className={classname("picker-time")}>
               {" "}
               날짜
               <DatePickers pickDate={startDate} setDate={setStartDate} />
-            </div>
+            </div> */}
             {!isAllDay && (
               <>
                 <div className={classname("picker-time")}>
@@ -445,13 +440,13 @@ export default function MobileBottomSheet({ className, close, data }) {
           {isRepeat && (
             <div>
               <div className={classname("picker-repeat")}>{repeatDay}</div>
-              <div className={classname("picker-repeat-done")}>
+              {/* <div className={classname("picker-repeat-done")}>
                 <DatePickers
                   pickDate={repeatLastDay}
                   setDate={setRepeatLastDay}
                 />{" "}
                 <div className={classname("body14")}>까지 반복</div>
-              </div>
+              </div> */}
             </div>
           )}
         </div>

@@ -2,6 +2,7 @@ import _ from "lodash";
 import { getSession } from "next-auth/react";
 
 import prisma from "lib/prisma";
+import moment from "moment";
 
 function invalidCall(res) {
   res.status(400).json({ message: `invalid call` });
@@ -39,7 +40,9 @@ export default async function apiHandler(req, res) {
     return;
   }
   try {
-    // console.log(repeatDay);
+    // console.log(new Date(
+    //   `${moment(startDate).format("YYYY-MM-DD 00:00:00")}`
+    // ));
     if (isrepeat === false) {
       let result = await prisma.schedule.create({
         data: {
