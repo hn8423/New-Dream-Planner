@@ -186,4 +186,43 @@
       cursor: pointer;
     }
   }
+  .week-statistics {
+    width: 100%;
+    padding: 12px 0;
+    // height: 2;
+    display: flex;
+    flex-direction: column;
+
+    .week-statistics-header {
+      padding: 13px 16px;
+      .week-statistics-header-title {
+        padding-bottom: 6px;
+      }
+      .week-statistics-header-sub {
+        color: #6b6b6b;
+      }
+    }
+    .week-statistics-core {
+      padding: 13px 16px;
+      .week-statistics-core-title {
+        padding-bottom: 6px;
+      }
+      .week-statistics-core-sub {
+        color: #6b6b6b;
+      }
+      .week-statistics-core-progress {
+        // border: 1px red solid;
+        // border-radius: 32px;
+        display: flex;
+        align-items: center;
+        column-gap: 5px;
+        padding-top: 12px;
+        .progress-bar-wrapper {
+          width: 140px;
+        }
+        .week-statistics-core-progress-percent {
+        }
+      }
+    }
+  }
 }

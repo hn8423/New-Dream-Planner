@@ -12,6 +12,7 @@ import req2srv from "lib/req2srv/weekly";
 import MobileBottomSheetS from "components/mobile/bottomSheetS";
 import DayBottomSheet from "components/mobile/bottomSheetDay";
 import BottomSheetStype from "components/mobile/bottomSheetSUD";
+import ProgressBar from "components/progressBar";
 
 const weekOfMonth = (m) => m.week() - moment(m).startOf("month").week();
 
@@ -34,6 +35,14 @@ export async function getServerSideProps(ctx) {
         week: String(weekOfMonth(moment())),
       },
     });
+    const lookInsideText = await prisma.dailyLookInside.findMany({
+      where: {
+        userId: session.user.id,
+        year: moment().format("YYYY"),
+        month: moment().format("M"),
+        week: String(weekOfMonth(moment())),
+      },
+    });
     const scheduleList = await prisma.schedule.findMany({
       where: {
         userId: session.user.id,
@@ -48,6 +57,7 @@ export async function getServerSideProps(ctx) {
       props: {
         missionText: JSON.parse(JSON.stringify(missionText)),
         weeklyText: JSON.parse(JSON.stringify(weeklyText)),
+        lookInsideText: JSON.parse(JSON.stringify(lookInsideText)),
         scheduleList: JSON.parse(JSON.stringify(scheduleList)),
         session,
       },
@@ -68,11 +78,17 @@ export async function getServerSideProps(ctx) {
 /**
  * @type {(props:{missionText: (import('@prisma/client').Mission)[]
  * weeklyText: (import('@prisma/client').WeeklyAnalysis)[]
+ * lookInsideText: (import('@prisma/client').DailyLookInside)[]
  * scheduleList: (import('@prisma/client').Schedule)[]
  * session: commons.session
  * })}
  */
-export default function Week({ missionText, weeklyText, scheduleList }) {
+export default function Week({
+  missionText,
+  weeklyText,
+  scheduleList,
+  lookInsideText,
+}) {
   const [isSOpen, setSOpen] = useState(false);
   const [isUDSOpened, setUDSOpened] = useState(false);
   const [isDayOpen, setDayOpen] = useState(false);
@@ -161,6 +177,9 @@ export default function Week({ missionText, weeklyText, scheduleList }) {
   const closeDay = () => {
     setDayOpen(false);
   };
+  const closeUDS = () => {
+    setUDSOpened(false);
+  };
   const openDay = () => {
     setDayOpen(true);
   };
@@ -205,7 +224,7 @@ export default function Week({ missionText, weeklyText, scheduleList }) {
         className={classname([
           "week",
           { loading: isLoading },
-          { openChange: isSOpen || isDayOpen },
+          { openChange: isSOpen || isDayOpen || isUDSOpened },
         ])}
       >
         <div className={classname(["week-header"])}>
@@ -319,9 +338,90 @@ export default function Week({ missionText, weeklyText, scheduleList }) {
         </div>
         <Board
           scheduleLists={scheduleLists}
+          lookInsideText={lookInsideText}
           setDayNum={setDayNum}
           openDay={openDay}
+          weekOfMonth={weekOfMonth}
         />
+
+        <div className={classname(["week-statistics"])}>
+          <div className={classname(["week-statistics-header"])}>
+            <div
+              className={classname(["week-statistics-header-title", "sub18"])}
+            >
+              미션 달성률
+            </div>
+            <div className={classname(["week-statistics-header-sub", "cap12"])}>
+              이번 주 미션 달성률을 확인하세요
+            </div>
+          </div>
+          <div className={classname(["week-statistics-core"])}>
+            <div className={classname(["week-statistics-core-title", "sub18"])}>
+              핵심 미션 달성률
+            </div>
+            <div className={classname(["week-statistics-core-sub", "cap12"])}>
+              주간 핵심 미션에 나온 플랜(S)의 달성률
+            </div>
+            <div className={classname(["week-statistics-core-progress"])}>
+              <div className={classname("progress-bar-wrapper")}>
+                <ProgressBar
+                  className={classname("progress-bar")}
+                  maxLevel={100}
+                  currentLevel={2}
+                ></ProgressBar>
+              </div>
+              <div
+                className={classname(["week-statistics-core-progress-percent"])}
+              >
+                %
+              </div>
+            </div>
+          </div>
+          <div className={classname(["week-statistics-core"])}>
+            <div className={classname(["week-statistics-core-title", "sub18"])}>
+              주간 미션 달성률{" "}
+            </div>
+            <div className={classname(["week-statistics-core-sub", "cap12"])}>
+              A B C D의 달성률{" "}
+            </div>
+            <div className={classname(["week-statistics-core-progress"])}>
+              <div className={classname("progress-bar-wrapper")}>
+                <ProgressBar
+                  className={classname("progress-bar")}
+                  maxLevel={100}
+                  currentLevel={2}
+                ></ProgressBar>
+              </div>
+              <div
+                className={classname(["week-statistics-core-progress-percent"])}
+              >
+                %
+              </div>
+            </div>
+          </div>
+          <div className={classname(["week-statistics-core"])}>
+            <div className={classname(["week-statistics-core-title", "sub18"])}>
+              이번 주 미션 달성률{" "}
+            </div>
+            <div className={classname(["week-statistics-core-sub", "cap12"])}>
+              핵심 미션 달성률 + 주간 미션 달성률 / 2 (총 평균){" "}
+            </div>
+            <div className={classname(["week-statistics-core-progress"])}>
+              <div className={classname("progress-bar-wrapper")}>
+                <ProgressBar
+                  className={classname("progress-bar")}
+                  maxLevel={100}
+                  currentLevel={2}
+                ></ProgressBar>
+              </div>
+              <div
+                className={classname(["week-statistics-core-progress-percent"])}
+              >
+                %
+              </div>
+            </div>
+          </div>
+        </div>
 
         {isSOpen && (
           <MobileBottomSheetS className={classname("side-bar")} close={close} />
@@ -337,7 +437,7 @@ export default function Week({ missionText, weeklyText, scheduleList }) {
           <BottomSheetStype
             className={classname("side-bar")}
             data={pickData}
-            close={closeDay}
+            close={closeUDS}
           />
         )}
       </div>

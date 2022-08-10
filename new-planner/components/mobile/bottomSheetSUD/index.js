@@ -353,6 +353,10 @@ export default function BottomSheetStype({ className, close, data }) {
     appointmentItem.repeatDay,
     appointmentItem.startDate,
   ]);
+
+  useEffect(() => {
+    console.log(title);
+  }, [title]);
   return (
     <div
       className={classname(["side-bar", { closing: isClosing }, className])}

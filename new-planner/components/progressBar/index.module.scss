@@ -1,0 +1,16 @@
+.progress-bar {
+  display: flex;
+  flex-flow: row nowrap;
+  // border-radius: 55px;
+  .highlight {
+    flex: 1 0 auto;
+    height: 8px;
+    border-bottom: 2px solid var(--primary-0);
+    background-color: var(--primary-0);
+  }
+  .non-highlight {
+    flex: 1 0 auto;
+    height: 8px;
+    background-color: var(--surface-4);
+  }
+}
