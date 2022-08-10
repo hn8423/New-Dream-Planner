@@ -1,6 +1,6 @@
 import style from "./index.module.scss";
 import { classOption, enterToBr } from "utill";
-import { useEffect, useMemo, useCallback, useState } from "react";
+import { useEffect, useMemo, useCallback, useState, useRef } from "react";
 const classname = classOption(style);
 import _ from "lodash";
 import moment from "moment";
@@ -9,6 +9,7 @@ import { useRouter } from "next/router";
 
 /**
  * @type {(props:{missionText: (import('@prisma/client').Mission)[]
+ * scheduleLists:(import('@prisma/client').Schedule)[]
  * })}
  */
 export default function Board({
@@ -21,6 +22,7 @@ export default function Board({
   //data
   //data
   //data
+  const item = useRef(null);
   const router = useRouter();
   const [lookInsideSun, setLookSun] = useState(
     lookInsideText.length === 0 ? "" : lookInsideText[0].lookInsideSun
@@ -51,6 +53,10 @@ export default function Board({
     return (e) => {
       fn(e.target.value);
     };
+  }
+
+  function scroll() {
+    item.current.scrollLeft(10);
   }
 
   const allowDrop = (ev) => {
@@ -99,6 +105,7 @@ export default function Board({
           repeatDay,
           type,
         }) => {
+          /**@type {(import('@prisma/client').Schedule)[]} */
           let result = [];
           let temp_startDate = moment(startDate);
           let temp_endDate = moment(endDate);
@@ -234,31 +241,85 @@ export default function Board({
   //render
   //render
 
-  const boardItem = useMemo(
-    (v) => {
-      return (v) => {
-        let list = plan[v].map((v, i) => {
-          return (
-            <div className={classname("board-item")} key={`planlistday${i}`}>
+  /**
+   * @template T
+   * @typedef { [T, import("react").Dispatch<import("react").SetStateAction<T>>]} usestate
+   *  */
+  /**@type {usestate<{[x:number]: {[x:number]: boolean}}>} */
+  const [clickedList, setClickedList] = useState(null);
+  useEffect(() => {
+    let result = _(plan)
+      .toPairs()
+      .keyBy(([key, value]) => key)
+      .mapValues(([key, value]) => value)
+      .mapValues((v) => {
+        return _(v)
+          .toPairs()
+          .keyBy(([key, value]) => key)
+          .mapValues(([key, value]) => false)
+          .value();
+      })
+      .value();
+    setClickedList(result);
+  }, [plan]);
+
+  const boardItem = useMemo(() => {
+    return (value) => {
+      let list = plan[value].map((v, i) => {
+        return (
+          <div className={classname("board-item")} key={`planlistday${i}`}>
+            <div
+              className={classname([
+                "board-item-long",
+                { hi: !clickedList ? false : clickedList[value][i] },
+              ])}
+              onClick={() => {
+                setClickedList((s) => {
+                  if (!s) {
+                    return s;
+                  }
+                  let temp = { ...s };
+                  temp[value] = { ...s[value] };
+                  temp[value][i] = !temp[value][i];
+                  return temp;
+                });
+              }}
+            >
               <div
-                className={classname(["week-plan-list-item-type", "sub16"])}
-                style={{ backgroundColor: `${v.color}` }}
+                className={classname([
+                  "board-item-left",
+                ])} /* onClick={scroll} */
               >
-                {v.type}
+                <div
+                  className={classname(["week-plan-list-item-type", "sub16"])}
+                  style={{ backgroundColor: `${v.color}` }}
+                >
+                  {v.type}
+                </div>
+                <div
+                  className={classname(["week-plan-list-item-title", "sub16"])}
+                >
+                  {v.title}
+                </div>
               </div>
-              <div
-                className={classname(["week-plan-list-item-title", "sub16"])}
-              >
-                {v.title}
+              <div className={classname("board-item-right")}>
+                <div className={classname("board-item-right-edit")}>
+                  <img src="/images/week/edit.png" alt="edit" />
+                </div>
+                <div className={classname("board-item-right-garbage")}>
+                  <img src="/images/week/garbage.png" alt="garbage" />
+                </div>
+                <div className={classname("board-item-right-done")}>
+                  <img src="/images/week/done.png" alt="done" />
+                </div>
               </div>
             </div>
-          );
-        });
-        return list;
-      };
-    },
-    [plan]
-  );
+          </div>
+        );
+      });
+      return list;
+    };
+  }, [plan, clickedList]);
 
   return (
     <>

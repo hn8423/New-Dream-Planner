@@ -3,7 +3,7 @@
   font-size: 10px;
 
   padding: 16px;
-  overflow-x: scroll;
+  // overflow-y: scroll;
 
   .board-wrapper {
     display: flex;
@@ -37,32 +37,114 @@
           height: 628px;
           // border: 1px solid red;
           padding: 0 8px;
-          overflow: scroll;
+
           .board-item {
-            width: 100%;
-            height: 72px;
+            overflow: hidden;
+            // overflow: scroll;
+            // -ms-overflow-style: none; /* IE and Edge */
+            // scrollbar-width: none; /* Firefox */
+            // overflow-x: visible;
 
-            display: flex;
-            align-items: center;
-
-            margin: 4px 0;
-
-            background: #ffffff;
-            border-radius: 12px;
-            cursor: pointer;
-            .week-plan-list-item-type {
-              width: 40px;
-              height: 40px;
-
-              margin: 16px;
+            .board-item-long {
+              overflow: hidden;
+              width: 100%;
+              height: 72px;
 
               display: flex;
-              justify-content: center;
               align-items: center;
-              // background-color: var(--secondary-4);
-              border-radius: 50%;
-              color: #fff;
+              justify-content: flex-start;
+
+              margin: 4px 0;
+
+              border-radius: 12px;
+              cursor: pointer;
+
+              .board-item-left,
+              .board-item-right {
+                transform: translateX(0);
+
+                transition: transform 350ms ease-out;
+              }
+
+              &.hi {
+                .board-item-left {
+                  transform: translateX(-216px);
+                }
+                .board-item-right {
+                  transform: translateX(-100%);
+                }
+              }
+
+              .board-item-left {
+                flex: 0 0 100%;
+
+                display: flex;
+                align-items: center;
+                background: #ffffff;
+
+                // width: 100%;
+                // border-top-left-radius: 12px;
+                // border-bottom-left-radius: 12px;
+
+                &:active {
+                  // background: red;
+                  // scroll-behavior: 20px;
+                }
+
+                .week-plan-list-item-type {
+                  width: 40px;
+                  height: 40px;
+
+                  margin: 16px;
+
+                  display: flex;
+                  justify-content: center;
+                  align-items: center;
+                  // background-color: var(--secondary-4);
+                  border-radius: 50%;
+                  color: #fff;
+                }
+              }
+
+              .board-item-right {
+                width: 216px;
+                height: 100%;
+                // border: 1px red solid;
+                display: flex;
+                .board-item-right-edit {
+                  height: 100%;
+                  width: 72px;
+                  display: flex;
+                  align-items: center;
+                  justify-content: center;
+                  flex-grow: 1;
+                  background-color: var(--secondary-2);
+                }
+                .board-item-right-garbage {
+                  height: 100%;
+                  width: 72px;
+                  display: flex;
+                  align-items: center;
+                  justify-content: center;
+                  flex-grow: 1;
+                  background-color: var(--secondary-0);
+                }
+                .board-item-right-done {
+                  height: 100%;
+                  width: 72px;
+                  display: flex;
+                  align-items: center;
+                  justify-content: center;
+                  flex-grow: 1;
+                  background-color: var(--secondary-3);
+                  border-top-right-radius: 12px;
+                  border-bottom-right-radius: 12px;
+                }
+              }
             }
+          }
+          .board-item::-webkit-scrollbar {
+            display: none; /* Chrome, Safari, Opera*/
           }
         }
       }
