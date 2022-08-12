@@ -110,17 +110,18 @@ model DailyLookInside {
 }
 
 model Schedule {
-  id            String    @id @default(cuid())
-  userId        String
-  startDate     DateTime
-  endDate       DateTime
-  title         String
-  color         String
-  repeatDay     String?
-  repeatLastDay DateTime?
-  isrepeat      Boolean
-  type          String
-  isComplete    Boolean?
+  id               String    @id @default(cuid())
+  userId           String
+  startDate        DateTime
+  endDate          DateTime
+  title            String
+  color            String
+  repeatDay        String?
+  repeatLastDay    DateTime?
+  isrepeat         Boolean
+  type             String
+  isComplete       Boolean?
+  isRepeatComplete String?
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }

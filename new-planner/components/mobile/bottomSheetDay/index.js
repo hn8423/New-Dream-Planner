@@ -165,7 +165,7 @@ export default function DayBottomSheet({ className, close, dayNum }) {
           })
           .join("");
 
-        console.log(moment(startTime).format("h:mm:ss"));
+        let repeatComplete = new Array(repeatDay.length).fill("0").join("");
 
         if (!isAllDay && !isRepeat) {
           let result = await req2srv.createPlan({
@@ -183,7 +183,7 @@ export default function DayBottomSheet({ className, close, dayNum }) {
             color: pickColor,
             isrepeat: isRepeat,
             type: pickTimeMetrix,
-            isComplete: true,
+            isComplete: false,
           });
         } else if (isAllDay && !isRepeat) {
           let result = await req2srv.createPlan({
@@ -197,7 +197,7 @@ export default function DayBottomSheet({ className, close, dayNum }) {
             color: pickColor,
             isrepeat: isRepeat,
             type: pickTimeMetrix,
-            isComplete: true,
+            isComplete: false,
           });
         } else if (isAllDay && isRepeat) {
           let result = await req2srv.createPlan({
@@ -213,7 +213,7 @@ export default function DayBottomSheet({ className, close, dayNum }) {
             type: pickTimeMetrix,
             repeatLastDay,
             repeatDay: repeatDay,
-            isComplete: true,
+            isRepeatComplete: repeatComplete,
           });
         } else if (!isAllDay && isRepeat) {
           let result = await req2srv.createPlan({
@@ -233,7 +233,7 @@ export default function DayBottomSheet({ className, close, dayNum }) {
             type: pickTimeMetrix,
             repeatLastDay,
             repeatDay,
-            isComplete: true,
+            isRepeatComplete: repeatComplete,
           });
         }
         alert("일정을 등록 했습니다.");

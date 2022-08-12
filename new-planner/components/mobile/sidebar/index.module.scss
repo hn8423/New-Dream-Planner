@@ -20,6 +20,7 @@
   width: 100%;
 
   // position: absolute;
+  z-index: 3;
 
   animation: open-slide 0.15s ease-in-out;
   animation-fill-mode: forwards;

@@ -13,6 +13,7 @@ import MobileBottomSheetS from "components/mobile/bottomSheetS";
 import DayBottomSheet from "components/mobile/bottomSheetDay";
 import BottomSheetStype from "components/mobile/bottomSheetSUD";
 import ProgressBar from "components/progressBar";
+import _ from "lodash";
 
 const weekOfMonth = (m) => m.week() - moment(m).startOf("month").week();
 
@@ -69,6 +70,7 @@ export async function getServerSideProps(ctx) {
         missionText: [],
         weeklyText: [],
         scheduleList: [],
+        lookInsideText: [],
         session,
       },
     };
@@ -117,11 +119,113 @@ export default function Week({
   //memo
   //memo
   //memo
+  const plan = useMemo(() => {
+    let [reapeatList, unReapeatList] = _(scheduleLists)
+      .partition((v) => v.isrepeat)
+      .value();
+
+    let createdList = _(reapeatList)
+      .flatMap(
+        ({
+          color,
+          endDate,
+          id,
+          isrepeat,
+          repeatLastDay,
+          startDate,
+          title,
+          repeatDay,
+          type,
+          isRepeatComplete,
+          isComplete,
+        }) => {
+          /**@type {(import('@prisma/client').Schedule)[]} */
+          let result = [];
+          let temp_startDate = moment(startDate);
+          let temp_endDate = moment(endDate);
+          let temp_repeatLastDay = moment(repeatLastDay);
+
+          let pickIsComplete = [...isRepeatComplete];
+          let count;
+          let temp_count = 0;
+
+          while (temp_startDate <= temp_repeatLastDay) {
+            [...repeatDay].forEach((e) => {
+              if (`${e}` === temp_startDate.format("d")) {
+                let temp = {
+                  color,
+                  title,
+                  id,
+                  isrepeat,
+                  repeatLastDay,
+                  repeatDay,
+                  startDate,
+                  endDate,
+                  type,
+                  isComplete,
+                  count,
+                  isRepeatComplete,
+                };
+                temp.startDate = temp_startDate;
+                temp.endDate = temp_endDate;
+                temp.count = temp_count;
+                temp.isComplete =
+                  pickIsComplete[temp_count] === "0" ? false : true;
+                result.push(temp);
+                // console.log(temp_count);
+                // temp_count = temp_count + 1;
+              }
+            });
+            temp_startDate = moment(temp_startDate).add(1, "d");
+            temp_endDate = moment(temp_endDate).add(1, "d");
+            temp_count = temp_count + 1;
+          }
+
+          return result;
+        }
+      )
+      .value();
+
+    return [...createdList, ...unReapeatList];
+
+    // data 가져 와서 isrepeat true 인것 가져오기
+    // startDate에서 repeatLastDay 까지 일정 가져오기
+    // 요일별 숫자로 체크 해서 해당 요일 반복 된 것 만 필터링
+    // 새롭게 data 값에 반복된 값들 추가된 값 넣기
+  }, [scheduleLists]);
 
   const sItem = useMemo(() => {
-    return scheduleLists.filter((v) => v.type === "S");
+    return plan.filter((v) => v.type === "S");
     // return scheduleList.filter((v) => v.type === "S");
-  }, [scheduleLists]);
+  }, [plan]);
+
+  const otherItem = useMemo(() => {
+    return plan.filter((v) => v.type !== "S");
+    // return scheduleList.filter((v) => v.type === "S");
+  }, [plan]);
+
+  const coreMissionComplete = useMemo(() => {
+    let complete = sItem.filter((v) => v.isComplete === true).length;
+    if (complete === 0) {
+      return 0;
+    } else {
+      return complete / sItem.length;
+    }
+  }, [sItem]);
+
+  const weeklyMissionComplete = useMemo(() => {
+    let complete = otherItem.filter((v) => v.isComplete === true).length;
+
+    if (complete === 0) {
+      return 0;
+    } else {
+      return complete / otherItem.length;
+    }
+  }, [otherItem]);
+
+  const allAverageComplete = useMemo(() => {
+    return (coreMissionComplete + weeklyMissionComplete) / 2;
+  }, [coreMissionComplete, weeklyMissionComplete]);
 
   //function
   //function
@@ -170,6 +274,7 @@ export default function Week({
 
   const openSModal = () => {
     setSOpen(true);
+    // window.scrollTo(0, 0);
   };
   const close = () => {
     setSOpen(false);
@@ -183,6 +288,10 @@ export default function Week({
   const openDay = () => {
     setDayOpen(true);
   };
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [isSOpen]);
 
   // useEffect(() => {
   //   // console.log("scheduleLists :", scheduleLists);
@@ -214,10 +323,10 @@ export default function Week({
     return result;
   }, []);
 
-  useEffect(() => {
-    // console.log(new Date(moment().day(0)));
-    // console.log(moment().day(0).hour(0).minute(0).second(0));
-  }, []);
+  // useEffect(() => {
+  //   console.log(coreMissionComplete);
+  //   // console.log(moment().day(0).hour(0).minute(0).second(0));
+  // }, []);
   return (
     <>
       <div
@@ -342,6 +451,7 @@ export default function Week({
           setDayNum={setDayNum}
           openDay={openDay}
           weekOfMonth={weekOfMonth}
+          updateStype={updateStype}
         />
 
         <div className={classname(["week-statistics"])}>
@@ -366,14 +476,14 @@ export default function Week({
               <div className={classname("progress-bar-wrapper")}>
                 <ProgressBar
                   className={classname("progress-bar")}
-                  maxLevel={100}
-                  currentLevel={2}
+                  currentLevel={coreMissionComplete}
+                  // currentLevel={0.5}
                 ></ProgressBar>
               </div>
               <div
                 className={classname(["week-statistics-core-progress-percent"])}
               >
-                %
+                {coreMissionComplete * 100}%
               </div>
             </div>
           </div>
@@ -388,14 +498,13 @@ export default function Week({
               <div className={classname("progress-bar-wrapper")}>
                 <ProgressBar
                   className={classname("progress-bar")}
-                  maxLevel={100}
-                  currentLevel={2}
+                  currentLevel={weeklyMissionComplete}
                 ></ProgressBar>
               </div>
               <div
                 className={classname(["week-statistics-core-progress-percent"])}
               >
-                %
+                {weeklyMissionComplete * 100}%
               </div>
             </div>
           </div>
@@ -410,14 +519,14 @@ export default function Week({
               <div className={classname("progress-bar-wrapper")}>
                 <ProgressBar
                   className={classname("progress-bar")}
-                  maxLevel={100}
-                  currentLevel={2}
+                  // maxLevel={100}
+                  currentLevel={allAverageComplete}
                 ></ProgressBar>
               </div>
               <div
                 className={classname(["week-statistics-core-progress-percent"])}
               >
-                %
+                {allAverageComplete * 100}%
               </div>
             </div>
           </div>

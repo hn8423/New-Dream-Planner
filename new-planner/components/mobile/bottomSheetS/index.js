@@ -39,13 +39,13 @@ export default function MobileBottomSheet({ className, close }) {
   const timeMetrixList = [{ type: "S", sub: "이번주 중요한 실행 계획" }];
 
   const dayList = [
-    { name: "월", num: 0 },
-    { name: "화", num: 1 },
-    { name: "수", num: 2 },
-    { name: "목", num: 3 },
-    { name: "금", num: 4 },
-    { name: "토", num: 5 },
-    { name: "일", num: 6 },
+    { name: "일", num: 0 },
+    { name: "월", num: 1 },
+    { name: "화", num: 2 },
+    { name: "수", num: 3 },
+    { name: "목", num: 4 },
+    { name: "금", num: 5 },
+    { name: "토", num: 6 },
   ];
 
   // method
@@ -146,7 +146,7 @@ export default function MobileBottomSheet({ className, close }) {
             }
           })
           .join("");
-
+        let repeatComplete = new Array(repeatDay.length).fill("0").join("");
         if (!isAllDay && !isRepeat) {
           let result = await req2srv.createPlan({
             startDate: new Date(
@@ -193,7 +193,7 @@ export default function MobileBottomSheet({ className, close }) {
             type: pickTimeMetrix,
             repeatLastDay,
             repeatDay: repeatDay,
-            isComplete: true,
+            isRepeatComplete: repeatComplete,
           });
         } else if (!isAllDay && isRepeat) {
           let result = await req2srv.createPlan({
@@ -213,7 +213,7 @@ export default function MobileBottomSheet({ className, close }) {
             type: pickTimeMetrix,
             repeatLastDay,
             repeatDay,
-            isComplete: true,
+            isRepeatComplete: repeatComplete,
           });
         }
         alert("일정을 등록 했습니다.");

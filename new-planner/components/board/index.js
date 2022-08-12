@@ -5,6 +5,7 @@ const classname = classOption(style);
 import _ from "lodash";
 import moment from "moment";
 import req2srv from "lib/req2srv/weekly";
+import req2srvPlan from "lib/req2srv/plan";
 import { useRouter } from "next/router";
 
 /**
@@ -18,6 +19,7 @@ export default function Board({
   openDay,
   lookInsideText,
   weekOfMonth,
+  updateStype,
 }) {
   //data
   //data
@@ -55,34 +57,34 @@ export default function Board({
     };
   }
 
-  function scroll() {
-    item.current.scrollLeft(10);
-  }
+  // function scroll() {
+  //   item.current.scrollLeft(10);
+  // }
 
-  const allowDrop = (ev) => {
-    ev.preventDefault();
-  };
+  // const allowDrop = (ev) => {
+  //   ev.preventDefault();
+  // };
 
-  const drag = (ev, id) => {
-    // ev.dataTransfer.setData("Text", ev.target.id);
-    ev.dataTransfer.setData("Text", ev.target.id);
-    ev.dataTransfer.setData("listName", ev.target.parentElement.id);
-  };
+  // const drag = (ev, id) => {
+  //   // ev.dataTransfer.setData("Text", ev.target.id);
+  //   ev.dataTransfer.setData("Text", ev.target.id);
+  //   ev.dataTransfer.setData("listName", ev.target.parentElement.id);
+  // };
 
-  const drop = (ev) => {
-    var data = ev.dataTransfer.getData("Text");
-    console.log(data);
-    ev.target.appendChild(document.getElementById(data));
-    ev.preventDefault();
-  };
+  // const drop = (ev) => {
+  //   var data = ev.dataTransfer.getData("Text");
+  //   console.log(data);
+  //   ev.target.appendChild(document.getElementById(data));
+  //   ev.preventDefault();
+  // };
 
-  const beforeOrAfter = (e, y) => {
-    const box = e.target.getBoundingClientRect();
-    const offset = y - box.top - box.height / 2;
-    return offset < 0
-      ? { where: "before", id: Number(e.id) }
-      : { where: "after", id: Number(e.id) };
-  };
+  // const beforeOrAfter = (e, y) => {
+  //   const box = e.target.getBoundingClientRect();
+  //   const offset = y - box.top - box.height / 2;
+  //   return offset < 0
+  //     ? { where: "before", id: Number(e.id) }
+  //     : { where: "after", id: Number(e.id) };
+  // };
 
   //memo
   //memo
@@ -104,12 +106,18 @@ export default function Board({
           title,
           repeatDay,
           type,
+          isRepeatComplete,
+          isComplete,
         }) => {
           /**@type {(import('@prisma/client').Schedule)[]} */
           let result = [];
           let temp_startDate = moment(startDate);
           let temp_endDate = moment(endDate);
           let temp_repeatLastDay = moment(repeatLastDay);
+
+          let pickIsComplete = [...isRepeatComplete];
+          let count;
+          let temp_count = 0;
 
           while (temp_startDate <= temp_repeatLastDay) {
             [...repeatDay].forEach((e) => {
@@ -124,14 +132,23 @@ export default function Board({
                   startDate,
                   endDate,
                   type,
+                  isComplete,
+                  count,
+                  isRepeatComplete,
                 };
                 temp.startDate = temp_startDate;
                 temp.endDate = temp_endDate;
+                temp.count = temp_count;
+                temp.isComplete =
+                  pickIsComplete[temp_count] === "0" ? false : true;
                 result.push(temp);
+                // console.log(temp_count);
+                // temp_count = temp_count + 1;
               }
             });
             temp_startDate = moment(temp_startDate).add(1, "d");
             temp_endDate = moment(temp_endDate).add(1, "d");
+            temp_count = temp_count + 1;
           }
 
           return result;
@@ -141,41 +158,85 @@ export default function Board({
 
     let allList = [...createdList, ...unReapeatList];
 
-    let Sun = allList.filter(
+    let SunFilter = allList.filter(
       (v) =>
         moment(v.endDate).format("YYYY-MM-DD") ===
         moment().day(0).format("YYYY-MM-DD")
     );
-    let Mon = allList.filter(
+
+    let [isdoneSunList, undoneSunList] = _(SunFilter)
+      .partition((v) => v.isComplete)
+      .value();
+
+    let Sun = [...undoneSunList, ...isdoneSunList];
+
+    let MonFilter = allList.filter(
       (v) =>
         moment(v.endDate).format("YYYY-MM-DD") ===
         moment().day(1).format("YYYY-MM-DD")
     );
-    let Tue = allList.filter(
+
+    let [isdoneMonList, undoneMonList] = _(MonFilter)
+      .partition((v) => v.isComplete)
+      .value();
+
+    let Mon = [...undoneMonList, ...isdoneMonList];
+
+    let TueFilter = allList.filter(
       (v) =>
         moment(v.endDate).format("YYYY-MM-DD") ===
         moment().day(2).format("YYYY-MM-DD")
     );
-    let Wed = allList.filter(
+
+    let [isdoneTueList, undoneTueList] = _(TueFilter)
+      .partition((v) => v.isComplete)
+      .value();
+
+    let Tue = [...undoneTueList, ...isdoneTueList];
+
+    let WedFilter = allList.filter(
       (v) =>
         moment(v.endDate).format("YYYY-MM-DD") ===
         moment().day(3).format("YYYY-MM-DD")
     );
-    let Thu = allList.filter(
+
+    let [isdoneWedList, undoneWedList] = _(WedFilter)
+      .partition((v) => v.isComplete)
+      .value();
+
+    let Wed = [...undoneWedList, ...isdoneWedList];
+
+    let ThuFilter = allList.filter(
       (v) =>
         moment(v.endDate).format("YYYY-MM-DD") ===
         moment().day(4).format("YYYY-MM-DD")
     );
-    let Fri = allList.filter(
+
+    let [isdoneThuList, undoneThuList] = _(ThuFilter)
+      .partition((v) => v.isComplete)
+      .value();
+
+    let Thu = [...undoneThuList, ...isdoneThuList];
+    let FriFilter = allList.filter(
       (v) =>
         moment(v.endDate).format("YYYY-MM-DD") ===
         moment().day(5).format("YYYY-MM-DD")
     );
-    let Sat = allList.filter(
+    let [isdoneFriList, undoneFriList] = _(FriFilter)
+      .partition((v) => v.isComplete)
+      .value();
+
+    let Fri = [...undoneFriList, ...isdoneFriList];
+    let SatFilter = allList.filter(
       (v) =>
         moment(v.endDate).format("YYYY-MM-DD") ===
         moment().day(6).format("YYYY-MM-DD")
     );
+    let [isdoneSatList, undoneSatList] = _(SatFilter)
+      .partition((v) => v.isComplete)
+      .value();
+
+    let Sat = [...undoneSatList, ...isdoneSatList];
 
     return [Sun, Mon, Tue, Wed, Thu, Fri, Sat];
 
@@ -184,7 +245,6 @@ export default function Board({
     // 요일별 숫자로 체크 해서 해당 요일 반복 된 것 만 필터링
     // 새롭게 data 값에 반복된 값들 추가된 값 넣기
   }, [scheduleLists]);
-
   //function
   //function
   //function
@@ -228,14 +288,27 @@ export default function Board({
     };
   };
 
+  const DeleteSchedule = useCallback(() => {
+    return async (id) => {
+      console.log(id);
+      let result = await req2srvPlan.deletePlan({
+        id: v.id,
+      });
+
+      alert(`${v.title}일정이 삭제 되었습니다.`);
+
+      router.reload();
+    };
+  }, [router]);
+
   // effect
   // effect
   // effect
   // useEffect(() => {
-  //   console.log(lookInsideTue);
-  //   console.log(lookInsideSun);
+  //   console.log(plan);
+  //   // console.log(lookInsideSun);
   //   // console.log(moment(plan[0].endDate).day(1).format("YYYY-MM-DD"));
-  // }, [lookInsideTue]);
+  // }, [plan]);
 
   //render
   //render
@@ -273,26 +346,30 @@ export default function Board({
                 "board-item-long",
                 { hi: !clickedList ? false : clickedList[value][i] },
               ])}
-              onClick={() => {
-                setClickedList((s) => {
-                  if (!s) {
-                    return s;
-                  }
-                  let temp = { ...s };
-                  temp[value] = { ...s[value] };
-                  temp[value][i] = !temp[value][i];
-                  return temp;
-                });
-              }}
             >
               <div
-                className={classname([
-                  "board-item-left",
-                ])} /* onClick={scroll} */
+                className={classname(["board-item-left"])}
+                onClick={
+                  v.isComplete
+                    ? () => {}
+                    : () => {
+                        setClickedList((s) => {
+                          if (!s) {
+                            return s;
+                          }
+                          let temp = { ...s };
+                          temp[value] = { ...s[value] };
+                          temp[value][i] = !temp[value][i];
+                          return temp;
+                        });
+                      }
+                }
               >
                 <div
                   className={classname(["week-plan-list-item-type", "sub16"])}
-                  style={{ backgroundColor: `${v.color}` }}
+                  style={{
+                    backgroundColor: v.isComplete ? `#E7E7E7` : `${v.color}`,
+                  }}
                 >
                   {v.type}
                 </div>
@@ -303,13 +380,53 @@ export default function Board({
                 </div>
               </div>
               <div className={classname("board-item-right")}>
-                <div className={classname("board-item-right-edit")}>
+                <div
+                  className={classname("board-item-right-edit")}
+                  onClick={v.type === "S" ? updateStype(v) : OpenDayPlan(v)}
+                >
                   <img src="/images/week/edit.png" alt="edit" />
                 </div>
-                <div className={classname("board-item-right-garbage")}>
+                <div
+                  className={classname("board-item-right-garbage")}
+                  onClick={async () => {
+                    await req2srvPlan.deletePlan({
+                      id: v.id,
+                    });
+
+                    alert(`${v.title}일정이 삭제 되었습니다.`);
+
+                    router.reload();
+                  }}
+                >
                   <img src="/images/week/garbage.png" alt="garbage" />
                 </div>
-                <div className={classname("board-item-right-done")}>
+                <div
+                  className={classname("board-item-right-done")}
+                  onClick={async () => {
+                    // console.log(v.isRepeatComplete);
+                    if (v.isrepeat) {
+                      let arr = [...v.isRepeatComplete];
+                      arr[v.count] = "1";
+                      let doneRepeatComplete = arr.join("");
+
+                      await req2srvPlan.updateComplete({
+                        id: v.id,
+                        isrepeat: v.isrepeat,
+                        isRepeatComplete: doneRepeatComplete,
+                      });
+                    } else {
+                      await req2srvPlan.updateComplete({
+                        id: v.id,
+                        isrepeat: v.isrepeat,
+                        // isRepeatComplete: doneRepeatComplete
+                      });
+                    }
+
+                    alert(`${v.title}일정 완료하였습니다`);
+
+                    router.reload();
+                  }}
+                >
                   <img src="/images/week/done.png" alt="done" />
                 </div>
               </div>

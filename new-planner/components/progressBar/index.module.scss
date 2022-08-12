@@ -9,9 +9,9 @@
     height: 8px;
     border-bottom: 2px solid var(--primary-0);
     background-color: var(--primary-0);
-    // transform-origin: left;
-    /* transform: scaleX(1); */
-    // transition: transform 350ms ease-out;
+    transform-origin: left;
+
+    transition: transform 350ms ease-out;
   }
   .non-highlight {
     flex: 1 0 auto;

@@ -2,7 +2,6 @@ import _ from "lodash";
 import { getSession } from "next-auth/react";
 
 import prisma from "lib/prisma";
-import moment from "moment";
 
 function invalidCall(res) {
   res.status(400).json({ message: `invalid call` });
@@ -19,18 +18,7 @@ export default async function apiHandler(req, res) {
     return;
   }
 
-  const {
-    startDate,
-    endDate,
-    title,
-    color,
-    isrepeat,
-    type,
-    repeatLastDay,
-    repeatDay,
-    isComplete,
-    isRepeatComplete,
-  } = req.body;
+  const { id, isrepeat, isRepeatComplete } = req.body;
   // console.log(req.body);
 
   /**@type {import('next-auth').Session&{user:{id:string}}} */
@@ -41,27 +29,20 @@ export default async function apiHandler(req, res) {
     return;
   }
   try {
-    // console.log(new Date(
-    //   `${moment(startDate).format("YYYY-MM-DD 00:00:00")}`
-    // ));
+    // console.log(repeatDay);
     if (isrepeat === false) {
-      let result = await prisma.schedule.create({
+      let result = await prisma.schedule.update({
+        where: {
+          id,
+        },
         data: {
-          startDate,
-          endDate,
-          title,
-          color,
-          isrepeat,
-          type,
-          isComplete,
-          // repeatLastDay,
-          // repeatDay,
+          isComplete: true,
 
-          user: {
-            connect: {
-              id: session.user.id,
-            },
-          },
+          // user: {
+          //   connect: {
+          //     id: session.user.id,
+          //   },
+          // },
         },
       });
 
@@ -69,22 +50,12 @@ export default async function apiHandler(req, res) {
         res.status(200).json({ message: `done` });
       }
     } else {
-      let result = await prisma.schedule.create({
+      let result = await prisma.schedule.update({
+        where: {
+          id,
+        },
         data: {
-          startDate,
-          endDate,
-          title,
-          color,
-          isrepeat,
-          type,
-          repeatLastDay,
-          repeatDay,
           isRepeatComplete,
-          user: {
-            connect: {
-              id: session.user.id,
-            },
-          },
         },
       });
 

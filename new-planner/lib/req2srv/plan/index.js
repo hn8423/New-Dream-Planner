@@ -11,7 +11,7 @@ const errHandler = (err) => {
 };
 
 const req2srv = {
-  /**@type {(body:{title: string,   isComplete: boolean, startDate: Date, endDate: Date, color: string, repeatDay: string, repeatLastDay: Date, isrepeat: boolean, type: string })} */
+  /**@type {(body:{title: string, isRepeatComplete:string   isComplete: boolean, startDate: Date, endDate: Date, color: string, repeatDay: string, repeatLastDay: Date, isrepeat: boolean, type: string })} */
   async createPlan(body) {
     // console.log(body);
     const result = await axios
@@ -23,6 +23,13 @@ const req2srv = {
   async updatePlan(body) {
     const result = await axios
       .post("/api/plan/update", body)
+      .catch((err) => errHandler(err));
+    return result;
+  },
+  /**@type {(body:{id: string,isRepeatComplete:string,isrepeat:boolean,  })} */
+  async updateComplete(body) {
+    const result = await axios
+      .post("/api/plan/complete", body)
       .catch((err) => errHandler(err));
     return result;
   },
