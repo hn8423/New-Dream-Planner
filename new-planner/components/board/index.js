@@ -20,6 +20,7 @@ export default function Board({
   lookInsideText,
   weekOfMonth,
   updateStype,
+  UDopen,
 }) {
   //data
   //data
@@ -57,35 +58,6 @@ export default function Board({
     };
   }
 
-  // function scroll() {
-  //   item.current.scrollLeft(10);
-  // }
-
-  // const allowDrop = (ev) => {
-  //   ev.preventDefault();
-  // };
-
-  // const drag = (ev, id) => {
-  //   // ev.dataTransfer.setData("Text", ev.target.id);
-  //   ev.dataTransfer.setData("Text", ev.target.id);
-  //   ev.dataTransfer.setData("listName", ev.target.parentElement.id);
-  // };
-
-  // const drop = (ev) => {
-  //   var data = ev.dataTransfer.getData("Text");
-  //   console.log(data);
-  //   ev.target.appendChild(document.getElementById(data));
-  //   ev.preventDefault();
-  // };
-
-  // const beforeOrAfter = (e, y) => {
-  //   const box = e.target.getBoundingClientRect();
-  //   const offset = y - box.top - box.height / 2;
-  //   return offset < 0
-  //     ? { where: "before", id: Number(e.id) }
-  //     : { where: "after", id: Number(e.id) };
-  // };
-
   //memo
   //memo
   //memo
@@ -117,10 +89,9 @@ export default function Board({
 
           let pickIsComplete = [...isRepeatComplete];
           let count;
-          let temp_count = 0;
 
           while (temp_startDate <= temp_repeatLastDay) {
-            [...repeatDay].forEach((e) => {
+            [...repeatDay].forEach((e, i) => {
               if (`${e}` === temp_startDate.format("d")) {
                 let temp = {
                   color,
@@ -138,17 +109,13 @@ export default function Board({
                 };
                 temp.startDate = temp_startDate;
                 temp.endDate = temp_endDate;
-                temp.count = temp_count;
-                temp.isComplete =
-                  pickIsComplete[temp_count] === "0" ? false : true;
+                temp.count = i;
+                temp.isComplete = pickIsComplete[i] === "0" ? false : true;
                 result.push(temp);
-                // console.log(temp_count);
-                // temp_count = temp_count + 1;
               }
             });
             temp_startDate = moment(temp_startDate).add(1, "d");
             temp_endDate = moment(temp_endDate).add(1, "d");
-            temp_count = temp_count + 1;
           }
 
           return result;
@@ -160,7 +127,7 @@ export default function Board({
 
     let SunFilter = allList.filter(
       (v) =>
-        moment(v.endDate).format("YYYY-MM-DD") ===
+        moment(v.startDate).format("YYYY-MM-DD") ===
         moment().day(0).format("YYYY-MM-DD")
     );
 
@@ -172,7 +139,7 @@ export default function Board({
 
     let MonFilter = allList.filter(
       (v) =>
-        moment(v.endDate).format("YYYY-MM-DD") ===
+        moment(v.startDate).format("YYYY-MM-DD") ===
         moment().day(1).format("YYYY-MM-DD")
     );
 
@@ -184,7 +151,7 @@ export default function Board({
 
     let TueFilter = allList.filter(
       (v) =>
-        moment(v.endDate).format("YYYY-MM-DD") ===
+        moment(v.startDate).format("YYYY-MM-DD") ===
         moment().day(2).format("YYYY-MM-DD")
     );
 
@@ -196,7 +163,7 @@ export default function Board({
 
     let WedFilter = allList.filter(
       (v) =>
-        moment(v.endDate).format("YYYY-MM-DD") ===
+        moment(v.startDate).format("YYYY-MM-DD") ===
         moment().day(3).format("YYYY-MM-DD")
     );
 
@@ -208,7 +175,7 @@ export default function Board({
 
     let ThuFilter = allList.filter(
       (v) =>
-        moment(v.endDate).format("YYYY-MM-DD") ===
+        moment(v.startDate).format("YYYY-MM-DD") ===
         moment().day(4).format("YYYY-MM-DD")
     );
 
@@ -219,7 +186,7 @@ export default function Board({
     let Thu = [...undoneThuList, ...isdoneThuList];
     let FriFilter = allList.filter(
       (v) =>
-        moment(v.endDate).format("YYYY-MM-DD") ===
+        moment(v.startDate).format("YYYY-MM-DD") ===
         moment().day(5).format("YYYY-MM-DD")
     );
     let [isdoneFriList, undoneFriList] = _(FriFilter)
@@ -229,7 +196,7 @@ export default function Board({
     let Fri = [...undoneFriList, ...isdoneFriList];
     let SatFilter = allList.filter(
       (v) =>
-        moment(v.endDate).format("YYYY-MM-DD") ===
+        moment(v.startDate).format("YYYY-MM-DD") ===
         moment().day(6).format("YYYY-MM-DD")
     );
     let [isdoneSatList, undoneSatList] = _(SatFilter)
@@ -290,7 +257,7 @@ export default function Board({
 
   const DeleteSchedule = useCallback(() => {
     return async (id) => {
-      console.log(id);
+      // console.log(id);
       let result = await req2srvPlan.deletePlan({
         id: v.id,
       });
@@ -304,11 +271,6 @@ export default function Board({
   // effect
   // effect
   // effect
-  // useEffect(() => {
-  //   console.log(plan);
-  //   // console.log(lookInsideSun);
-  //   // console.log(moment(plan[0].endDate).day(1).format("YYYY-MM-DD"));
-  // }, [plan]);
 
   //render
   //render
@@ -382,7 +344,7 @@ export default function Board({
               <div className={classname("board-item-right")}>
                 <div
                   className={classname("board-item-right-edit")}
-                  onClick={v.type === "S" ? updateStype(v) : OpenDayPlan(v)}
+                  onClick={v.type === "S" ? updateStype(v) : UDopen(v)}
                 >
                   <img src="/images/week/edit.png" alt="edit" />
                 </div>
@@ -418,7 +380,6 @@ export default function Board({
                       await req2srvPlan.updateComplete({
                         id: v.id,
                         isrepeat: v.isrepeat,
-                        // isRepeatComplete: doneRepeatComplete
                       });
                     }
 

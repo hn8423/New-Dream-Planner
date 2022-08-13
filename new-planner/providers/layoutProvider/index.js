@@ -38,7 +38,7 @@ export default function LayoutProvider({ children, Component }) {
 
   return (
     <>
-      <MobileLayout isLogined={isLogined}>{children}</MobileLayout>
+      <MobileLayout /* isLogined={isLogined} */>{children}</MobileLayout>
 
       {/* {isLayoutNone && children}
       {layout === "pc" && <Layout isLogined={isLogined}>{children}</Layout>} */}

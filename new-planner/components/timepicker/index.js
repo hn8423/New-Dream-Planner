@@ -38,7 +38,7 @@ export default function TimePickers({ pick, setPick }) {
         onChange={(date) => setPick(date)}
         showTimeSelect
         showTimeSelectOnly
-        timeIntervals={15}
+        timeIntervals={30}
         timeCaption="Time"
         dateFormat="h:mm aa"
         showPopperArrow={false}

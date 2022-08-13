@@ -6,12 +6,13 @@ import { useRouter } from "next/router";
 import moment from "moment";
 import useSignCheck from "hooks/useSignCheck";
 import { getSession } from "next-auth/react";
-import { useEffect, useState, useCallback, useMemo } from "react";
+import { useEffect, useState, useCallback, useMemo, useRef } from "react";
 
 import req2srv from "lib/req2srv/weekly";
 import MobileBottomSheetS from "components/mobile/bottomSheetS";
 import DayBottomSheet from "components/mobile/bottomSheetDay";
 import BottomSheetStype from "components/mobile/bottomSheetSUD";
+import MobileBottomSheetUD from "components/mobile/bottomSheetUD";
 import ProgressBar from "components/progressBar";
 import _ from "lodash";
 
@@ -94,8 +95,12 @@ export default function Week({
   const [isSOpen, setSOpen] = useState(false);
   const [isUDSOpened, setUDSOpened] = useState(false);
   const [isDayOpen, setDayOpen] = useState(false);
+  const [isUDOpend, setUDOpened] = useState(false);
+
   const [dayNum, setDayNum] = useState(0);
   const [pickData, setPickData] = useState({});
+  const weekRef = useRef(null);
+  const headerRef = useRef(null);
 
   //data
   //data
@@ -143,14 +148,13 @@ export default function Week({
           let result = [];
           let temp_startDate = moment(startDate);
           let temp_endDate = moment(endDate);
-          let temp_repeatLastDay = moment(repeatLastDay);
+          let temp_repeatLastDay = moment(repeatLastDay).add(1, "d");
 
           let pickIsComplete = [...isRepeatComplete];
           let count;
-          let temp_count = 0;
 
           while (temp_startDate <= temp_repeatLastDay) {
-            [...repeatDay].forEach((e) => {
+            [...repeatDay].forEach((e, i) => {
               if (`${e}` === temp_startDate.format("d")) {
                 let temp = {
                   color,
@@ -168,17 +172,13 @@ export default function Week({
                 };
                 temp.startDate = temp_startDate;
                 temp.endDate = temp_endDate;
-                temp.count = temp_count;
-                temp.isComplete =
-                  pickIsComplete[temp_count] === "0" ? false : true;
+                temp.count = i;
+                temp.isComplete = pickIsComplete[i] === "0" ? false : true;
                 result.push(temp);
-                // console.log(temp_count);
-                // temp_count = temp_count + 1;
               }
             });
             temp_startDate = moment(temp_startDate).add(1, "d");
             temp_endDate = moment(temp_endDate).add(1, "d");
-            temp_count = temp_count + 1;
           }
 
           return result;
@@ -195,23 +195,26 @@ export default function Week({
   }, [scheduleLists]);
 
   const sItem = useMemo(() => {
-    return plan.filter((v) => v.type === "S");
+    return scheduleLists.filter((v) => v.type === "S");
     // return scheduleList.filter((v) => v.type === "S");
+  }, [scheduleLists]);
+  const sItemList = useMemo(() => {
+    return plan.filter((v) => v.type === "S");
   }, [plan]);
 
   const otherItem = useMemo(() => {
     return plan.filter((v) => v.type !== "S");
-    // return scheduleList.filter((v) => v.type === "S");
   }, [plan]);
 
   const coreMissionComplete = useMemo(() => {
-    let complete = sItem.filter((v) => v.isComplete === true).length;
+    let complete = sItemList.filter((v) => v.isComplete === true).length;
     if (complete === 0) {
       return 0;
     } else {
-      return complete / sItem.length;
+      let int = complete / sItemList.length;
+      return Math.round(int * 100) / 100;
     }
-  }, [sItem]);
+  }, [sItemList]);
 
   const weeklyMissionComplete = useMemo(() => {
     let complete = otherItem.filter((v) => v.isComplete === true).length;
@@ -219,12 +222,14 @@ export default function Week({
     if (complete === 0) {
       return 0;
     } else {
-      return complete / otherItem.length;
+      let int = complete / otherItem.length;
+      return Math.round(int * 100) / 100;
     }
   }, [otherItem]);
 
   const allAverageComplete = useMemo(() => {
-    return (coreMissionComplete + weeklyMissionComplete) / 2;
+    let sub = coreMissionComplete + weeklyMissionComplete;
+    return sub / 2;
   }, [coreMissionComplete, weeklyMissionComplete]);
 
   //function
@@ -252,6 +257,7 @@ export default function Week({
         router.reload();
       } catch (err) {
         console.log(err);
+        alert("나의 사명을 사명탭에서 먼저 써주시길 바랍니다.");
       }
     },
     [coreMission, lookInside, mainFocus]
@@ -263,8 +269,11 @@ export default function Week({
 
   const updateStype = (v) => {
     return () => {
+      weekRef.current.scrollIntoView({});
       setPickData(v);
-      setUDSOpened(true);
+      setTimeout(() => {
+        setUDSOpened(true);
+      }, 1);
     };
   };
 
@@ -273,8 +282,10 @@ export default function Week({
   };
 
   const openSModal = () => {
-    setSOpen(true);
-    // window.scrollTo(0, 0);
+    weekRef.current.scrollIntoView({});
+    setTimeout(() => {
+      setSOpen(true);
+    }, 1);
   };
   const close = () => {
     setSOpen(false);
@@ -286,17 +297,24 @@ export default function Week({
     setUDSOpened(false);
   };
   const openDay = () => {
-    setDayOpen(true);
+    weekRef.current.scrollIntoView({});
+    setTimeout(() => {
+      setDayOpen(true);
+    }, 1);
   };
 
-  useEffect(() => {
-    window.scrollTo(0, 0);
-  }, [isSOpen]);
-
-  // useEffect(() => {
-  //   // console.log("scheduleLists :", scheduleLists);
-  //   console.log("scheduleLists :", scheduleLists);
-  // }, []);
+  function UDclose() {
+    setUDOpened(false);
+  }
+  function UDopen(v) {
+    return () => {
+      weekRef.current.scrollIntoView({});
+      setPickData(v);
+      setTimeout(() => {
+        setUDOpened(true);
+      }, 1);
+    };
+  }
 
   //render
   //render
@@ -323,20 +341,16 @@ export default function Week({
     return result;
   }, []);
 
-  // useEffect(() => {
-  //   console.log(coreMissionComplete);
-  //   // console.log(moment().day(0).hour(0).minute(0).second(0));
-  // }, []);
   return (
     <>
       <div
         className={classname([
           "week",
           { loading: isLoading },
-          { openChange: isSOpen || isDayOpen || isUDSOpened },
+          { openChange: isSOpen || isDayOpen || isUDSOpened || isUDOpend },
         ])}
       >
-        <div className={classname(["week-header"])}>
+        <div className={classname(["week-header"])} ref={weekRef}>
           <img
             className={classname(["week-header-arrows"])}
             src="/images/header/arrow.png"
@@ -452,6 +466,7 @@ export default function Week({
           openDay={openDay}
           weekOfMonth={weekOfMonth}
           updateStype={updateStype}
+          UDopen={UDopen}
         />
 
         <div className={classname(["week-statistics"])}>
@@ -533,7 +548,11 @@ export default function Week({
         </div>
 
         {isSOpen && (
-          <MobileBottomSheetS className={classname("side-bar")} close={close} />
+          <MobileBottomSheetS
+            className={classname("side-bar")}
+            close={close}
+            headerRef={headerRef}
+          />
         )}
         {isDayOpen && (
           <DayBottomSheet
@@ -547,6 +566,13 @@ export default function Week({
             className={classname("side-bar")}
             data={pickData}
             close={closeUDS}
+          />
+        )}
+        {isUDOpend && (
+          <MobileBottomSheetUD
+            className={classname("side-bar")}
+            close={UDclose}
+            data={pickData}
           />
         )}
       </div>

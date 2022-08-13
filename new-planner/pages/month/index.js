@@ -15,10 +15,11 @@ import { getSession } from "next-auth/react";
 import { useEffect, useMemo, useState } from "react";
 import MobileBottomSheet from "components/mobile/bottomSheet";
 import MobileBottomSheetUD from "components/mobile/bottomSheetUD";
-import _ from "lodash";
+import _, { add } from "lodash";
 import moment from "moment";
 import MonthPickers from "components/monthpicker";
 import prisma from "lib/prisma";
+import useSignCheck from "hooks/useSignCheck";
 
 /**@type {import('next').GetServerSideProps} */
 export async function getServerSideProps(ctx) {
@@ -37,6 +38,11 @@ export async function getServerSideProps(ctx) {
     };
   } catch (err) {
     console.log(err);
+    return {
+      props: {
+        scheduleList: [],
+      },
+    };
   }
 }
 
@@ -45,7 +51,7 @@ export default function Month({ scheduleList }) {
   //data
   //data
   const [Pickmonth, setPickMonth] = useState(new Date());
-
+  const isLoading = useSignCheck();
   const [data] = useState(scheduleList);
   const router = useRouter();
   const [isOpend, setOpened] = useState(false);
@@ -73,7 +79,14 @@ export default function Month({ scheduleList }) {
           let result = [];
           let temp_startDate = moment(startDate);
           let temp_endDate = moment(endDate);
-          let temp_repeatLastDay = moment(repeatLastDay);
+
+          let temp_repeatLastDay;
+          let realStartDate = moment(startDate);
+          if (isrepeat) {
+            temp_repeatLastDay = moment(repeatLastDay);
+          } else {
+            temp_repeatLastDay = moment(repeatLastDay).add(1, "d");
+          }
 
           while (temp_startDate <= temp_repeatLastDay) {
             [...repeatDay].forEach((e) => {
@@ -88,6 +101,7 @@ export default function Month({ scheduleList }) {
                   startDate,
                   endDate,
                   type,
+                  realStartDate,
                 };
                 temp.startDate = temp_startDate;
                 temp.endDate = temp_endDate;
@@ -149,7 +163,11 @@ export default function Month({ scheduleList }) {
   );
 
   return (
-    <div className={classname(["month", { open: isOpend || isUDOpend }])}>
+    <div
+      className={classname(["month", { open: isOpend || isUDOpend }], {
+        loading: isLoading,
+      })}
+    >
       <div className={classname(["month-header"])}>
         <img
           className={classname(["month-header-arrows"])}

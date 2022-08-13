@@ -9,7 +9,7 @@ import moment from "moment";
 
 const classname = classOption(style);
 
-export default function MobileBottomSheet({ className, close }) {
+export default function MobileBottomSheet({ className, close, headerRef }) {
   // data
   // data
   // data
@@ -26,12 +26,21 @@ export default function MobileBottomSheet({ className, close }) {
     false,
     false,
   ]);
-  const [repeatLastDay, setRepeatLastDay] = useState(new Date(moment().day(7)));
-  const [startDate, setStartDate] = useState(new Date(moment().day(0)));
-  const [startTime, setStartTime] = useState(new Date());
-  const [endTime, setEndTime] = useState(new Date());
+  const [repeatLastDay, setRepeatLastDay] = useState(
+    new Date(moment().day(6).format("YYYY-MM-DD 00:00:00"))
+  );
+  const [startDate, setStartDate] = useState(
+    new Date(moment().day(0).format("YYYY-MM-DD 00:00:00"))
+  );
+  const [startTime, setStartTime] = useState(
+    new Date(moment().format("YYYY-MM-DD HH:mm:00"))
+  );
+  const [endTime, setEndTime] = useState(
+    new Date(moment().format("YYYY-MM-DD HH:mm:00"))
+  );
   const [pickTimeMetrix, setPickTimeMetrix] = useState("S");
   const sideBar = useRef(null);
+
   const router = useRouter();
 
   const [title, setTitle] = useState("");
@@ -150,68 +159,74 @@ export default function MobileBottomSheet({ className, close }) {
         if (!isAllDay && !isRepeat) {
           let result = await req2srv.createPlan({
             startDate: new Date(
-              `${moment(startDate).format("YYYY-MM-DD")} ${moment(
-                startTime
-              ).format("h:mm:ss")}`
+              `${moment(startDate).format("YYYY-MM-DD")} ${moment(startTime)
+                .add(9, "h")
+                .format("HH:mm:00")}`
             ),
             endDate: new Date(
-              `${moment(startDate).format("YYYY-MM-DD")} ${moment(
-                endTime
-              ).format("h:mm:ss")}`
+              `${moment(startDate).format("YYYY-MM-DD")} ${moment(endTime)
+                .add(9, "h")
+                .format("HH:mm:00")}`
             ),
             title,
             color: pickColor,
             isrepeat: isRepeat,
             type: pickTimeMetrix,
-            isComplete: true,
+            isComplete: false,
           });
         } else if (isAllDay && !isRepeat) {
           let result = await req2srv.createPlan({
             startDate: new Date(
-              `${moment(startDate).format("YYYY-MM-DD 00:00:00")}`
+              `${moment(startDate).format("YYYY-MM-DD HH:mm:00")}`
             ),
             endDate: new Date(
-              `${moment(startDate).add(1, "d").format("YYYY-MM-DD 00:00:00")}`
+              `${moment(startDate)
+                .add(1, "d")
+
+                .format("YYYY-MM-DD HH:mm:00")}`
             ),
             title,
             color: pickColor,
             isrepeat: isRepeat,
             type: pickTimeMetrix,
-            isComplete: true,
+            isComplete: false,
           });
         } else if (isAllDay && isRepeat) {
           let result = await req2srv.createPlan({
             startDate: new Date(
-              `${moment(startDate).format("YYYY-MM-DD 00:00:00")}`
+              `${moment(startDate).format("YYYY-MM-DD HH:mm:00")}`
             ),
             endDate: new Date(
-              `${moment(startDate).add(1, "d").format("YYYY-MM-DD 00:00:00")}`
+              `${moment(startDate)
+                .add(1, "d")
+
+                .format("YYYY-MM-DD HH:mm:00")}`
             ),
             title,
             color: pickColor,
             isrepeat: isRepeat,
             type: pickTimeMetrix,
-            repeatLastDay,
+            repeatLastDay: new Date(`${moment(repeatLastDay).add(9, "h")}`),
             repeatDay: repeatDay,
             isRepeatComplete: repeatComplete,
           });
         } else if (!isAllDay && isRepeat) {
           let result = await req2srv.createPlan({
             startDate: new Date(
-              `${moment(startDate).format("YYYY-MM-DD")} ${moment(
-                startTime
-              ).format("h:mm:ss")}`
+              `${moment(startDate).format("YYYY-MM-DD")} ${moment(startTime)
+                .add(9, "h")
+                .format("HH:mm:00")}`
             ),
             endDate: new Date(
-              `${moment(startDate).format("YYYY-MM-DD")} ${moment(
-                endTime
-              ).format("h:mm:ss")}`
+              `${moment(startDate).format("YYYY-MM-DD")} ${moment(endTime)
+                .add(9, "h")
+                .format("HH:mm:00")}`
             ),
             title,
             color: pickColor,
             isrepeat: isRepeat,
             type: pickTimeMetrix,
-            repeatLastDay,
+            repeatLastDay: new Date(`${moment(repeatLastDay).add(9, "h")}`),
             repeatDay,
             isRepeatComplete: repeatComplete,
           });
@@ -245,10 +260,6 @@ export default function MobileBottomSheet({ className, close }) {
   // mounted
   // mounted
   // mounted
-
-  useEffect(() => {
-    console.log(new Date(`${moment(startDate).format("YYYY-MM-DD 00:00:00")}`));
-  }, []);
 
   // render
   // render
@@ -301,7 +312,7 @@ export default function MobileBottomSheet({ className, close }) {
       className={classname(["side-bar", { closing: isClosing }, className])}
       ref={sideBar}
     >
-      <div className={classname("top")}>
+      <div className={classname("top")} ref={headerRef}>
         <img
           className={classname("top-close")}
           src="/images/sidebar/close.png"

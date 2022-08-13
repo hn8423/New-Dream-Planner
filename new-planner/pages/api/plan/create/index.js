@@ -41,9 +41,6 @@ export default async function apiHandler(req, res) {
     return;
   }
   try {
-    // console.log(new Date(
-    //   `${moment(startDate).format("YYYY-MM-DD 00:00:00")}`
-    // ));
     if (isrepeat === false) {
       let result = await prisma.schedule.create({
         data: {
@@ -54,8 +51,6 @@ export default async function apiHandler(req, res) {
           isrepeat,
           type,
           isComplete,
-          // repeatLastDay,
-          // repeatDay,
 
           user: {
             connect: {
@@ -93,7 +88,6 @@ export default async function apiHandler(req, res) {
       }
     }
   } catch (err) {
-    // errHandler(err);
     console.log(err);
   }
 }

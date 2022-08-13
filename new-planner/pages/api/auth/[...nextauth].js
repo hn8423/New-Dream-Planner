@@ -39,12 +39,12 @@ export default NextAuth({
   ],
 
   session: {
-    maxAge: 60 * 60 * 24 * 3, // 3 Day
-    updateAge: 60 * 60 * 12, // 12 H
+    maxAge: 60 * 60 * 24 * 30, // 3 Day
+    updateAge: 60 * 60 * 24 * 30, // 12 H
     strategy: "jwt",
   },
   jwt: {
-    maxAge: 60 * 60 * 24, // 1 Day
+    maxAge: 60 * 60 * 24 * 30, // 1 Day
   },
   callbacks: {
     jwt({ token, user, account, profile }) {
@@ -65,6 +65,9 @@ export default NextAuth({
         session.user = { id, name, email, emailVerified: !!emailVerified };
       }
       return session;
+    },
+    async redirect({ url, baseUrl }) {
+      return baseUrl + `/month`;
     },
   },
   events: {},
