@@ -6,6 +6,7 @@ import ContentBox from "components/mobile/contentsBox";
 import { useSession, signIn, getSession } from "next-auth/react";
 import req2srv from "lib/req2srv/mission";
 import useSignCheck from "hooks/useSignCheck";
+import prisma from "lib/prisma";
 
 /**@type {import('next').GetServerSideProps} */
 export async function getServerSideProps(ctx) {
