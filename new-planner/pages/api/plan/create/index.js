@@ -2,6 +2,7 @@ import _ from "lodash";
 import { getSession } from "next-auth/react";
 
 import prisma from "lib/prisma";
+import moment from "moment";
 
 function invalidCall(res) {
   res.status(400).json({ message: `invalid call` });
@@ -28,6 +29,7 @@ export default async function apiHandler(req, res) {
     repeatLastDay,
     repeatDay,
     isComplete,
+    isRepeatComplete,
   } = req.body;
   // console.log(req.body);
 
@@ -39,7 +41,6 @@ export default async function apiHandler(req, res) {
     return;
   }
   try {
-    // console.log(repeatDay);
     if (isrepeat === false) {
       let result = await prisma.schedule.create({
         data: {
@@ -50,8 +51,6 @@ export default async function apiHandler(req, res) {
           isrepeat,
           type,
           isComplete,
-          // repeatLastDay,
-          // repeatDay,
 
           user: {
             connect: {
@@ -75,7 +74,7 @@ export default async function apiHandler(req, res) {
           type,
           repeatLastDay,
           repeatDay,
-          isComplete,
+          isRepeatComplete,
           user: {
             connect: {
               id: session.user.id,
@@ -89,7 +88,6 @@ export default async function apiHandler(req, res) {
       }
     }
   } catch (err) {
-    // errHandler(err);
     console.log(err);
   }
 }

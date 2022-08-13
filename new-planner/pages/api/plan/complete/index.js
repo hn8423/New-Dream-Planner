@@ -18,18 +18,7 @@ export default async function apiHandler(req, res) {
     return;
   }
 
-  const {
-    id,
-    startDate,
-    endDate,
-    title,
-    color,
-    isrepeat,
-    type,
-    repeatLastDay,
-    repeatDay,
-    // isComplete,
-  } = req.body;
+  const { id, isrepeat, isRepeatComplete } = req.body;
   // console.log(req.body);
 
   /**@type {import('next-auth').Session&{user:{id:string}}} */
@@ -47,21 +36,13 @@ export default async function apiHandler(req, res) {
           id,
         },
         data: {
-          startDate,
-          endDate,
-          title,
-          color,
-          isrepeat,
-          type,
-          // isComplete,
-          // repeatLastDay,
-          // repeatDay,
+          isComplete: true,
 
-          user: {
-            connect: {
-              id: session.user.id,
-            },
-          },
+          // user: {
+          //   connect: {
+          //     id: session.user.id,
+          //   },
+          // },
         },
       });
 
@@ -74,21 +55,7 @@ export default async function apiHandler(req, res) {
           id,
         },
         data: {
-          startDate,
-          endDate,
-          title,
-          color,
-          isrepeat,
-          type,
-          repeatLastDay,
-          repeatDay,
-          // isComplete,
-
-          user: {
-            connect: {
-              id: session.user.id,
-            },
-          },
+          isRepeatComplete,
         },
       });
 

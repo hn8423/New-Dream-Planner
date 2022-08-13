@@ -13,13 +13,14 @@ import {
 import { useRouter } from "next/router";
 import { getSession } from "next-auth/react";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import MobileBottomSheet from "components/mobile/bottomSheet";
 import MobileBottomSheetUD from "components/mobile/bottomSheetUD";
 import _ from "lodash";
 import moment from "moment";
 import MonthPickers from "components/monthpicker";
 import prisma from "lib/prisma";
+import useSignCheck from "hooks/useSignCheck";
 
 /**@type {import('next').GetServerSideProps} */
 export async function getServerSideProps(ctx) {
@@ -38,7 +39,11 @@ export async function getServerSideProps(ctx) {
     };
   } catch (err) {
     console.error(err);
-    return redirect;
+    return {
+      props: {
+        scheduleList: [],
+      },
+    };
   }
 }
 
@@ -47,7 +52,7 @@ export default function TimeTable({ scheduleList }) {
   //data
   //data
   const [Pickmonth, setPickMonth] = useState(new Date());
-
+  const isLoading = useSignCheck();
   const [data] = useState(scheduleList);
   const router = useRouter();
   const [isOpend, setOpened] = useState(false);
@@ -73,9 +78,29 @@ export default function TimeTable({ scheduleList }) {
           type,
         }) => {
           let result = [];
-          let temp_startDate = moment(startDate);
-          let temp_endDate = moment(endDate);
-          let temp_repeatLastDay = moment(repeatLastDay);
+
+          let temp_startDate;
+          let temp_endDate;
+          if (
+            moment(startDate).format("HH:mm") ===
+            moment(endDate).format("HH:mm")
+          ) {
+            temp_startDate = moment(startDate);
+            temp_endDate = moment(endDate);
+          } else {
+            temp_startDate = moment(startDate).add(15, "h");
+            temp_endDate = moment(endDate).add(15, "h");
+          }
+
+          let temp_repeatLastDay;
+          let realStartDate = moment(startDate);
+          let realEndDate = moment(endDate);
+          if (isrepeat) {
+            temp_repeatLastDay = moment(repeatLastDay);
+          } else {
+            temp_repeatLastDay = moment(repeatLastDay).add(1, "d");
+          }
+          let realId;
 
           while (temp_startDate <= temp_repeatLastDay) {
             [...repeatDay].forEach((e) => {
@@ -84,18 +109,25 @@ export default function TimeTable({ scheduleList }) {
                   color,
                   title,
                   id,
+                  realId,
                   isrepeat,
                   repeatLastDay,
                   repeatDay,
                   startDate,
                   endDate,
                   type,
+                  realStartDate,
+                  realEndDate,
                 };
+
                 temp.startDate = temp_startDate;
                 temp.endDate = temp_endDate;
+                temp.id = `${temp_startDate}${title}`;
+                temp.realId = id;
                 result.push(temp);
               }
             });
+
             temp_startDate = moment(temp_startDate).add(1, "d");
             temp_endDate = moment(temp_endDate).add(1, "d");
           }
@@ -105,7 +137,67 @@ export default function TimeTable({ scheduleList }) {
       )
       .value();
 
-    return [...createdList, ...unReapeatList];
+    let createdUnList = _(unReapeatList)
+      .flatMap(
+        ({
+          color,
+          endDate,
+          id,
+          isrepeat,
+          repeatLastDay,
+          startDate,
+          title,
+          repeatDay,
+          type,
+        }) => {
+          let result = [];
+          let temp_startDate;
+          let temp_endDate;
+
+          let unrepeatRealStartDate = moment(startDate);
+          let unrepeatRealEndDate = moment(endDate);
+          if (
+            moment(startDate).format("HH:mm") ===
+            moment(endDate).format("HH:mm")
+          ) {
+            temp_startDate = moment(startDate);
+            temp_endDate = moment(endDate);
+          } else {
+            temp_startDate = moment(startDate).add(15, "h");
+            temp_endDate = moment(endDate).add(15, "h");
+          }
+
+          let temp_repeatLastDay;
+          let realStartDate = moment(startDate);
+          if (isrepeat) {
+            temp_repeatLastDay = moment(repeatLastDay);
+          } else {
+            temp_repeatLastDay = moment(repeatLastDay).add(1, "d");
+          }
+
+          let temp = {
+            color,
+            title,
+            id,
+            isrepeat,
+            repeatLastDay,
+            repeatDay,
+            startDate,
+            endDate,
+            type,
+            unrepeatRealStartDate,
+            unrepeatRealEndDate,
+          };
+          temp.startDate = temp_startDate;
+          temp.endDate = temp_endDate;
+          result.push(temp);
+
+          return result;
+        }
+      )
+      .value();
+
+    return [...createdList, ...createdUnList];
 
     // data 가져 와서 isrepeat true 인것 가져오기
     // startDate에서 repeatLastDay 까지 일정 가져오기
@@ -147,11 +239,18 @@ export default function TimeTable({ scheduleList }) {
       onClick={AppointmentClick(data)}
     >
       {children}
+      {/* {console.log(data)} */}
     </Appointments.Appointment>
   );
 
+  useEffect(() => {}, []);
+
   return (
-    <div className={classname(["month", { open: isOpend || isUDOpend }])}>
+    <div
+      className={classname(["month", { open: isOpend || isUDOpend }], {
+        loading: isLoading,
+      })}
+    >
       <div className={classname(["month-header"])}>
         <img
           className={classname(["month-header-arrows"])}

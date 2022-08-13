@@ -13,14 +13,15 @@ import moment from "moment";
 
 const classname = classOption(style);
 
-export default function MobileBottomSheet({ className, close }) {
+export default function BottomSheetStype({ className, close, data }) {
   // data
   // data
   // data
+  const [appointmentItem] = useState(data);
   const [isClosing, setClosing] = useState(false);
   const [isAllDay, setIsAllDay] = useState(false);
-  const [isRepeat, setIsRepeat] = useState(false);
-  const [isDatePick, setIsDatePick] = useState(false);
+  const [isRepeat, setIsRepeat] = useState(true);
+  const [isDatePick, setIsDatePick] = useState(true);
   const [day, setDay] = useState([
     false,
     false,
@@ -31,30 +32,27 @@ export default function MobileBottomSheet({ className, close }) {
     false,
   ]);
   const [repeatLastDay, setRepeatLastDay] = useState(
-    new Date(moment().format("YYYY-MM-DD 00:00:00"))
+    new Date(
+      moment(appointmentItem.repeatLastDay).format("YYYY-MM-DD 00:00:00")
+    )
   );
   const [startDate, setStartDate] = useState(
-    new Date(moment().format("YYYY-MM-DD 00:00:00"))
+    new Date(moment(appointmentItem.startDate).format("YYYY-MM-DD 00:00:00"))
   );
   const [startTime, setStartTime] = useState(
-    new Date(moment().format("YYYY-MM-DD HH:mm:00"))
+    new Date(moment(appointmentItem.startDate).format("YYYY-MM-DD HH:mm:00"))
   );
   const [endTime, setEndTime] = useState(
-    new Date(moment().format("YYYY-MM-DD HH:mm:00"))
+    new Date(moment(appointmentItem.endDate).format("YYYY-MM-DD HH:mm:00"))
   );
-  const [pickTimeMetrix, setPickTimeMetrix] = useState("");
+  const [pickTimeMetrix, setPickTimeMetrix] = useState("S");
   // const [type, setType] = useState("");
   const sideBar = useRef(null);
   const router = useRouter();
 
-  const [title, setTitle] = useState("");
+  const [title, setTitle] = useState(appointmentItem.title);
 
-  const timeMetrixList = [
-    { type: "A", sub: "급하고 중요한 일" },
-    { type: "B", sub: "급하지 않지만, 중요한 일" },
-    { type: "C", sub: "급하지만 중요하지 않는 일" },
-    { type: "D", sub: "급하지도 않고 중요하지도 않은 일" },
-  ];
+  const timeMetrixList = [{ type: "S", sub: "이번주 중요한 실행 계획" }];
 
   const dayList = [
     { name: "일", num: 0 },
@@ -149,8 +147,8 @@ export default function MobileBottomSheet({ className, close }) {
 
         let pickColor = "";
         switch (pickTimeMetrix) {
-          case "A":
-            pickColor = "#B00020";
+          case "S":
+            pickColor = "#F6C55B";
             break;
           case "B":
             pickColor = "#EE7A48";
@@ -173,10 +171,9 @@ export default function MobileBottomSheet({ className, close }) {
           })
           .join("");
 
-        let repeatComplete = new Array(repeatDay.length).fill("0").join("");
-
         if (!isAllDay && !isRepeat) {
-          let result = await req2srv.createPlan({
+          let result = await req2srv.updatePlan({
+            id: appointmentItem.id,
             startDate: new Date(
               `${moment(startDate).format("YYYY-MM-DD")} ${moment(startTime)
                 .add(9, "h")
@@ -191,29 +188,35 @@ export default function MobileBottomSheet({ className, close }) {
             color: pickColor,
             isrepeat: isRepeat,
             type: pickTimeMetrix,
-            isComplete: false,
           });
         } else if (isAllDay && !isRepeat) {
-          let result = await req2srv.createPlan({
+          let result = await req2srv.updatePlan({
+            id: appointmentItem.id,
             startDate: new Date(
-              `${moment(startDate).format("YYYY-MM-DD HH:mm:00")}`
+              `${moment(startDate).add(9, "h").format("YYYY-MM-DD HH:mm:00")}`
             ),
             endDate: new Date(
-              `${moment(startDate).add(1, "d").format("YYYY-MM-DD HH:mm:00")}`
+              `${moment(startDate)
+                .add(1, "d")
+                .add(9, "h")
+                .format("YYYY-MM-DD HH:mm:00")}`
             ),
             title,
             color: pickColor,
             isrepeat: isRepeat,
             type: pickTimeMetrix,
-            isComplete: false,
           });
         } else if (isAllDay && isRepeat) {
-          let result = await req2srv.createPlan({
+          let result = await req2srv.updatePlan({
+            id: appointmentItem.id,
             startDate: new Date(
-              `${moment(startDate).format("YYYY-MM-DD HH:mm:00")}`
+              `${moment(startDate).add(9, "h").format("YYYY-MM-DD HH:mm:00")}`
             ),
             endDate: new Date(
-              `${moment(startDate).add(1, "d").format("YYYY-MM-DD HH:mm:00")}`
+              `${moment(startDate)
+                .add(1, "d")
+                .add(9, "h")
+                .format("YYYY-MM-DD HH:mm:00")}`
             ),
             title,
             color: pickColor,
@@ -221,10 +224,10 @@ export default function MobileBottomSheet({ className, close }) {
             type: pickTimeMetrix,
             repeatLastDay: new Date(`${moment(repeatLastDay).add(9, "h")}`),
             repeatDay: repeatDay,
-            isRepeatComplete: repeatComplete,
           });
         } else if (!isAllDay && isRepeat) {
-          let result = await req2srv.createPlan({
+          let result = await req2srv.updatePlan({
+            id: appointmentItem.id,
             startDate: new Date(
               `${moment(startDate).format("YYYY-MM-DD")} ${moment(startTime)
                 .add(9, "h")
@@ -241,10 +244,9 @@ export default function MobileBottomSheet({ className, close }) {
             type: pickTimeMetrix,
             repeatLastDay: new Date(`${moment(repeatLastDay).add(9, "h")}`),
             repeatDay,
-            isRepeatComplete: repeatComplete,
           });
         }
-        alert("일정을 등록 했습니다.");
+        alert("일정이 수정 되었습니다.");
         close();
         router.reload();
       } catch (err) {
@@ -252,6 +254,7 @@ export default function MobileBottomSheet({ className, close }) {
       }
     },
     [
+      appointmentItem.id,
       close,
       day,
       endTime,
@@ -264,6 +267,19 @@ export default function MobileBottomSheet({ className, close }) {
       startTime,
       title,
     ]
+  );
+
+  const DeleteSchedule = useCallback(
+    async function onClickDelete() {
+      let result = await req2srv.deletePlan({
+        id: appointmentItem.id,
+      });
+
+      alert(`${title}일정이 삭제 되었습니다.`);
+      close();
+      router.reload();
+    },
+    [appointmentItem.id, close, router, title]
   );
 
   // renderMap
@@ -321,6 +337,49 @@ export default function MobileBottomSheet({ className, close }) {
     );
   });
 
+  useEffect(() => {
+    if (appointmentItem === null) {
+      return;
+    }
+    let copyArr = new Array(6).fill(false);
+    if (appointmentItem.repeatDay !== null) {
+      [...appointmentItem.repeatDay].forEach((e) => {
+        copyArr[e] = true;
+      });
+      setDay(copyArr);
+    }
+    if (
+      moment(appointmentItem.startDate).format("hh:mm:ss") ===
+      moment(appointmentItem.endDate).format("hh:mm:ss")
+    ) {
+      setIsAllDay(true);
+    } else {
+      setStartTime(
+        new Date(
+          moment(appointmentItem.startDate)
+            .subtract(9, "h")
+            .format("YYYY-MM-DD HH:mm:00")
+        )
+      );
+      setEndTime(
+        new Date(
+          moment(appointmentItem.endDate)
+            .subtract(9, "h")
+            .format("YYYY-MM-DD HH:mm:00")
+        )
+      );
+    }
+  }, [
+    appointmentItem,
+    appointmentItem.endDate,
+    appointmentItem.repeatDay,
+    appointmentItem.startDate,
+  ]);
+
+  // useEffect(() => {
+  //   console.log("startTime :", startTime);
+  //   console.log("endTime :", endTime);
+  // }, [title]);
   return (
     <div
       className={classname(["side-bar", { closing: isClosing }, className])}
@@ -333,7 +392,7 @@ export default function MobileBottomSheet({ className, close }) {
           alt="close"
           onClick={clickClose}
         />
-        <div className={classname("top-title")}>전체</div>
+        <div className={classname("top-title")}>수정 및 삭제</div>
         <img
           className={classname("top-check")}
           src="/images/bottom/check.png"
@@ -342,34 +401,17 @@ export default function MobileBottomSheet({ className, close }) {
         />
       </div>
       <div className={classname("contents")}>
-        <div className={classname("contents-title", "sub16")}>
-          <img
-            className={classname("contents-img")}
-            src="/images/bottom/pen.png"
-            alt="pen"
-          />
-          어떤 일정을 추가 할까요?
-        </div>
+        <div className={classname("contents-title", "sub16")}>일정 제목</div>
         <input
           className={classname(["contents-input", "body14"])}
           type="text"
           placeholder="일정을  입력해주세요"
-          // defaultValue={}
+          defaultValue={appointmentItem.title}
           onChange={setTargetValue(setTitle)}
         />
       </div>
       <div className={classname("time-metrix")}>{timeMetrix}</div>
-      <div className={classname("pick-date")} onClick={onClickDatePick}>
-        <div className={classname("pick-date-img")}></div>
-        <div className={classname("pick-date-text")}>날짜를 선택해주세요</div>
-        <div className={classname("pick-date-down")}>
-          {!isDatePick ? (
-            <img src="/images/bottom/down.png" alt="down" />
-          ) : (
-            <img src="/images/bottom/up.png" alt="up" />
-          )}
-        </div>
-      </div>
+
       {isDatePick && (
         <div className={classname("pick-control")}>
           <div
@@ -384,49 +426,32 @@ export default function MobileBottomSheet({ className, close }) {
           </div>
 
           <div className={classname("picker")}>
-            <div className={classname("picker-time")}>
-              {" "}
-              날짜
-              <DatePickers pickDate={startDate} setDate={setStartDate} />
-            </div>
             {!isAllDay && (
               <>
                 <div className={classname("picker-time")}>
+                  {" "}
                   시작 시간
                   <TimePickers pick={startTime} setPick={setStartTime} />
                 </div>
                 <div className={classname("picker-time")}>
+                  {" "}
                   종료 시간
                   <TimePickers pick={endTime} setPick={setEndTime} />
                 </div>
               </>
             )}
           </div>
-          <div
-            className={classname([
-              "pick-control-option",
-              "sub16",
-              { reapeat: isRepeat },
-            ])}
-            onClick={onClickRepeat}
-          >
-            반복 하기
-          </div>
 
           {isRepeat && (
             <div>
               <div className={classname("picker-repeat")}>{repeatDay}</div>
-              <div className={classname("picker-repeat-done")}>
-                <DatePickers
-                  pickDate={repeatLastDay}
-                  setDate={setRepeatLastDay}
-                />{" "}
-                <div className={classname("body14")}>까지 반복</div>
-              </div>
             </div>
           )}
         </div>
       )}
+      <div className={classname("picker-garbage")} onClick={DeleteSchedule}>
+        <img src="/images/bottom/garbage.png" alt="garbage" />{" "}
+      </div>
     </div>
   );
 }

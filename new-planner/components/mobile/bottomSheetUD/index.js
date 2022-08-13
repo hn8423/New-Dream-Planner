@@ -4,7 +4,7 @@ import { useRouter } from "next/router";
 import { useSelector } from "react-redux";
 import { signIn, signOut } from "next-auth/react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import _ from "lodash";
+import _, { subtract } from "lodash";
 import { useSession } from "next-auth/react";
 import DatePickers from "components/datepicker";
 import TimePickers from "components/timepicker";
@@ -20,7 +20,7 @@ export default function MobileBottomSheet({ className, close, data }) {
   const [appointmentItem] = useState(data);
   const [isClosing, setClosing] = useState(false);
   const [isAllDay, setIsAllDay] = useState(false);
-  const [isRepeat, setIsRepeat] = useState(appointmentItem.isrepeat);
+  const [isRepeat, setIsRepeat] = useState(false);
   const [isDatePick, setIsDatePick] = useState(true);
   const [day, setDay] = useState([
     false,
@@ -31,18 +31,19 @@ export default function MobileBottomSheet({ className, close, data }) {
     false,
     false,
   ]);
-  const [repeatLastDay, setRepeatLastDay] = useState(
-    new Date(appointmentItem.repeatLastDay)
-  );
+  const [repeatLastDay, setRepeatLastDay] = useState(new Date());
+
   const [startDate, setStartDate] = useState(
-    new Date(appointmentItem.startDate)
+    new Date(moment(appointmentItem.startDate).format("YYYY-MM-DD 00:00:00"))
   );
   const [startTime, setStartTime] = useState(
-    new Date(appointmentItem.startDate)
+    new Date(moment().format("YYYY-MM-DD HH:mm:00"))
   );
-  const [endTime, setEndTime] = useState(new Date());
+
+  const [endTime, setEndTime] = useState(
+    new Date(moment().format("YYYY-MM-DD HH:mm:00"))
+  );
   const [pickTimeMetrix, setPickTimeMetrix] = useState(appointmentItem.type);
-  // const [type, setType] = useState("");
   const sideBar = useRef(null);
   const router = useRouter();
 
@@ -56,13 +57,13 @@ export default function MobileBottomSheet({ className, close, data }) {
   ];
 
   const dayList = [
-    { name: "월", num: 0 },
-    { name: "화", num: 1 },
-    { name: "수", num: 2 },
-    { name: "목", num: 3 },
-    { name: "금", num: 4 },
-    { name: "토", num: 5 },
-    { name: "일", num: 6 },
+    { name: "일", num: 0 },
+    { name: "월", num: 1 },
+    { name: "화", num: 2 },
+    { name: "수", num: 3 },
+    { name: "목", num: 4 },
+    { name: "금", num: 5 },
+    { name: "토", num: 6 },
   ];
 
   // method
@@ -172,18 +173,25 @@ export default function MobileBottomSheet({ className, close, data }) {
           })
           .join("");
 
+        let itemId;
+        if (appointmentItem.realId) {
+          itemId = appointmentItem.realId;
+        } else {
+          itemId = appointmentItem.id;
+        }
+
         if (!isAllDay && !isRepeat) {
-          let result = await req2srv.createPlan({
-            id: appointmentItem.id,
+          let result = await req2srv.updatePlan({
+            id: itemId,
             startDate: new Date(
-              `${moment(startDate).format("YYYY-MM-DD")} ${moment(
-                startTime
-              ).format("h:mm:ss")}`
+              `${moment(startDate).format("YYYY-MM-DD")} ${moment(startTime)
+                .add(9, "h")
+                .format("HH:mm:00")}`
             ),
             endDate: new Date(
-              `${moment(startDate).format("YYYY-MM-DD")} ${moment(
-                endTime
-              ).format("h:mm:ss")}`
+              `${moment(startDate).format("YYYY-MM-DD")} ${moment(endTime)
+                .add(9, "h")
+                .format("HH:mm:00")}`
             ),
             title,
             color: pickColor,
@@ -191,13 +199,16 @@ export default function MobileBottomSheet({ className, close, data }) {
             type: pickTimeMetrix,
           });
         } else if (isAllDay && !isRepeat) {
-          let result = await req2srv.createPlan({
-            id: appointmentItem.id,
+          let result = await req2srv.updatePlan({
+            id: itemId,
             startDate: new Date(
-              `${moment(startDate).format("YYYY-MM-DD 00:00:00")}`
+              `${moment(startDate).format("YYYY-MM-DD HH:mm:00")}`
             ),
             endDate: new Date(
-              `${moment(startDate).add(1, "d").format("YYYY-MM-DD 00:00:00")}`
+              `${moment(startDate)
+                .add(1, "d")
+
+                .format("YYYY-MM-DD HH:mm:00")}`
             ),
             title,
             color: pickColor,
@@ -205,43 +216,46 @@ export default function MobileBottomSheet({ className, close, data }) {
             type: pickTimeMetrix,
           });
         } else if (isAllDay && isRepeat) {
-          let result = await req2srv.createPlan({
-            id: appointmentItem.id,
+          let result = await req2srv.updatePlan({
+            id: itemId,
             startDate: new Date(
-              `${moment(startDate).format("YYYY-MM-DD 00:00:00")}`
+              `${moment(startDate).format("YYYY-MM-DD HH:mm:00")}`
             ),
             endDate: new Date(
-              `${moment(startDate).add(1, "d").format("YYYY-MM-DD 00:00:00")}`
+              `${moment(startDate)
+                .add(1, "d")
+
+                .format("YYYY-MM-DD HH:mm:00")}`
             ),
             title,
             color: pickColor,
             isrepeat: isRepeat,
             type: pickTimeMetrix,
-            repeatLastDay,
+            repeatLastDay: new Date(`${moment(repeatLastDay).add(9, "h")}`),
             repeatDay: repeatDay,
           });
         } else if (!isAllDay && isRepeat) {
-          let result = await req2srv.createPlan({
-            id: appointmentItem.id,
+          let result = await req2srv.updatePlan({
+            id: itemId,
             startDate: new Date(
-              `${moment(startDate).format("YYYY-MM-DD")} ${moment(
-                startTime
-              ).format("h:mm:ss")}`
+              `${moment(startDate).format("YYYY-MM-DD")} ${moment(startTime)
+                .add(9, "h")
+                .format("HH:mm:00")}`
             ),
             endDate: new Date(
-              `${moment(startDate).format("YYYY-MM-DD")} ${moment(
-                endTime
-              ).format("h:mm:ss")}`
+              `${moment(startDate).format("YYYY-MM-DD")} ${moment(endTime)
+                .add(9, "h")
+                .format("HH:mm:00")}`
             ),
             title,
             color: pickColor,
             isrepeat: isRepeat,
             type: pickTimeMetrix,
-            repeatLastDay,
+            repeatLastDay: new Date(`${moment(repeatLastDay).add(9, "h")}`),
             repeatDay,
           });
         }
-        alert("일정을 수정 완료 되었습니다.");
+        alert("일정이 수정 되었습니다.");
         close();
         router.reload();
       } catch (err) {
@@ -266,8 +280,15 @@ export default function MobileBottomSheet({ className, close, data }) {
 
   const DeleteSchedule = useCallback(
     async function onClickDelete() {
+      let itemId;
+      if (appointmentItem.realId) {
+        itemId = appointmentItem.realId;
+      } else {
+        itemId = appointmentItem.id;
+      }
+
       let result = await req2srv.deletePlan({
-        id: appointmentItem.id,
+        id: itemId,
       });
 
       alert(`${title}일정이 삭제 되었습니다.`);
@@ -342,6 +363,12 @@ export default function MobileBottomSheet({ className, close, data }) {
         copyArr[e] = true;
       });
       setDay(copyArr);
+      setIsRepeat(true);
+      setRepeatLastDay(
+        new Date(
+          moment(appointmentItem.repeatLastDay).format("YYYY-MM-DD 00:00:00")
+        )
+      );
     }
     if (
       moment(appointmentItem.startDate).format("hh:mm:ss") ===
@@ -349,8 +376,52 @@ export default function MobileBottomSheet({ className, close, data }) {
     ) {
       setIsAllDay(true);
     } else {
-      setStartTime(new Date(appointmentItem.startDate));
-      setEndTime(new Date(appointmentItem.endDate));
+      if (appointmentItem.unrepeatRealStartDate) {
+        setStartTime(
+          new Date(
+            moment(appointmentItem.unrepeatRealStartDate)
+              .subtract(9, "h")
+              .format("YYYY-MM-DD HH:mm:00")
+          )
+        );
+        setEndTime(
+          new Date(
+            moment(appointmentItem.unrepeatRealEndDate)
+              .subtract(9, "h")
+              .format("YYYY-MM-DD HH:mm:00")
+          )
+        );
+      } else if (appointmentItem.realStartDate) {
+        setStartTime(
+          new Date(
+            moment(appointmentItem.realStartDate)
+              .subtract(9, "h")
+              .format("YYYY-MM-DD HH:mm:00")
+          )
+        );
+        setEndTime(
+          new Date(
+            moment(appointmentItem.realEndDate)
+              .subtract(9, "h")
+              .format("YYYY-MM-DD HH:mm:00")
+          )
+        );
+      } else {
+        setStartTime(
+          new Date(
+            moment(appointmentItem.startDate)
+              .subtract(9, "h")
+              .format("YYYY-MM-DD HH:mm:00")
+          )
+        );
+        setEndTime(
+          new Date(
+            moment(appointmentItem.endDate)
+              .subtract(9, "h")
+              .format("YYYY-MM-DD HH:mm:00")
+          )
+        );
+      }
     }
   }, [
     appointmentItem,
@@ -412,19 +483,16 @@ export default function MobileBottomSheet({ className, close, data }) {
 
           <div className={classname("picker")}>
             <div className={classname("picker-time")}>
-              {" "}
               날짜
               <DatePickers pickDate={startDate} setDate={setStartDate} />
             </div>
             {!isAllDay && (
               <>
                 <div className={classname("picker-time")}>
-                  {" "}
                   시작 시간
                   <TimePickers pick={startTime} setPick={setStartTime} />
                 </div>
                 <div className={classname("picker-time")}>
-                  {" "}
                   종료 시간
                   <TimePickers pick={endTime} setPick={setEndTime} />
                 </div>
@@ -449,7 +517,7 @@ export default function MobileBottomSheet({ className, close, data }) {
                 <DatePickers
                   pickDate={repeatLastDay}
                   setDate={setRepeatLastDay}
-                />{" "}
+                />
                 <div className={classname("body14")}>까지 반복</div>
               </div>
             </div>
@@ -457,7 +525,7 @@ export default function MobileBottomSheet({ className, close, data }) {
         </div>
       )}
       <div className={classname("picker-garbage")} onClick={DeleteSchedule}>
-        <img src="/images/bottom/garbage.png" alt="garbage" />{" "}
+        <img src="/images/bottom/garbage.png" alt="garbage" />
       </div>
     </div>
   );

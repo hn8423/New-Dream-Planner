@@ -14,27 +14,27 @@ export default async function apiHandler(req, res) {
   }
 
   const {
-    myMission,
-    missionId,
     year,
     month,
     week,
-    coreMission,
-    lookInside,
-    mainFocus,
+    lookInsideSun,
+    lookInsideMon,
+    lookInsideTue,
+    lookInsideWed,
+    lookInsideThu,
+    lookInsideFri,
+    lookInsideSat,
   } = req.body;
   /**@type {import('next-auth').Session&{user:{id:string}}} */
   const session = await getSession({ req });
-
+  // console.log(lookInsideTue);
   try {
-    // console.log("3");
-
-    const check = await prisma.weeklyAnalysis.findMany({
+    const check = await prisma.dailyLookInside.findMany({
       where: { userId: session.user.id, year, month, week },
     });
 
     if (check.length !== 0) {
-      await prisma.weeklyAnalysis.update({
+      await prisma.dailyLookInside.update({
         where: {
           year_month_week: { year, month, week },
         },
@@ -42,13 +42,17 @@ export default async function apiHandler(req, res) {
           year,
           month,
           week,
-          coreMission,
-          lookInside,
-          mainFocus,
+          lookInsideSun,
+          lookInsideMon,
+          lookInsideTue,
+          lookInsideWed,
+          lookInsideThu,
+          lookInsideFri,
+          lookInsideSat,
         },
       });
     } else {
-      await prisma.weeklyAnalysis.create({
+      await prisma.dailyLookInside.create({
         data: {
           user: {
             connect: {
@@ -58,19 +62,16 @@ export default async function apiHandler(req, res) {
           year,
           month,
           week,
-          coreMission,
-          lookInside,
-          mainFocus,
+          lookInsideSun,
+          lookInsideMon,
+          lookInsideTue,
+          lookInsideWed,
+          lookInsideThu,
+          lookInsideFri,
+          lookInsideSat,
         },
       });
     }
-
-    const mission = await prisma.mission.update({
-      where: { id: missionId },
-      data: {
-        myMission,
-      },
-    });
 
     res.status(200).json({ message: `done` });
   } catch (err) {

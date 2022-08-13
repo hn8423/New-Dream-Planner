@@ -1,15 +1,20 @@
 import style from "./index.module.scss";
 import { classOption, enterToBr } from "utill";
 const classname = classOption(style);
-
+import Board from "components/board";
 import { useRouter } from "next/router";
 import moment from "moment";
 import useSignCheck from "hooks/useSignCheck";
 import { getSession } from "next-auth/react";
-import { useEffect, useState, useCallback, useMemo } from "react";
+import { useEffect, useState, useCallback, useMemo, useRef } from "react";
 
 import req2srv from "lib/req2srv/weekly";
 import MobileBottomSheetS from "components/mobile/bottomSheetS";
+import DayBottomSheet from "components/mobile/bottomSheetDay";
+import BottomSheetStype from "components/mobile/bottomSheetSUD";
+import MobileBottomSheetUD from "components/mobile/bottomSheetUD";
+import ProgressBar from "components/progressBar";
+import _ from "lodash";
 
 const weekOfMonth = (m) => m.week() - moment(m).startOf("month").week();
 
@@ -32,14 +37,29 @@ export async function getServerSideProps(ctx) {
         week: String(weekOfMonth(moment())),
       },
     });
+    const lookInsideText = await prisma.dailyLookInside.findMany({
+      where: {
+        userId: session.user.id,
+        year: moment().format("YYYY"),
+        month: moment().format("M"),
+        week: String(weekOfMonth(moment())),
+      },
+    });
     const scheduleList = await prisma.schedule.findMany({
-      where: { userId: session.user.id },
+      where: {
+        userId: session.user.id,
+        endDate: {
+          gte: new Date(moment().day(0).hour(0).minute(0).second(0)),
+          lt: new Date(moment().day(7).hour(0).minute(0).second(0)),
+        },
+      },
     });
 
     return {
       props: {
         missionText: JSON.parse(JSON.stringify(missionText)),
         weeklyText: JSON.parse(JSON.stringify(weeklyText)),
+        lookInsideText: JSON.parse(JSON.stringify(lookInsideText)),
         scheduleList: JSON.parse(JSON.stringify(scheduleList)),
         session,
       },
@@ -51,6 +71,7 @@ export async function getServerSideProps(ctx) {
         missionText: [],
         weeklyText: [],
         scheduleList: [],
+        lookInsideText: [],
         session,
       },
     };
@@ -60,12 +81,26 @@ export async function getServerSideProps(ctx) {
 /**
  * @type {(props:{missionText: (import('@prisma/client').Mission)[]
  * weeklyText: (import('@prisma/client').WeeklyAnalysis)[]
+ * lookInsideText: (import('@prisma/client').DailyLookInside)[]
  * scheduleList: (import('@prisma/client').Schedule)[]
  * session: commons.session
  * })}
  */
-export default function Week({ missionText, weeklyText, scheduleList }) {
+export default function Week({
+  missionText,
+  weeklyText,
+  scheduleList,
+  lookInsideText,
+}) {
   const [isSOpen, setSOpen] = useState(false);
+  const [isUDSOpened, setUDSOpened] = useState(false);
+  const [isDayOpen, setDayOpen] = useState(false);
+  const [isUDOpend, setUDOpened] = useState(false);
+
+  const [dayNum, setDayNum] = useState(0);
+  const [pickData, setPickData] = useState({});
+  const weekRef = useRef(null);
+  const headerRef = useRef(null);
 
   //data
   //data
@@ -89,11 +124,113 @@ export default function Week({ missionText, weeklyText, scheduleList }) {
   //memo
   //memo
   //memo
+  const plan = useMemo(() => {
+    let [reapeatList, unReapeatList] = _(scheduleLists)
+      .partition((v) => v.isrepeat)
+      .value();
+
+    let createdList = _(reapeatList)
+      .flatMap(
+        ({
+          color,
+          endDate,
+          id,
+          isrepeat,
+          repeatLastDay,
+          startDate,
+          title,
+          repeatDay,
+          type,
+          isRepeatComplete,
+          isComplete,
+        }) => {
+          /**@type {(import('@prisma/client').Schedule)[]} */
+          let result = [];
+          let temp_startDate = moment(startDate);
+          let temp_endDate = moment(endDate);
+          let temp_repeatLastDay = moment(repeatLastDay).add(1, "d");
+
+          let pickIsComplete = [...isRepeatComplete];
+          let count;
+
+          while (temp_startDate <= temp_repeatLastDay) {
+            [...repeatDay].forEach((e, i) => {
+              if (`${e}` === temp_startDate.format("d")) {
+                let temp = {
+                  color,
+                  title,
+                  id,
+                  isrepeat,
+                  repeatLastDay,
+                  repeatDay,
+                  startDate,
+                  endDate,
+                  type,
+                  isComplete,
+                  count,
+                  isRepeatComplete,
+                };
+                temp.startDate = temp_startDate;
+                temp.endDate = temp_endDate;
+                temp.count = i;
+                temp.isComplete = pickIsComplete[i] === "0" ? false : true;
+                result.push(temp);
+              }
+            });
+            temp_startDate = moment(temp_startDate).add(1, "d");
+            temp_endDate = moment(temp_endDate).add(1, "d");
+          }
+
+          return result;
+        }
+      )
+      .value();
+
+    return [...createdList, ...unReapeatList];
+
+    // data 가져 와서 isrepeat true 인것 가져오기
+    // startDate에서 repeatLastDay 까지 일정 가져오기
+    // 요일별 숫자로 체크 해서 해당 요일 반복 된 것 만 필터링
+    // 새롭게 data 값에 반복된 값들 추가된 값 넣기
+  }, [scheduleLists]);
 
   const sItem = useMemo(() => {
     return scheduleLists.filter((v) => v.type === "S");
     // return scheduleList.filter((v) => v.type === "S");
   }, [scheduleLists]);
+  const sItemList = useMemo(() => {
+    return plan.filter((v) => v.type === "S");
+  }, [plan]);
+
+  const otherItem = useMemo(() => {
+    return plan.filter((v) => v.type !== "S");
+  }, [plan]);
+
+  const coreMissionComplete = useMemo(() => {
+    let complete = sItemList.filter((v) => v.isComplete === true).length;
+    if (complete === 0) {
+      return 0;
+    } else {
+      let int = complete / sItemList.length;
+      return Math.round(int * 100) / 100;
+    }
+  }, [sItemList]);
+
+  const weeklyMissionComplete = useMemo(() => {
+    let complete = otherItem.filter((v) => v.isComplete === true).length;
+
+    if (complete === 0) {
+      return 0;
+    } else {
+      let int = complete / otherItem.length;
+      return Math.round(int * 100) / 100;
+    }
+  }, [otherItem]);
+
+  const allAverageComplete = useMemo(() => {
+    let sub = coreMissionComplete + weeklyMissionComplete;
+    return sub / 2;
+  }, [coreMissionComplete, weeklyMissionComplete]);
 
   //function
   //function
@@ -120,21 +257,64 @@ export default function Week({ missionText, weeklyText, scheduleList }) {
         router.reload();
       } catch (err) {
         console.log(err);
+        alert("나의 사명을 사명탭에서 먼저 써주시길 바랍니다.");
       }
     },
     [coreMission, lookInside, mainFocus]
   );
+
+  //function
+  //function
+  //function
+
+  const updateStype = (v) => {
+    return () => {
+      weekRef.current.scrollIntoView({});
+      setPickData(v);
+      setTimeout(() => {
+        setUDSOpened(true);
+      }, 1);
+    };
+  };
 
   const goToBack = () => {
     router.back();
   };
 
   const openSModal = () => {
-    setSOpen(true);
+    weekRef.current.scrollIntoView({});
+    setTimeout(() => {
+      setSOpen(true);
+    }, 1);
   };
   const close = () => {
     setSOpen(false);
   };
+  const closeDay = () => {
+    setDayOpen(false);
+  };
+  const closeUDS = () => {
+    setUDSOpened(false);
+  };
+  const openDay = () => {
+    weekRef.current.scrollIntoView({});
+    setTimeout(() => {
+      setDayOpen(true);
+    }, 1);
+  };
+
+  function UDclose() {
+    setUDOpened(false);
+  }
+  function UDopen(v) {
+    return () => {
+      weekRef.current.scrollIntoView({});
+      setPickData(v);
+      setTimeout(() => {
+        setUDOpened(true);
+      }, 1);
+    };
+  }
 
   //render
   //render
@@ -146,6 +326,7 @@ export default function Week({ missionText, weeklyText, scheduleList }) {
         <div
           className={classname(["week-plan-list-item", "sub16"])}
           key={`sPlan: ${v}${i}`}
+          onClick={updateStype(v)}
         >
           <div className={classname(["week-plan-list-item-type", "sub16"])}>
             {v.type}
@@ -160,19 +341,16 @@ export default function Week({ missionText, weeklyText, scheduleList }) {
     return result;
   }, []);
 
-  useEffect(() => {
-    console.log(sItem);
-  }, [sItem]);
   return (
     <>
       <div
         className={classname([
           "week",
           { loading: isLoading },
-          { openChange: isSOpen },
+          { openChange: isSOpen || isDayOpen || isUDSOpened || isUDOpend },
         ])}
       >
-        <div className={classname(["week-header"])}>
+        <div className={classname(["week-header"])} ref={weekRef}>
           <img
             className={classname(["week-header-arrows"])}
             src="/images/header/arrow.png"
@@ -281,8 +459,121 @@ export default function Week({ missionText, weeklyText, scheduleList }) {
           </div>
           <div className={classname(["week-plan-list"])}>{sPlan}</div>
         </div>
+        <Board
+          scheduleLists={scheduleLists}
+          lookInsideText={lookInsideText}
+          setDayNum={setDayNum}
+          openDay={openDay}
+          weekOfMonth={weekOfMonth}
+          updateStype={updateStype}
+          UDopen={UDopen}
+        />
+
+        <div className={classname(["week-statistics"])}>
+          <div className={classname(["week-statistics-header"])}>
+            <div
+              className={classname(["week-statistics-header-title", "sub18"])}
+            >
+              미션 달성률
+            </div>
+            <div className={classname(["week-statistics-header-sub", "cap12"])}>
+              이번 주 미션 달성률을 확인하세요
+            </div>
+          </div>
+          <div className={classname(["week-statistics-core"])}>
+            <div className={classname(["week-statistics-core-title", "sub18"])}>
+              핵심 미션 달성률
+            </div>
+            <div className={classname(["week-statistics-core-sub", "cap12"])}>
+              주간 핵심 미션에 나온 플랜(S)의 달성률
+            </div>
+            <div className={classname(["week-statistics-core-progress"])}>
+              <div className={classname("progress-bar-wrapper")}>
+                <ProgressBar
+                  className={classname("progress-bar")}
+                  currentLevel={coreMissionComplete}
+                  // currentLevel={0.5}
+                ></ProgressBar>
+              </div>
+              <div
+                className={classname(["week-statistics-core-progress-percent"])}
+              >
+                {coreMissionComplete * 100}%
+              </div>
+            </div>
+          </div>
+          <div className={classname(["week-statistics-core"])}>
+            <div className={classname(["week-statistics-core-title", "sub18"])}>
+              주간 미션 달성률{" "}
+            </div>
+            <div className={classname(["week-statistics-core-sub", "cap12"])}>
+              A B C D의 달성률{" "}
+            </div>
+            <div className={classname(["week-statistics-core-progress"])}>
+              <div className={classname("progress-bar-wrapper")}>
+                <ProgressBar
+                  className={classname("progress-bar")}
+                  currentLevel={weeklyMissionComplete}
+                ></ProgressBar>
+              </div>
+              <div
+                className={classname(["week-statistics-core-progress-percent"])}
+              >
+                {weeklyMissionComplete * 100}%
+              </div>
+            </div>
+          </div>
+          <div className={classname(["week-statistics-core"])}>
+            <div className={classname(["week-statistics-core-title", "sub18"])}>
+              이번 주 미션 달성률{" "}
+            </div>
+            <div className={classname(["week-statistics-core-sub", "cap12"])}>
+              핵심 미션 달성률 + 주간 미션 달성률 / 2 (총 평균){" "}
+            </div>
+            <div className={classname(["week-statistics-core-progress"])}>
+              <div className={classname("progress-bar-wrapper")}>
+                <ProgressBar
+                  className={classname("progress-bar")}
+                  // maxLevel={100}
+                  currentLevel={allAverageComplete}
+                ></ProgressBar>
+              </div>
+              <div
+                className={classname(["week-statistics-core-progress-percent"])}
+              >
+                {allAverageComplete * 100}%
+              </div>
+            </div>
+          </div>
+        </div>
+
         {isSOpen && (
-          <MobileBottomSheetS className={classname("side-bar")} close={close} />
+          <MobileBottomSheetS
+            className={classname("side-bar")}
+            close={close}
+            headerRef={headerRef}
+          />
+        )}
+        {isDayOpen && (
+          <DayBottomSheet
+            className={classname("side-bar")}
+            dayNum={dayNum}
+            close={closeDay}
+          />
+        )}
+        {isUDSOpened && (
+          <BottomSheetStype
+            className={classname("side-bar")}
+            data={pickData}
+            close={closeUDS}
+          />
+        )}
+        {isUDOpend && (
+          <MobileBottomSheetUD
+            className={classname("side-bar")}
+            close={UDclose}
+            data={pickData}
+          />
         )}
       </div>
     </>

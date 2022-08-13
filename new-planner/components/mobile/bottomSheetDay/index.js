@@ -13,7 +13,7 @@ import moment from "moment";
 
 const classname = classOption(style);
 
-export default function MobileBottomSheet({ className, close }) {
+export default function DayBottomSheet({ className, close, dayNum }) {
   // data
   // data
   // data
@@ -33,9 +33,7 @@ export default function MobileBottomSheet({ className, close }) {
   const [repeatLastDay, setRepeatLastDay] = useState(
     new Date(moment().format("YYYY-MM-DD 00:00:00"))
   );
-  const [startDate, setStartDate] = useState(
-    new Date(moment().format("YYYY-MM-DD 00:00:00"))
-  );
+  const [startDate, setStartDate] = useState(new Date(moment().day(dayNum)));
   const [startTime, setStartTime] = useState(
     new Date(moment().format("YYYY-MM-DD HH:mm:00"))
   );
@@ -43,7 +41,7 @@ export default function MobileBottomSheet({ className, close }) {
     new Date(moment().format("YYYY-MM-DD HH:mm:00"))
   );
   const [pickTimeMetrix, setPickTimeMetrix] = useState("");
-  // const [type, setType] = useState("");
+
   const sideBar = useRef(null);
   const router = useRouter();
 
@@ -196,10 +194,13 @@ export default function MobileBottomSheet({ className, close }) {
         } else if (isAllDay && !isRepeat) {
           let result = await req2srv.createPlan({
             startDate: new Date(
-              `${moment(startDate).format("YYYY-MM-DD HH:mm:00")}`
+              `${moment(startDate).add(9, "h").format("YYYY-MM-DD HH:mm:00")}`
             ),
             endDate: new Date(
-              `${moment(startDate).add(1, "d").format("YYYY-MM-DD HH:mm:00")}`
+              `${moment(startDate)
+                .add(1, "d")
+                .add(9, "h")
+                .format("YYYY-MM-DD HH:mm:00")}`
             ),
             title,
             color: pickColor,
@@ -210,10 +211,13 @@ export default function MobileBottomSheet({ className, close }) {
         } else if (isAllDay && isRepeat) {
           let result = await req2srv.createPlan({
             startDate: new Date(
-              `${moment(startDate).format("YYYY-MM-DD HH:mm:00")}`
+              `${moment(startDate).add(9, "h").format("YYYY-MM-DD HH:mm:00")}`
             ),
             endDate: new Date(
-              `${moment(startDate).add(1, "d").format("YYYY-MM-DD HH:mm:00")}`
+              `${moment(startDate)
+                .add(1, "d")
+                .add(9, "h")
+                .format("YYYY-MM-DD HH:mm:00")}`
             ),
             title,
             color: pickColor,
@@ -392,10 +396,12 @@ export default function MobileBottomSheet({ className, close }) {
             {!isAllDay && (
               <>
                 <div className={classname("picker-time")}>
+                  {" "}
                   시작 시간
                   <TimePickers pick={startTime} setPick={setStartTime} />
                 </div>
                 <div className={classname("picker-time")}>
+                  {" "}
                   종료 시간
                   <TimePickers pick={endTime} setPick={setEndTime} />
                 </div>

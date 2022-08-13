@@ -11,11 +11,12 @@ datasource db {
 }
 
 model Account {
-  id                       String  @id @default(cuid())
-  userId                   String
-  type                     String
-  provider                 String
-  providerAccountId        String
+  id     String @id @default(cuid())
+  userId String @unique
+  type   String
+
+  provider                 String?
+  providerAccountId        String?
   refresh_token            String? @db.Text
   access_token             String? @db.Text
   expires_at               Int?
@@ -24,31 +25,34 @@ model Account {
   id_token                 String? @db.Text
   session_state            String?
   refresh_token_expires_in Int?
+  oauth_token_secret       String?
+  oauth_token              String?
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@unique([provider, providerAccountId])
+  @@unique([provider, providerAccountId], name: "provider_providerAccountId")
 }
 
-model Session {
-  id           String   @id @default(cuid())
-  sessionToken String   @unique
-  userId       String
-  expires      DateTime
-  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-}
+// model Session {
+//   id           String   @id @default(cuid())
+//   sessionToken String   @unique
+//   userId       String
+//   expires      DateTime
+//   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+// }
 
 model User {
-  id            String           @id @default(cuid())
-  name          String?
-  email         String?          @unique
-  emailVerified DateTime?
-  image         String?
-  accounts      Account[]
-  sessions      Session[]
-  mission       Mission?
-  schedule      Schedule[]
-  weekanalysis  WeeklyAnalysis[]
+  id              String            @id @default(cuid())
+  name            String?
+  email           String?           @unique
+  emailVerified   DateTime?
+  image           String?
+  accounts        Account?
+  // sessions        Session[]
+  mission         Mission?
+  schedule        Schedule[]
+  weekanalysis    WeeklyAnalysis[]
+  dailylookinside DailyLookInside[]
 }
 
 model VerificationToken {
@@ -87,18 +91,40 @@ model WeeklyAnalysis {
   @@unique([year, month, week])
 }
 
+model DailyLookInside {
+  id String @id @default(cuid())
+
+  userId String  @unique
+  year   String?
+  month  String?
+  week   String?
+
+  lookInsideSun String? @db.Text
+  lookInsideMon String? @db.Text
+  lookInsideTue String? @db.Text
+  lookInsideWed String? @db.Text
+  lookInsideThu String? @db.Text
+  lookInsideFri String? @db.Text
+  lookInsideSat String? @db.Text
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([year, month, week])
+}
+
 model Schedule {
-  id            String    @id @default(cuid())
-  userId        String
-  startDate     DateTime
-  endDate       DateTime
-  title         String
-  color         String
-  repeatDay     String?
-  repeatLastDay DateTime?
-  isrepeat      Boolean
-  type          String
-  isComplete    Boolean?
+  id               String    @id @default(cuid())
+  userId           String
+  startDate        DateTime
+  endDate          DateTime
+  title            String
+  color            String
+  repeatDay        String?
+  repeatLastDay    DateTime?
+  isrepeat         Boolean
+  type             String
+  isComplete       Boolean?
+  isRepeatComplete String?
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }

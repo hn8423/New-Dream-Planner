@@ -22,6 +22,14 @@ const req2srv = {
       .catch((err) => errHandler(err));
     return result.data;
   },
+
+  /**@type {(body:{  year: string, month: string, week: string, lookInsideSun: string, lookInsideMon: string, lookInsideTue: string, lookInsideWed: string, lookInsideThu: string, lookInsideFri: string, lookInsideSat: string})} */
+  async changeLookInside(body) {
+    const result = await axios
+      .post("/api/user/lookinside", body)
+      .catch((err) => errHandler(err));
+    return result.data;
+  },
 };
 
 export default req2srv;
