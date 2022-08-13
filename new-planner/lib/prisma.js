@@ -1,5 +1,5 @@
-import { PrismaClient } from "@prisma/client";
-// const { PrismaClient } = require('@prisma/client')
+// import { PrismaClient } from "@prisma/client";
+const { PrismaClient } = require("@prisma/client");
 
 Object.defineProperty(exports, "__esModule", { value: true });
 
