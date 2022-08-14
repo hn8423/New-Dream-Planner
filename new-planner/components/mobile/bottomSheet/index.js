@@ -1,11 +1,8 @@
 import { classOption } from "utill/index";
 import style from "./index.module.scss";
 import { useRouter } from "next/router";
-import { useSelector } from "react-redux";
-import { signIn, signOut } from "next-auth/react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import _ from "lodash";
-import { useSession } from "next-auth/react";
 import DatePickers from "components/datepicker";
 import TimePickers from "components/timepicker";
 import req2srv from "lib/req2srv/plan";
@@ -30,18 +27,10 @@ export default function MobileBottomSheet({ className, close }) {
     false,
     false,
   ]);
-  const [repeatLastDay, setRepeatLastDay] = useState(
-    new Date(moment().format("YYYY-MM-DD 00:00:00"))
-  );
-  const [startDate, setStartDate] = useState(
-    new Date(moment().format("YYYY-MM-DD 00:00:00"))
-  );
-  const [startTime, setStartTime] = useState(
-    new Date(moment().format("YYYY-MM-DD HH:mm:00"))
-  );
-  const [endTime, setEndTime] = useState(
-    new Date(moment().format("YYYY-MM-DD HH:mm:00"))
-  );
+  const [repeatLastDay, setRepeatLastDay] = useState(new Date());
+  const [startDate, setStartDate] = useState(new Date());
+  const [startTime, setStartTime] = useState(new Date());
+  const [endTime, setEndTime] = useState(new Date());
   const [pickTimeMetrix, setPickTimeMetrix] = useState("");
   // const [type, setType] = useState("");
   const sideBar = useRef(null);
@@ -196,10 +185,10 @@ export default function MobileBottomSheet({ className, close }) {
         } else if (isAllDay && !isRepeat) {
           let result = await req2srv.createPlan({
             startDate: new Date(
-              `${moment(startDate).format("YYYY-MM-DD HH:mm:00")}`
+              `${moment(startDate).format("YYYY-MM-DD 00:00:00")}`
             ),
             endDate: new Date(
-              `${moment(startDate).add(1, "d").format("YYYY-MM-DD HH:mm:00")}`
+              `${moment(startDate).add(1, "d").format("YYYY-MM-DD 00:00:00")}`
             ),
             title,
             color: pickColor,
@@ -210,16 +199,18 @@ export default function MobileBottomSheet({ className, close }) {
         } else if (isAllDay && isRepeat) {
           let result = await req2srv.createPlan({
             startDate: new Date(
-              `${moment(startDate).format("YYYY-MM-DD HH:mm:00")}`
+              `${moment(startDate).format("YYYY-MM-DD 00:00:00")}`
             ),
             endDate: new Date(
-              `${moment(startDate).add(1, "d").format("YYYY-MM-DD HH:mm:00")}`
+              `${moment(startDate).add(1, "d").format("YYYY-MM-DD 00:00:00")}`
             ),
             title,
             color: pickColor,
             isrepeat: isRepeat,
             type: pickTimeMetrix,
-            repeatLastDay: new Date(`${moment(repeatLastDay).add(9, "h")}`),
+            repeatLastDay: new Date(
+              `${moment(repeatLastDay).format("YYYY-MM-DD 09:00:00")}`
+            ),
             repeatDay: repeatDay,
             isRepeatComplete: repeatComplete,
           });
@@ -239,7 +230,9 @@ export default function MobileBottomSheet({ className, close }) {
             color: pickColor,
             isrepeat: isRepeat,
             type: pickTimeMetrix,
-            repeatLastDay: new Date(`${moment(repeatLastDay).add(9, "h")}`),
+            repeatLastDay: new Date(
+              `${moment(repeatLastDay).format("YYYY-MM-DD 09:00:00")}`
+            ),
             repeatDay,
             isRepeatComplete: repeatComplete,
           });

@@ -88,8 +88,8 @@ export default function TimeTable({ scheduleList }) {
             temp_startDate = moment(startDate);
             temp_endDate = moment(endDate);
           } else {
-            temp_startDate = moment(startDate).add(15, "h");
-            temp_endDate = moment(endDate).add(15, "h");
+            temp_startDate = moment(startDate).subtract(9, "h");
+            temp_endDate = moment(endDate).subtract(9, "h");
           }
 
           let temp_repeatLastDay;
@@ -163,8 +163,8 @@ export default function TimeTable({ scheduleList }) {
             temp_startDate = moment(startDate);
             temp_endDate = moment(endDate);
           } else {
-            temp_startDate = moment(startDate).add(15, "h");
-            temp_endDate = moment(endDate).add(15, "h");
+            temp_startDate = moment(startDate).subtract(9, "h");
+            temp_endDate = moment(endDate).subtract(9, "h");
           }
 
           let temp_repeatLastDay;
@@ -242,8 +242,6 @@ export default function TimeTable({ scheduleList }) {
       {/* {console.log(data)} */}
     </Appointments.Appointment>
   );
-
-  useEffect(() => {}, []);
 
   return (
     <div

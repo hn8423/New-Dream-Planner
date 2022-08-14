@@ -1,11 +1,8 @@
 import { classOption } from "utill/index";
 import style from "./index.module.scss";
 import { useRouter } from "next/router";
-import { useSelector } from "react-redux";
-import { signIn, signOut } from "next-auth/react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import _, { subtract } from "lodash";
-import { useSession } from "next-auth/react";
 import DatePickers from "components/datepicker";
 import TimePickers from "components/timepicker";
 import req2srv from "lib/req2srv/plan";
@@ -34,15 +31,11 @@ export default function MobileBottomSheet({ className, close, data }) {
   const [repeatLastDay, setRepeatLastDay] = useState(new Date());
 
   const [startDate, setStartDate] = useState(
-    new Date(moment(appointmentItem.startDate).format("YYYY-MM-DD 00:00:00"))
+    new Date(moment(appointmentItem.startDate))
   );
-  const [startTime, setStartTime] = useState(
-    new Date(moment().format("YYYY-MM-DD HH:mm:00"))
-  );
+  const [startTime, setStartTime] = useState(new Date());
 
-  const [endTime, setEndTime] = useState(
-    new Date(moment().format("YYYY-MM-DD HH:mm:00"))
-  );
+  const [endTime, setEndTime] = useState(new Date());
   const [pickTimeMetrix, setPickTimeMetrix] = useState(appointmentItem.type);
   const sideBar = useRef(null);
   const router = useRouter();
@@ -202,13 +195,13 @@ export default function MobileBottomSheet({ className, close, data }) {
           let result = await req2srv.updatePlan({
             id: itemId,
             startDate: new Date(
-              `${moment(startDate).format("YYYY-MM-DD HH:mm:00")}`
+              `${moment(startDate).format("YYYY-MM-DD 00:00:00")}`
             ),
             endDate: new Date(
               `${moment(startDate)
                 .add(1, "d")
 
-                .format("YYYY-MM-DD HH:mm:00")}`
+                .format("YYYY-MM-DD 00:00:00")}`
             ),
             title,
             color: pickColor,
@@ -219,19 +212,21 @@ export default function MobileBottomSheet({ className, close, data }) {
           let result = await req2srv.updatePlan({
             id: itemId,
             startDate: new Date(
-              `${moment(startDate).format("YYYY-MM-DD HH:mm:00")}`
+              `${moment(startDate).format("YYYY-MM-DD 00:00:00")}`
             ),
             endDate: new Date(
               `${moment(startDate)
                 .add(1, "d")
 
-                .format("YYYY-MM-DD HH:mm:00")}`
+                .format("YYYY-MM-DD 00:00:00")}`
             ),
             title,
             color: pickColor,
             isrepeat: isRepeat,
             type: pickTimeMetrix,
-            repeatLastDay: new Date(`${moment(repeatLastDay).add(9, "h")}`),
+            repeatLastDay: new Date(
+              `${moment(repeatLastDay).format("YYYY-MM-DD 09:00:00")}`
+            ),
             repeatDay: repeatDay,
           });
         } else if (!isAllDay && isRepeat) {
@@ -251,7 +246,9 @@ export default function MobileBottomSheet({ className, close, data }) {
             color: pickColor,
             isrepeat: isRepeat,
             type: pickTimeMetrix,
-            repeatLastDay: new Date(`${moment(repeatLastDay).add(9, "h")}`),
+            repeatLastDay: new Date(
+              `${moment(repeatLastDay).format("YYYY-MM-DD 09:00:00")}`
+            ),
             repeatDay,
           });
         }
@@ -369,6 +366,7 @@ export default function MobileBottomSheet({ className, close, data }) {
           moment(appointmentItem.repeatLastDay).format("YYYY-MM-DD 00:00:00")
         )
       );
+      setStartDate(new Date(appointmentItem.realStartDate));
     }
     if (
       moment(appointmentItem.startDate).format("hh:mm:ss") ===
@@ -423,12 +421,8 @@ export default function MobileBottomSheet({ className, close, data }) {
         );
       }
     }
-  }, [
-    appointmentItem,
-    appointmentItem.endDate,
-    appointmentItem.repeatDay,
-    appointmentItem.startDate,
-  ]);
+  }, [appointmentItem]);
+
   return (
     <div
       className={classname(["side-bar", { closing: isClosing }, className])}

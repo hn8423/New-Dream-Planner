@@ -1,8 +1,6 @@
 import { classOption } from "utill/index";
 import style from "./index.module.scss";
 import { useRouter } from "next/router";
-import { useSelector } from "react-redux";
-import { signIn, signOut } from "next-auth/react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import _ from "lodash";
 import { useSession } from "next-auth/react";
@@ -32,18 +30,16 @@ export default function BottomSheetStype({ className, close, data }) {
     false,
   ]);
   const [repeatLastDay, setRepeatLastDay] = useState(
-    new Date(
-      moment(appointmentItem.repeatLastDay).format("YYYY-MM-DD 00:00:00")
-    )
+    new Date(moment(appointmentItem.repeatLastDay))
   );
   const [startDate, setStartDate] = useState(
-    new Date(moment(appointmentItem.startDate).format("YYYY-MM-DD 00:00:00"))
+    new Date(moment(appointmentItem.startDate))
   );
   const [startTime, setStartTime] = useState(
-    new Date(moment(appointmentItem.startDate).format("YYYY-MM-DD HH:mm:00"))
+    new Date(moment(appointmentItem.startDate))
   );
   const [endTime, setEndTime] = useState(
-    new Date(moment(appointmentItem.endDate).format("YYYY-MM-DD HH:mm:00"))
+    new Date(moment(appointmentItem.endDate))
   );
   const [pickTimeMetrix, setPickTimeMetrix] = useState("S");
   // const [type, setType] = useState("");
@@ -193,13 +189,13 @@ export default function BottomSheetStype({ className, close, data }) {
           let result = await req2srv.updatePlan({
             id: appointmentItem.id,
             startDate: new Date(
-              `${moment(startDate).add(9, "h").format("YYYY-MM-DD HH:mm:00")}`
+              `${moment(startDate).add(9, "h").format("YYYY-MM-DD 00:00:00")}`
             ),
             endDate: new Date(
               `${moment(startDate)
                 .add(1, "d")
                 .add(9, "h")
-                .format("YYYY-MM-DD HH:mm:00")}`
+                .format("YYYY-MM-DD 00:00:00")}`
             ),
             title,
             color: pickColor,
@@ -210,19 +206,21 @@ export default function BottomSheetStype({ className, close, data }) {
           let result = await req2srv.updatePlan({
             id: appointmentItem.id,
             startDate: new Date(
-              `${moment(startDate).add(9, "h").format("YYYY-MM-DD HH:mm:00")}`
+              `${moment(startDate).add(9, "h").format("YYYY-MM-DD 00:00:00")}`
             ),
             endDate: new Date(
               `${moment(startDate)
                 .add(1, "d")
                 .add(9, "h")
-                .format("YYYY-MM-DD HH:mm:00")}`
+                .format("YYYY-MM-DD 00:00:00")}`
             ),
             title,
             color: pickColor,
             isrepeat: isRepeat,
             type: pickTimeMetrix,
-            repeatLastDay: new Date(`${moment(repeatLastDay).add(9, "h")}`),
+            repeatLastDay: new Date(
+              `${moment(repeatLastDay).format("YYYY-MM-DD 09:00:00")}`
+            ),
             repeatDay: repeatDay,
           });
         } else if (!isAllDay && isRepeat) {
@@ -242,7 +240,9 @@ export default function BottomSheetStype({ className, close, data }) {
             color: pickColor,
             isrepeat: isRepeat,
             type: pickTimeMetrix,
-            repeatLastDay: new Date(`${moment(repeatLastDay).add(9, "h")}`),
+            repeatLastDay: new Date(
+              `${moment(repeatLastDay).format("YYYY-MM-DD 09:00:00")}`
+            ),
             repeatDay,
           });
         }

@@ -82,6 +82,7 @@ export default function Month({ scheduleList }) {
 
           let temp_repeatLastDay;
           let realStartDate = moment(startDate);
+          let realEndDate = moment(endDate);
           if (isrepeat) {
             temp_repeatLastDay = moment(repeatLastDay);
           } else {
@@ -102,6 +103,7 @@ export default function Month({ scheduleList }) {
                   endDate,
                   type,
                   realStartDate,
+                  realEndDate,
                 };
                 temp.startDate = temp_startDate;
                 temp.endDate = temp_endDate;
