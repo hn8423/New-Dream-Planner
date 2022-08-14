@@ -169,13 +169,14 @@ export default function MobileBottomSheet({ className, close, headerRef }) {
         } else if (isAllDay && !isRepeat) {
           let result = await req2srv.createPlan({
             startDate: new Date(
-              `${moment(startDate).format("YYYY-MM-DD 00:00:00")}`
+              `${moment(startDate) /* .format("YYYY-MM-DD 00:00:00") */}`
             ),
             endDate: new Date(
-              `${moment(startDate)
-                .add(1, "d")
+              `${
+                moment(startDate).add(1, "d")
 
-                .format("YYYY-MM-DD 00:00:00")}`
+                /* .format("YYYY-MM-DD 00:00:00") */
+              }`
             ),
             title,
             color: pickColor,
@@ -186,13 +187,14 @@ export default function MobileBottomSheet({ className, close, headerRef }) {
         } else if (isAllDay && isRepeat) {
           let result = await req2srv.createPlan({
             startDate: new Date(
-              `${moment(startDate).format("YYYY-MM-DD 00:00:00")}`
+              `${moment(startDate) /* .format("YYYY-MM-DD 00:00:00") */}`
             ),
             endDate: new Date(
-              `${moment(startDate)
-                .add(1, "d")
+              `${
+                moment(startDate).add(1, "d")
 
-                .format("YYYY-MM-DD 00:00:00")}`
+                /* .format("YYYY-MM-DD 00:00:00") */
+              }`
             ),
             title,
             color: pickColor,
