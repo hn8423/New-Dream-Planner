@@ -27,18 +27,20 @@ export default async function apiHandler(req, res) {
   const session = await getSession({ req });
 
   try {
-    // console.log("3");
-
     const check = await prisma.weeklyAnalysis.findMany({
       where: { userId: session.user.id, year, month, week },
     });
 
-    if (check.length !== 0) {
-      await prisma.weeklyAnalysis.update({
-        where: {
-          year_month_week: { year, month, week },
-        },
+    // console.log(check);
+
+    if (check.length === []) {
+      await prisma.weeklyAnalysis.create({
         data: {
+          user: {
+            connect: {
+              id: session.user.id,
+            },
+          },
           year,
           month,
           week,
@@ -48,13 +50,11 @@ export default async function apiHandler(req, res) {
         },
       });
     } else {
-      await prisma.weeklyAnalysis.create({
+      await prisma.weeklyAnalysis.update({
+        where: {
+          year_month_week: { year, month, week },
+        },
         data: {
-          user: {
-            connect: {
-              id: session.user.id,
-            },
-          },
           year,
           month,
           week,
