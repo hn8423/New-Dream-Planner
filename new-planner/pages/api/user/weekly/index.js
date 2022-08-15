@@ -33,7 +33,7 @@ export default async function apiHandler(req, res) {
 
     // console.log(check);
 
-    if (check.length === []) {
+    if (check.length === 0) {
       await prisma.weeklyAnalysis.create({
         data: {
           user: {
