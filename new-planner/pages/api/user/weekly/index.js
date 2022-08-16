@@ -52,7 +52,12 @@ export default async function apiHandler(req, res) {
     } else {
       await prisma.weeklyAnalysis.update({
         where: {
-          year_month_week: { year, month, week },
+          year_month_week_userId: {
+            year,
+            month,
+            week,
+            userId: session.user.id,
+          },
         },
         data: {
           year,

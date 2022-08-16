@@ -31,6 +31,9 @@ export default function MobileBottomSheet({ className, close }) {
   const [startDate, setStartDate] = useState(new Date());
   const [startTime, setStartTime] = useState(new Date());
   const [endTime, setEndTime] = useState(new Date());
+  // const [year, setYear] = useState(0)
+  // const [month, setMonth] = useState(0)
+  // const [date, setDate] = useState(0)
   const [pickTimeMetrix, setPickTimeMetrix] = useState("");
   // const [type, setType] = useState("");
   const sideBar = useRef(null);
@@ -167,14 +170,19 @@ export default function MobileBottomSheet({ className, close }) {
         if (!isAllDay && !isRepeat) {
           let result = await req2srv.createPlan({
             startDate: new Date(
-              `${moment(startDate).format("YYYY-MM-DD")} ${moment(startTime)
-                .add(9, "h")
-                .format("HH:mm:00")}`
+              new Date(
+                `${startDate.getFullYear()}-${
+                  startDate.getMonth() + 1
+                }-${startDate.getDate()} ${startTime.getHours()}:${startTime.getMinutes()}:00`
+              ).setHours(startTime.getHours() + 9)
             ),
+
             endDate: new Date(
-              `${moment(startDate).format("YYYY-MM-DD")} ${moment(endTime)
-                .add(9, "h")
-                .format("HH:mm:00")}`
+              new Date(
+                `${startDate.getFullYear()}-${
+                  startDate.getMonth() + 1
+                }-${startDate.getDate()} ${endTime.getHours()}:${endTime.getMinutes()}:00`
+              ).setHours(endTime.getHours() + 9)
             ),
             title,
             color: pickColor,
@@ -185,10 +193,19 @@ export default function MobileBottomSheet({ className, close }) {
         } else if (isAllDay && !isRepeat) {
           let result = await req2srv.createPlan({
             startDate: new Date(
-              `${moment(startDate).format("YYYY-MM-DD 00:00:00")}`
+              new Date(
+                `${startDate.getFullYear()}-${startDate.getMonth() + 1}-${
+                  startDate.getDate() + 1
+                } 00:00:00`
+              )
             ),
             endDate: new Date(
-              `${moment(startDate).add(1, "d").format("YYYY-MM-DD 00:00:00")}`
+              new Date(
+                // `${moment(startDate).add(1, "d").format("YYYY-MM-DD 00:00:00")}`
+                `${startDate.getFullYear()}-${startDate.getMonth() + 1}-${
+                  startDate.getDate() + 2
+                } 00:00:00`
+              )
             ),
             title,
             color: pickColor,
@@ -199,17 +216,29 @@ export default function MobileBottomSheet({ className, close }) {
         } else if (isAllDay && isRepeat) {
           let result = await req2srv.createPlan({
             startDate: new Date(
-              `${moment(startDate).format("YYYY-MM-DD 00:00:00")}`
+              new Date(
+                `${startDate.getFullYear()}-${startDate.getMonth() + 1}-${
+                  startDate.getDate() + 1
+                } 00:00:00`
+              )
             ),
             endDate: new Date(
-              `${moment(startDate).add(1, "d").format("YYYY-MM-DD 00:00:00")}`
+              new Date(
+                // `${moment(startDate).add(1, "d").format("YYYY-MM-DD 00:00:00")}`
+                `${startDate.getFullYear()}-${startDate.getMonth() + 1}-${
+                  startDate.getDate() + 2
+                } 00:00:00`
+              )
             ),
             title,
             color: pickColor,
             isrepeat: isRepeat,
             type: pickTimeMetrix,
             repeatLastDay: new Date(
-              `${moment(repeatLastDay).format("YYYY-MM-DD 09:00:00")}`
+              new Date(
+                // `${moment(repeatLastDay).format("YYYY-MM-DD 09:00:00")}`
+                repeatLastDay
+              ).setHours(9, 0, 0, 0)
             ),
             repeatDay: repeatDay,
             isRepeatComplete: repeatComplete,
@@ -217,21 +246,29 @@ export default function MobileBottomSheet({ className, close }) {
         } else if (!isAllDay && isRepeat) {
           let result = await req2srv.createPlan({
             startDate: new Date(
-              `${moment(startDate).format("YYYY-MM-DD")} ${moment(startTime)
-                .add(9, "h")
-                .format("HH:mm:00")}`
+              new Date(
+                `${startDate.getFullYear()}-${
+                  startDate.getMonth() + 1
+                }-${startDate.getDate()} ${startTime.getHours()}:${startTime.getMinutes()}:00`
+              ).setHours(startTime.getHours() + 9)
             ),
+
             endDate: new Date(
-              `${moment(startDate).format("YYYY-MM-DD")} ${moment(endTime)
-                .add(9, "h")
-                .format("HH:mm:00")}`
+              new Date(
+                `${startDate.getFullYear()}-${
+                  startDate.getMonth() + 1
+                }-${startDate.getDate()} ${endTime.getHours()}:${endTime.getMinutes()}:00`
+              ).setHours(endTime.getHours() + 9)
             ),
             title,
             color: pickColor,
             isrepeat: isRepeat,
             type: pickTimeMetrix,
             repeatLastDay: new Date(
-              `${moment(repeatLastDay).format("YYYY-MM-DD 09:00:00")}`
+              new Date(
+                // `${moment(repeatLastDay).format("YYYY-MM-DD 09:00:00")}`
+                repeatLastDay
+              ).setHours(9, 0, 0, 0)
             ),
             repeatDay,
             isRepeatComplete: repeatComplete,
@@ -258,6 +295,13 @@ export default function MobileBottomSheet({ className, close }) {
       title,
     ]
   );
+
+  useEffect(() => {
+    //"YYYY-MM-DD 00:00:00"
+    // `${startDate.getFullYear()}-${startDate.getMonth()}-${startDate.getDate()} ${endTime.getHours() + 9}:${endTime.getMinutes()}:00`
+    console.log("endTime :", new Date(1657994400000));
+    // console.log("string:");
+  }, [startDate, startTime]);
 
   // renderMap
   // renderMap

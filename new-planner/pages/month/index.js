@@ -77,17 +77,17 @@ export default function Month({ scheduleList }) {
           type,
         }) => {
           let result = [];
-          let temp_startDate = moment(startDate);
-          let temp_endDate = moment(endDate);
+          let temp_startDate = moment(startDate).subtract(1, "d");
+          let temp_endDate = moment(endDate).subtract(1, "d");
 
           let temp_repeatLastDay;
           let realStartDate = moment(startDate);
           let realEndDate = moment(endDate);
-          if (isrepeat) {
-            temp_repeatLastDay = moment(repeatLastDay);
-          } else {
-            temp_repeatLastDay = moment(repeatLastDay).add(1, "d");
-          }
+          // if (isrepeat) {
+          // temp_repeatLastDay = moment(repeatLastDay);
+          // } else {
+          temp_repeatLastDay = moment(repeatLastDay);
+          // }
 
           while (temp_startDate <= temp_repeatLastDay) {
             [...repeatDay].forEach((e) => {
@@ -119,7 +119,35 @@ export default function Month({ scheduleList }) {
       )
       .value();
 
-    return [...createdList, ...unReapeatList];
+    let createdUnrepeatList = _(unReapeatList)
+      .flatMap(({ color, endDate, id, isrepeat, startDate, title, type }) => {
+        let result = [];
+        let temp_startDate = moment(startDate).subtract(1, "d");
+        let temp_endDate = moment(endDate).subtract(1, "d");
+
+        let realStartDate = moment(startDate);
+        let realEndDate = moment(endDate);
+
+        let temp = {
+          color,
+          title,
+          id,
+          isrepeat,
+          startDate,
+          endDate,
+          type,
+          realStartDate,
+          realEndDate,
+        };
+        temp.startDate = temp_startDate;
+        temp.endDate = temp_endDate;
+        result.push(temp);
+
+        return result;
+      })
+      .value();
+
+    return [...createdUnrepeatList, ...createdList];
 
     // data 가져 와서 isrepeat true 인것 가져오기
     // startDate에서 repeatLastDay 까지 일정 가져오기
