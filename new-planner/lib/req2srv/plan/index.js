@@ -19,7 +19,7 @@ const req2srv = {
       .catch((err) => errHandler(err));
     return result;
   },
-  /**@type {(body:{id: string,title: string, startDate: Date, endDate: Date, color: string, repeatDay: string, repeatLastDay: Date, isrepeat: boolean, type: string })} */
+  /**@type {(body:{id: string,title: string, startDate: Date, endDate: Date, color: string, repeatDay: string, repeatLastDay: Date, isrepeat: boolean, type: string, isRepeatComplete: string })} */
   async updatePlan(body) {
     const result = await axios
       .post("/api/plan/update", body)

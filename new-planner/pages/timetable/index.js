@@ -81,20 +81,25 @@ export default function TimeTable({ scheduleList }) {
 
           let temp_startDate;
           let temp_endDate;
+          let realStartDate;
+          let realEndDate;
           if (
             moment(startDate).format("HH:mm") ===
             moment(endDate).format("HH:mm")
           ) {
             temp_startDate = moment(startDate);
             temp_endDate = moment(endDate);
+            realStartDate = moment(startDate);
+            realEndDate = moment(endDate);
           } else {
             temp_startDate = moment(startDate).subtract(9, "h");
             temp_endDate = moment(endDate).subtract(9, "h");
+            realStartDate = moment(startDate).subtract(1, "d");
+            realEndDate = moment(endDate).subtract(1, "d");
           }
 
           let temp_repeatLastDay;
-          let realStartDate = moment(startDate);
-          let realEndDate = moment(endDate);
+
           if (isrepeat) {
             temp_repeatLastDay = moment(repeatLastDay);
           } else {
@@ -160,8 +165,8 @@ export default function TimeTable({ scheduleList }) {
             moment(startDate).format("HH:mm") ===
             moment(endDate).format("HH:mm")
           ) {
-            temp_startDate = moment(startDate);
-            temp_endDate = moment(endDate);
+            temp_startDate = moment(startDate).subtract(1, "d");
+            temp_endDate = moment(endDate).subtract(1, "d");
           } else {
             temp_startDate = moment(startDate).subtract(9, "h");
             temp_endDate = moment(endDate).subtract(9, "h");
@@ -204,6 +209,10 @@ export default function TimeTable({ scheduleList }) {
     // 요일별 숫자로 체크 해서 해당 요일 반복 된 것 만 필터링
     // 새롭게 data 값에 반복된 값들 추가된 값 넣기
   }, [data]);
+
+  // useEffect(() => {
+  //   console.log(plan);
+  // }, [plan]);
 
   //function
   //function

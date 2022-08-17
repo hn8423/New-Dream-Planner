@@ -201,7 +201,6 @@ export default function MobileBottomSheet({ className, close }) {
             ),
             endDate: new Date(
               new Date(
-                // `${moment(startDate).add(1, "d").format("YYYY-MM-DD 00:00:00")}`
                 `${startDate.getFullYear()}-${startDate.getMonth() + 1}-${
                   startDate.getDate() + 2
                 } 00:00:00`
@@ -224,7 +223,6 @@ export default function MobileBottomSheet({ className, close }) {
             ),
             endDate: new Date(
               new Date(
-                // `${moment(startDate).add(1, "d").format("YYYY-MM-DD 00:00:00")}`
                 `${startDate.getFullYear()}-${startDate.getMonth() + 1}-${
                   startDate.getDate() + 2
                 } 00:00:00`
@@ -235,10 +233,7 @@ export default function MobileBottomSheet({ className, close }) {
             isrepeat: isRepeat,
             type: pickTimeMetrix,
             repeatLastDay: new Date(
-              new Date(
-                // `${moment(repeatLastDay).format("YYYY-MM-DD 09:00:00")}`
-                repeatLastDay
-              ).setHours(9, 0, 0, 0)
+              new Date(repeatLastDay).setHours(9, 0, 0, 0)
             ),
             repeatDay: repeatDay,
             isRepeatComplete: repeatComplete,
@@ -265,10 +260,7 @@ export default function MobileBottomSheet({ className, close }) {
             isrepeat: isRepeat,
             type: pickTimeMetrix,
             repeatLastDay: new Date(
-              new Date(
-                // `${moment(repeatLastDay).format("YYYY-MM-DD 09:00:00")}`
-                repeatLastDay
-              ).setHours(9, 0, 0, 0)
+              new Date(repeatLastDay).setHours(9, 0, 0, 0)
             ),
             repeatDay,
             isRepeatComplete: repeatComplete,
@@ -295,13 +287,6 @@ export default function MobileBottomSheet({ className, close }) {
       title,
     ]
   );
-
-  useEffect(() => {
-    //"YYYY-MM-DD 00:00:00"
-    // `${startDate.getFullYear()}-${startDate.getMonth()}-${startDate.getDate()} ${endTime.getHours() + 9}:${endTime.getMinutes()}:00`
-    console.log("endTime :", new Date(1657994400000));
-    // console.log("string:");
-  }, [startDate, startTime]);
 
   // renderMap
   // renderMap

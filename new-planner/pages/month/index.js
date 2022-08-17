@@ -81,7 +81,15 @@ export default function Month({ scheduleList }) {
           let temp_endDate = moment(endDate).subtract(1, "d");
 
           let temp_repeatLastDay;
-          let realStartDate = moment(startDate);
+          let realStartDate;
+          if (
+            moment(startDate).format("hh:mm:ss") ===
+            moment(endDate).format("hh:mm:ss")
+          ) {
+            realStartDate = moment(startDate);
+          } else {
+            realStartDate = moment(startDate).subtract(1, "d");
+          }
           let realEndDate = moment(endDate);
           // if (isrepeat) {
           // temp_repeatLastDay = moment(repeatLastDay);
@@ -122,8 +130,16 @@ export default function Month({ scheduleList }) {
     let createdUnrepeatList = _(unReapeatList)
       .flatMap(({ color, endDate, id, isrepeat, startDate, title, type }) => {
         let result = [];
-        let temp_startDate = moment(startDate).subtract(1, "d");
-        let temp_endDate = moment(endDate).subtract(1, "d");
+        let temp_startDate = moment(startDate).subtract(9, "h");
+        let temp_endDate;
+        if (
+          moment(startDate).format("hh:mm:ss") ===
+          moment(endDate).format("hh:mm:ss")
+        ) {
+          temp_endDate = moment(endDate).subtract(1, "d");
+        } else {
+          temp_endDate = moment(endDate).subtract(9, "h");
+        }
 
         let realStartDate = moment(startDate);
         let realEndDate = moment(endDate);
@@ -154,6 +170,10 @@ export default function Month({ scheduleList }) {
     // 요일별 숫자로 체크 해서 해당 요일 반복 된 것 만 필터링
     // 새롭게 data 값에 반복된 값들 추가된 값 넣기
   }, [data]);
+
+  // useEffect(() => {
+  //   console.log(plan);
+  // }, [plan]);
 
   //function
   //function

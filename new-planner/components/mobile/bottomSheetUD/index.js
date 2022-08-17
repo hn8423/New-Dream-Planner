@@ -176,15 +176,20 @@ export default function MobileBottomSheet({ className, close, data }) {
         if (!isAllDay && !isRepeat) {
           let result = await req2srv.updatePlan({
             id: itemId,
+
             startDate: new Date(
-              `${moment(startDate).format("YYYY-MM-DD")} ${moment(startTime)
-                .add(9, "h")
-                .format("HH:mm:00")}`
+              new Date(
+                `${startDate.getFullYear()}-${
+                  startDate.getMonth() + 1
+                }-${startDate.getDate()} ${startTime.getHours()}:${startTime.getMinutes()}:00`
+              ).setHours(startTime.getHours() + 9)
             ),
             endDate: new Date(
-              `${moment(startDate).format("YYYY-MM-DD")} ${moment(endTime)
-                .add(9, "h")
-                .format("HH:mm:00")}`
+              new Date(
+                `${startDate.getFullYear()}-${
+                  startDate.getMonth() + 1
+                }-${startDate.getDate()} ${endTime.getHours()}:${endTime.getMinutes()}:00`
+              ).setHours(endTime.getHours() + 9)
             ),
             title,
             color: pickColor,
@@ -195,13 +200,18 @@ export default function MobileBottomSheet({ className, close, data }) {
           let result = await req2srv.updatePlan({
             id: itemId,
             startDate: new Date(
-              `${moment(startDate).format("YYYY-MM-DD 00:00:00")}`
+              new Date(
+                `${startDate.getFullYear()}-${startDate.getMonth() + 1}-${
+                  startDate.getDate() + 1
+                } 00:00:00`
+              )
             ),
             endDate: new Date(
-              `${moment(startDate)
-                .add(1, "d")
-
-                .format("YYYY-MM-DD 00:00:00")}`
+              new Date(
+                `${startDate.getFullYear()}-${startDate.getMonth() + 1}-${
+                  startDate.getDate() + 2
+                } 00:00:00`
+              )
             ),
             title,
             color: pickColor,
@@ -209,47 +219,70 @@ export default function MobileBottomSheet({ className, close, data }) {
             type: pickTimeMetrix,
           });
         } else if (isAllDay && isRepeat) {
+          let repeatComplete;
+          if (appointmentItem.isRepeatComplete) {
+            repeatComplete = appointmentItem.isRepeatComplete;
+          } else {
+            repeatComplete = new Array(repeatDay.length).fill("0").join("");
+          }
           let result = await req2srv.updatePlan({
             id: itemId,
             startDate: new Date(
-              `${moment(startDate).format("YYYY-MM-DD 00:00:00")}`
+              new Date(
+                `${startDate.getFullYear()}-${startDate.getMonth() + 1}-${
+                  startDate.getDate() + 1
+                } 00:00:00`
+              )
             ),
             endDate: new Date(
-              `${moment(startDate)
-                .add(1, "d")
-
-                .format("YYYY-MM-DD 00:00:00")}`
+              new Date(
+                `${startDate.getFullYear()}-${startDate.getMonth() + 1}-${
+                  startDate.getDate() + 2
+                } 00:00:00`
+              )
             ),
             title,
             color: pickColor,
             isrepeat: isRepeat,
             type: pickTimeMetrix,
             repeatLastDay: new Date(
-              `${moment(repeatLastDay).format("YYYY-MM-DD 09:00:00")}`
+              new Date(repeatLastDay).setHours(9, 0, 0, 0)
             ),
             repeatDay: repeatDay,
+            isRepeatComplete: repeatComplete,
           });
         } else if (!isAllDay && isRepeat) {
+          let repeatComplete;
+          if (appointmentItem.isRepeatComplete) {
+            repeatComplete = appointmentItem.isRepeatComplete;
+          } else {
+            repeatComplete = new Array(repeatDay.length).fill("0").join("");
+          }
           let result = await req2srv.updatePlan({
             id: itemId,
             startDate: new Date(
-              `${moment(startDate).format("YYYY-MM-DD")} ${moment(startTime)
-                .add(9, "h")
-                .format("HH:mm:00")}`
+              new Date(
+                `${startDate.getFullYear()}-${
+                  startDate.getMonth() + 1
+                }-${startDate.getDate()} ${startTime.getHours()}:${startTime.getMinutes()}:00`
+              ).setHours(startTime.getHours() + 9)
             ),
             endDate: new Date(
-              `${moment(startDate).format("YYYY-MM-DD")} ${moment(endTime)
-                .add(9, "h")
-                .format("HH:mm:00")}`
+              new Date(
+                `${startDate.getFullYear()}-${
+                  startDate.getMonth() + 1
+                }-${startDate.getDate()} ${endTime.getHours()}:${endTime.getMinutes()}:00`
+              ).setHours(endTime.getHours() + 9)
             ),
             title,
             color: pickColor,
             isrepeat: isRepeat,
             type: pickTimeMetrix,
             repeatLastDay: new Date(
-              `${moment(repeatLastDay).format("YYYY-MM-DD 09:00:00")}`
+              new Date(repeatLastDay).setHours(9, 0, 0, 0)
             ),
             repeatDay,
+            isRepeatComplete: repeatComplete,
           });
         }
         alert("일정이 수정 되었습니다.");
@@ -351,11 +384,13 @@ export default function MobileBottomSheet({ className, close, data }) {
   });
 
   useEffect(() => {
+    //없을때 확인
     if (appointmentItem === null) {
       return;
     }
     let copyArr = new Array(6).fill(false);
-    if (appointmentItem.repeatDay !== null) {
+    //반복시
+    if (appointmentItem.isrepeat === true) {
       [...appointmentItem.repeatDay].forEach((e) => {
         copyArr[e] = true;
       });
@@ -366,14 +401,31 @@ export default function MobileBottomSheet({ className, close, data }) {
           moment(appointmentItem.repeatLastDay).format("YYYY-MM-DD 00:00:00")
         )
       );
-      setStartDate(new Date(appointmentItem.realStartDate));
+      // console.log(
+      //   moment(appointmentItem.realStartDate).format("hh:mm:ss") ===
+      //     moment(appointmentItem.realEndDate).format("hh:mm:ss")
+      // );
+      if (
+        moment(appointmentItem.realStartDate).format("hh:mm:ss") ===
+        moment(appointmentItem.realEndDate).format("hh:mm:ss")
+      ) {
+        setStartDate(
+          new Date(moment(appointmentItem.realStartDate).subtract(1, "d"))
+        );
+      } else {
+        setStartDate(new Date(appointmentItem.realStartDate));
+      }
     }
+    //하루종일
     if (
       moment(appointmentItem.startDate).format("hh:mm:ss") ===
-      moment(appointmentItem.endDate).format("hh:mm:ss")
+        moment(appointmentItem.endDate).format("hh:mm:ss") ||
+      moment(appointmentItem.realStartDate).format("hh:mm:ss") ===
+        moment(appointmentItem.realEndDate).format("hh:mm:ss")
     ) {
       setIsAllDay(true);
     } else {
+      //하루종일이 아닐때
       if (appointmentItem.unrepeatRealStartDate) {
         setStartTime(
           new Date(
@@ -394,6 +446,7 @@ export default function MobileBottomSheet({ className, close, data }) {
           new Date(
             moment(appointmentItem.realStartDate)
               .subtract(9, "h")
+              // .subtract(1, "d")
               .format("YYYY-MM-DD HH:mm:00")
           )
         );
@@ -401,10 +454,12 @@ export default function MobileBottomSheet({ className, close, data }) {
           new Date(
             moment(appointmentItem.realEndDate)
               .subtract(9, "h")
+              // .subtract(1, "d")
               .format("YYYY-MM-DD HH:mm:00")
           )
         );
       } else {
+        // console.log("yes");
         setStartTime(
           new Date(
             moment(appointmentItem.startDate)
