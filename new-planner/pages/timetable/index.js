@@ -83,6 +83,8 @@ export default function TimeTable({ scheduleList }) {
           let temp_endDate;
           let realStartDate;
           let realEndDate;
+          let temp_repeatLastDay;
+
           if (
             moment(startDate).format("HH:mm") ===
             moment(endDate).format("HH:mm")
@@ -100,10 +102,6 @@ export default function TimeTable({ scheduleList }) {
             temp_repeatLastDay = moment(repeatLastDay).add(1, "d");
           }
 
-          let temp_repeatLastDay;
-
-          if (isrepeat) {
-          }
           let realId;
 
           while (temp_startDate <= temp_repeatLastDay) {
@@ -157,6 +155,7 @@ export default function TimeTable({ scheduleList }) {
           let result = [];
           let temp_startDate;
           let temp_endDate;
+          let temp_repeatLastDay;
 
           let unrepeatRealStartDate = moment(startDate);
           let unrepeatRealEndDate = moment(endDate);
@@ -171,11 +170,7 @@ export default function TimeTable({ scheduleList }) {
             temp_endDate = moment(endDate).subtract(9, "h");
           }
 
-          if (isrepeat) {
-            temp_repeatLastDay = moment(repeatLastDay);
-          } else {
-            temp_repeatLastDay = moment(repeatLastDay).add(1, "d");
-          }
+          temp_repeatLastDay = moment(repeatLastDay).add(1, "d");
 
           let temp = {
             color,

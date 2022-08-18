@@ -94,7 +94,7 @@ export default function Month({ scheduleList }) {
             temp_startDate = moment(startDate).subtract(1, "d");
             temp_endDate = moment(endDate).subtract(1, "d");
             realStartDate = moment(startDate);
-            temp_repeatLastDay = moment(repeatLastDay);
+            temp_repeatLastDay = moment(repeatLastDay).add(1, "d");
           }
           let realEndDate = moment(endDate);
 

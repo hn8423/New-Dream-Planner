@@ -49,7 +49,7 @@ export async function getServerSideProps(ctx) {
     const scheduleList = await prisma.schedule.findMany({
       where: {
         userId: session.user.id,
-        endDate: {
+        startDate: {
           gte: new Date(moment().day(0).hour(0).minute(0).second(0)),
           lt: new Date(moment().day(7).hour(0).minute(0).second(0)),
         },
