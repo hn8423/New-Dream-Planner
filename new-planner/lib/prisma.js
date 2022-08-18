@@ -7,7 +7,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 let prisma;
 
 if (process.env.NODE_ENV === "production") {
-  prisma = new PrismaClient();
+  prisma = PrismaClient();
 } else {
   if (!global.prisma) {
     global.prisma = new PrismaClient();

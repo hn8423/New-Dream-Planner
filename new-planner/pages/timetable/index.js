@@ -81,24 +81,28 @@ export default function TimeTable({ scheduleList }) {
 
           let temp_startDate;
           let temp_endDate;
+          let realStartDate;
+          let realEndDate;
           if (
             moment(startDate).format("HH:mm") ===
             moment(endDate).format("HH:mm")
           ) {
-            temp_startDate = moment(startDate);
-            temp_endDate = moment(endDate);
+            temp_startDate = moment(startDate).subtract(1, "d");
+            temp_endDate = moment(endDate).subtract(1, "d");
+            realStartDate = moment(startDate);
+            realEndDate = moment(endDate);
+            temp_repeatLastDay = moment(repeatLastDay);
           } else {
             temp_startDate = moment(startDate).subtract(9, "h");
             temp_endDate = moment(endDate).subtract(9, "h");
+            realStartDate = moment(startDate);
+            realEndDate = moment(endDate);
+            temp_repeatLastDay = moment(repeatLastDay).add(1, "d");
           }
 
           let temp_repeatLastDay;
-          let realStartDate = moment(startDate);
-          let realEndDate = moment(endDate);
+
           if (isrepeat) {
-            temp_repeatLastDay = moment(repeatLastDay);
-          } else {
-            temp_repeatLastDay = moment(repeatLastDay).add(1, "d");
           }
           let realId;
 
@@ -160,15 +164,13 @@ export default function TimeTable({ scheduleList }) {
             moment(startDate).format("HH:mm") ===
             moment(endDate).format("HH:mm")
           ) {
-            temp_startDate = moment(startDate);
-            temp_endDate = moment(endDate);
+            temp_startDate = moment(startDate).subtract(1, "d");
+            temp_endDate = moment(endDate).subtract(1, "d");
           } else {
             temp_startDate = moment(startDate).subtract(9, "h");
             temp_endDate = moment(endDate).subtract(9, "h");
           }
 
-          let temp_repeatLastDay;
-          let realStartDate = moment(startDate);
           if (isrepeat) {
             temp_repeatLastDay = moment(repeatLastDay);
           } else {
@@ -236,10 +238,9 @@ export default function TimeTable({ scheduleList }) {
         backgroundColor: data.color,
         borderRadius: "8px",
       }}
-      onClick={AppointmentClick(data)}
+      onClick={data.type !== "S" ? AppointmentClick(data) : () => {}}
     >
       {children}
-      {/* {console.log(data)} */}
     </Appointments.Appointment>
   );
 

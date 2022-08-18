@@ -3,8 +3,6 @@ import style from "./index.module.scss";
 import { useRouter } from "next/router";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import _ from "lodash";
-import { useSession } from "next-auth/react";
-import DatePickers from "components/datepicker";
 import TimePickers from "components/timepicker";
 import req2srv from "lib/req2srv/plan";
 import moment from "moment";
@@ -29,18 +27,10 @@ export default function BottomSheetStype({ className, close, data }) {
     false,
     false,
   ]);
-  const [repeatLastDay, setRepeatLastDay] = useState(
-    new Date(moment(appointmentItem.repeatLastDay))
-  );
-  const [startDate, setStartDate] = useState(
-    new Date(moment(appointmentItem.startDate))
-  );
-  const [startTime, setStartTime] = useState(
-    new Date(moment(appointmentItem.startDate))
-  );
-  const [endTime, setEndTime] = useState(
-    new Date(moment(appointmentItem.endDate))
-  );
+  const [repeatLastDay, setRepeatLastDay] = useState(new Date(moment().day(6)));
+  const [startDate, setStartDate] = useState(new Date(moment().day(0)));
+  const [startTime, setStartTime] = useState(new Date());
+  const [endTime, setEndTime] = useState(new Date());
   const [pickTimeMetrix, setPickTimeMetrix] = useState("S");
   // const [type, setType] = useState("");
   const sideBar = useRef(null);
@@ -146,15 +136,6 @@ export default function BottomSheetStype({ className, close, data }) {
           case "S":
             pickColor = "#F6C55B";
             break;
-          case "B":
-            pickColor = "#EE7A48";
-            break;
-          case "C":
-            pickColor = "#4880EE";
-            break;
-          case "D":
-            pickColor = "#5BC184";
-            break;
         }
 
         let repeatDay = day
@@ -167,83 +148,83 @@ export default function BottomSheetStype({ className, close, data }) {
           })
           .join("");
 
-        if (!isAllDay && !isRepeat) {
+        let itemId;
+        if (appointmentItem.realId) {
+          itemId = appointmentItem.realId;
+        } else {
+          itemId = appointmentItem.id;
+        }
+        if (isAllDay && isRepeat) {
+          let repeatComplete;
+          if (
+            !!appointmentItem.isRepeatComplete &&
+            repeatDay.length === appointmentItem.isRepeatComplete.length
+          ) {
+            repeatComplete = appointmentItem.isRepeatComplete;
+          } else {
+            repeatComplete = new Array(repeatDay.length).fill("0").join("");
+          }
           let result = await req2srv.updatePlan({
-            id: appointmentItem.id,
+            id: itemId,
             startDate: new Date(
-              `${moment(startDate).format("YYYY-MM-DD")} ${moment(startTime)
-                .add(9, "h")
-                .format("HH:mm:00")}`
+              new Date(
+                `${startDate.getFullYear()}-${startDate.getMonth() + 1}-${
+                  startDate.getDate() + 1
+                } 00:00:00`
+              )
             ),
             endDate: new Date(
-              `${moment(startDate).format("YYYY-MM-DD")} ${moment(endTime)
-                .add(9, "h")
-                .format("HH:mm:00")}`
-            ),
-            title,
-            color: pickColor,
-            isrepeat: isRepeat,
-            type: pickTimeMetrix,
-          });
-        } else if (isAllDay && !isRepeat) {
-          let result = await req2srv.updatePlan({
-            id: appointmentItem.id,
-            startDate: new Date(
-              `${moment(startDate).add(9, "h").format("YYYY-MM-DD 00:00:00")}`
-            ),
-            endDate: new Date(
-              `${moment(startDate)
-                .add(1, "d")
-                .add(9, "h")
-                .format("YYYY-MM-DD 00:00:00")}`
-            ),
-            title,
-            color: pickColor,
-            isrepeat: isRepeat,
-            type: pickTimeMetrix,
-          });
-        } else if (isAllDay && isRepeat) {
-          let result = await req2srv.updatePlan({
-            id: appointmentItem.id,
-            startDate: new Date(
-              `${moment(startDate).add(9, "h").format("YYYY-MM-DD 00:00:00")}`
-            ),
-            endDate: new Date(
-              `${moment(startDate)
-                .add(1, "d")
-                .add(9, "h")
-                .format("YYYY-MM-DD 00:00:00")}`
+              new Date(
+                `${startDate.getFullYear()}-${startDate.getMonth() + 1}-${
+                  startDate.getDate() + 2
+                } 00:00:00`
+              )
             ),
             title,
             color: pickColor,
             isrepeat: isRepeat,
             type: pickTimeMetrix,
             repeatLastDay: new Date(
-              `${moment(repeatLastDay).format("YYYY-MM-DD 09:00:00")}`
+              new Date(repeatLastDay).setHours(9, 0, 0, 0)
             ),
             repeatDay: repeatDay,
+            isRepeatComplete: repeatComplete,
           });
         } else if (!isAllDay && isRepeat) {
+          let repeatComplete;
+          if (
+            !!appointmentItem.isRepeatComplete &&
+            repeatDay.length === appointmentItem.isRepeatComplete.length
+          ) {
+            repeatComplete = appointmentItem.isRepeatComplete;
+          } else {
+            repeatComplete = new Array(repeatDay.length).fill("0").join("");
+          }
           let result = await req2srv.updatePlan({
-            id: appointmentItem.id,
+            id: itemId,
             startDate: new Date(
-              `${moment(startDate).format("YYYY-MM-DD")} ${moment(startTime)
-                .add(9, "h")
-                .format("HH:mm:00")}`
+              new Date(
+                `${startDate.getFullYear()}-${
+                  startDate.getMonth() + 1
+                }-${startDate.getDate()} ${startTime.getHours()}:${startTime.getMinutes()}:00`
+              ).setHours(startTime.getHours() + 9)
             ),
             endDate: new Date(
-              `${moment(startDate).format("YYYY-MM-DD")} ${moment(endTime)
-                .add(9, "h")
-                .format("HH:mm:00")}`
+              new Date(
+                `${startDate.getFullYear()}-${
+                  startDate.getMonth() + 1
+                }-${startDate.getDate()} ${endTime.getHours()}:${endTime.getMinutes()}:00`
+              ).setHours(endTime.getHours() + 9)
             ),
             title,
             color: pickColor,
             isrepeat: isRepeat,
             type: pickTimeMetrix,
             repeatLastDay: new Date(
-              `${moment(repeatLastDay).format("YYYY-MM-DD 09:00:00")}`
+              new Date(repeatLastDay).setHours(9, 0, 0, 0)
             ),
             repeatDay,
+            isRepeatComplete: repeatComplete,
           });
         }
         alert("일정이 수정 되었습니다.");
@@ -342,44 +323,91 @@ export default function BottomSheetStype({ className, close, data }) {
       return;
     }
     let copyArr = new Array(6).fill(false);
-    if (appointmentItem.repeatDay !== null) {
+    if (appointmentItem.isrepeat === true) {
       [...appointmentItem.repeatDay].forEach((e) => {
         copyArr[e] = true;
       });
       setDay(copyArr);
+      setIsRepeat(true);
+      setRepeatLastDay(
+        new Date(
+          moment(appointmentItem.repeatLastDay).format("YYYY-MM-DD 00:00:00")
+        )
+      );
+      if (
+        !!appointmentItem.realStartDate &&
+        moment(appointmentItem.realStartDate).format("hh:mm:ss") ===
+          moment(appointmentItem.realEndDate).format("hh:mm:ss")
+      ) {
+        setStartDate(
+          new Date(moment(appointmentItem.realStartDate).subtract(1, "d"))
+        );
+      }
     }
     if (
       moment(appointmentItem.startDate).format("hh:mm:ss") ===
-      moment(appointmentItem.endDate).format("hh:mm:ss")
+        moment(appointmentItem.endDate).format("hh:mm:ss") ||
+      (!!appointmentItem.realStartDate &&
+        moment(appointmentItem.realStartDate).format("hh:mm:ss") ===
+          moment(appointmentItem.realEndDate).format("hh:mm:ss"))
     ) {
+      // console.log(appointmentItem.realEndDate);
+
       setIsAllDay(true);
     } else {
-      setStartTime(
-        new Date(
-          moment(appointmentItem.startDate)
-            .subtract(9, "h")
-            .format("YYYY-MM-DD HH:mm:00")
-        )
-      );
-      setEndTime(
-        new Date(
-          moment(appointmentItem.endDate)
-            .subtract(9, "h")
-            .format("YYYY-MM-DD HH:mm:00")
-        )
-      );
+      //하루종일이 아닐때
+      if (appointmentItem.unrepeatRealStartDate) {
+        setStartTime(
+          new Date(
+            moment(appointmentItem.unrepeatRealStartDate)
+              .subtract(9, "h")
+              .format("YYYY-MM-DD HH:mm:00")
+          )
+        );
+        setEndTime(
+          new Date(
+            moment(appointmentItem.unrepeatRealEndDate)
+              .subtract(9, "h")
+              .format("YYYY-MM-DD HH:mm:00")
+          )
+        );
+      } else if (appointmentItem.realStartDate) {
+        setStartTime(
+          new Date(
+            moment(appointmentItem.realStartDate)
+              .subtract(9, "h")
+              // .subtract(1, "d")
+              .format("YYYY-MM-DD HH:mm:00")
+          )
+        );
+        setEndTime(
+          new Date(
+            moment(appointmentItem.realEndDate)
+              .subtract(9, "h")
+              // .subtract(1, "d")
+              .format("YYYY-MM-DD HH:mm:00")
+          )
+        );
+      } else {
+        // console.log("yes");
+        setStartTime(
+          new Date(
+            moment(appointmentItem.startDate)
+              .subtract(9, "h")
+              .format("YYYY-MM-DD HH:mm:00")
+          )
+        );
+        setEndTime(
+          new Date(
+            moment(appointmentItem.endDate)
+              .subtract(9, "h")
+              .format("YYYY-MM-DD HH:mm:00")
+          )
+        );
+      }
     }
-  }, [
-    appointmentItem,
-    appointmentItem.endDate,
-    appointmentItem.repeatDay,
-    appointmentItem.startDate,
-  ]);
+  }, [appointmentItem]);
 
-  // useEffect(() => {
-  //   console.log("startTime :", startTime);
-  //   console.log("endTime :", endTime);
-  // }, [title]);
   return (
     <div
       className={classname(["side-bar", { closing: isClosing }, className])}

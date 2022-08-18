@@ -31,7 +31,6 @@ export default async function apiHandler(req, res) {
     isComplete,
     isRepeatComplete,
   } = req.body;
-  // console.log(req.body);
 
   /**@type {import('next-auth').Session&{user:{id:string}}} */
   const session = await getSession({ req });

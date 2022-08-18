@@ -27,9 +27,7 @@ export default function DayBottomSheet({ className, close, dayNum }) {
     false,
     false,
   ]);
-  const [repeatLastDay, setRepeatLastDay] = useState(
-    new Date(moment().format("YYYY-MM-DD 00:00:00"))
-  );
+  const [repeatLastDay, setRepeatLastDay] = useState(new Date());
   const [startDate, setStartDate] = useState(new Date(moment().day(dayNum)));
   const [startTime, setStartTime] = useState(new Date());
   const [endTime, setEndTime] = useState(new Date());
@@ -169,14 +167,19 @@ export default function DayBottomSheet({ className, close, dayNum }) {
         if (!isAllDay && !isRepeat) {
           let result = await req2srv.createPlan({
             startDate: new Date(
-              `${moment(startDate).format("YYYY-MM-DD")} ${moment(startTime)
-                .add(9, "h")
-                .format("HH:mm:00")}`
+              new Date(
+                `${startDate.getFullYear()}-${
+                  startDate.getMonth() + 1
+                }-${startDate.getDate()} ${startTime.getHours()}:${startTime.getMinutes()}:00`
+              ).setHours(startTime.getHours() + 9)
             ),
+
             endDate: new Date(
-              `${moment(startDate).format("YYYY-MM-DD")} ${moment(endTime)
-                .add(9, "h")
-                .format("HH:mm:00")}`
+              new Date(
+                `${startDate.getFullYear()}-${
+                  startDate.getMonth() + 1
+                }-${startDate.getDate()} ${endTime.getHours()}:${endTime.getMinutes()}:00`
+              ).setHours(endTime.getHours() + 9)
             ),
             title,
             color: pickColor,
@@ -187,13 +190,18 @@ export default function DayBottomSheet({ className, close, dayNum }) {
         } else if (isAllDay && !isRepeat) {
           let result = await req2srv.createPlan({
             startDate: new Date(
-              `${moment(startDate).add(9, "h").format("YYYY-MM-DD 00:00:00")}`
+              new Date(
+                `${startDate.getFullYear()}-${startDate.getMonth() + 1}-${
+                  startDate.getDate() + 1
+                } 00:00:00`
+              )
             ),
             endDate: new Date(
-              `${moment(startDate)
-                .add(1, "d")
-                .add(9, "h")
-                .format("YYYY-MM-DD 00:00:00")}`
+              new Date(
+                `${startDate.getFullYear()}-${startDate.getMonth() + 1}-${
+                  startDate.getDate() + 2
+                } 00:00:00`
+              )
             ),
             title,
             color: pickColor,
@@ -204,20 +212,25 @@ export default function DayBottomSheet({ className, close, dayNum }) {
         } else if (isAllDay && isRepeat) {
           let result = await req2srv.createPlan({
             startDate: new Date(
-              `${moment(startDate).add(9, "h").format("YYYY-MM-DD 00:00:00")}`
+              new Date(
+                `${startDate.getFullYear()}-${startDate.getMonth() + 1}-${
+                  startDate.getDate() + 1
+                } 00:00:00`
+              )
             ),
             endDate: new Date(
-              `${moment(startDate)
-                .add(1, "d")
-                .add(9, "h")
-                .format("YYYY-MM-DD 00:00:00")}`
+              new Date(
+                `${startDate.getFullYear()}-${startDate.getMonth() + 1}-${
+                  startDate.getDate() + 2
+                } 00:00:00`
+              )
             ),
             title,
             color: pickColor,
             isrepeat: isRepeat,
             type: pickTimeMetrix,
             repeatLastDay: new Date(
-              `${moment(repeatLastDay).format("YYYY-MM-DD 09:00:00")}`
+              new Date(repeatLastDay).setHours(9, 0, 0, 0)
             ),
             repeatDay: repeatDay,
             isRepeatComplete: repeatComplete,
@@ -225,21 +238,26 @@ export default function DayBottomSheet({ className, close, dayNum }) {
         } else if (!isAllDay && isRepeat) {
           let result = await req2srv.createPlan({
             startDate: new Date(
-              `${moment(startDate).format("YYYY-MM-DD")} ${moment(startTime)
-                .add(9, "h")
-                .format("HH:mm:00")}`
+              new Date(
+                `${startDate.getFullYear()}-${
+                  startDate.getMonth() + 1
+                }-${startDate.getDate()} ${startTime.getHours()}:${startTime.getMinutes()}:00`
+              ).setHours(startTime.getHours() + 9)
             ),
+
             endDate: new Date(
-              `${moment(startDate).format("YYYY-MM-DD")} ${moment(endTime)
-                .add(9, "h")
-                .format("HH:mm:00")}`
+              new Date(
+                `${startDate.getFullYear()}-${
+                  startDate.getMonth() + 1
+                }-${startDate.getDate()} ${endTime.getHours()}:${endTime.getMinutes()}:00`
+              ).setHours(endTime.getHours() + 9)
             ),
             title,
             color: pickColor,
             isrepeat: isRepeat,
             type: pickTimeMetrix,
             repeatLastDay: new Date(
-              `${moment(repeatLastDay).format("YYYY-MM-DD 09:00:00")}`
+              new Date(repeatLastDay).setHours(9, 0, 0, 0)
             ),
             repeatDay,
             isRepeatComplete: repeatComplete,
@@ -386,19 +404,16 @@ export default function DayBottomSheet({ className, close, dayNum }) {
 
           <div className={classname("picker")}>
             <div className={classname("picker-time")}>
-              {" "}
               날짜
               <DatePickers pickDate={startDate} setDate={setStartDate} />
             </div>
             {!isAllDay && (
               <>
                 <div className={classname("picker-time")}>
-                  {" "}
                   시작 시간
                   <TimePickers pick={startTime} setPick={setStartTime} />
                 </div>
                 <div className={classname("picker-time")}>
-                  {" "}
                   종료 시간
                   <TimePickers pick={endTime} setPick={setEndTime} />
                 </div>
@@ -423,7 +438,7 @@ export default function DayBottomSheet({ className, close, dayNum }) {
                 <DatePickers
                   pickDate={repeatLastDay}
                   setDate={setRepeatLastDay}
-                />{" "}
+                />
                 <div className={classname("body14")}>까지 반복</div>
               </div>
             </div>

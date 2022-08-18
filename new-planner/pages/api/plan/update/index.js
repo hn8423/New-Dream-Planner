@@ -28,6 +28,7 @@ export default async function apiHandler(req, res) {
     type,
     repeatLastDay,
     repeatDay,
+    isRepeatComplete,
     // isComplete,
   } = req.body;
   // console.log(req.body);
@@ -82,6 +83,7 @@ export default async function apiHandler(req, res) {
           type,
           repeatLastDay,
           repeatDay,
+          isRepeatComplete,
           // isComplete,
 
           user: {

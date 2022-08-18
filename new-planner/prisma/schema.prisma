@@ -88,7 +88,7 @@ model WeeklyAnalysis {
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@unique([year, month, week])
+  @@unique([year, month, week, userId])
 }
 
 model DailyLookInside {
@@ -109,7 +109,7 @@ model DailyLookInside {
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@unique([year, month, week])
+  @@unique([year, month, week, userId])
 }
 
 model Schedule {

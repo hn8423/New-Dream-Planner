@@ -6,7 +6,6 @@ import _ from "lodash";
 import DatePickers from "components/datepicker";
 import TimePickers from "components/timepicker";
 import req2srv from "lib/req2srv/plan";
-import moment from "moment";
 
 const classname = classOption(style);
 
@@ -31,8 +30,9 @@ export default function MobileBottomSheet({ className, close }) {
   const [startDate, setStartDate] = useState(new Date());
   const [startTime, setStartTime] = useState(new Date());
   const [endTime, setEndTime] = useState(new Date());
+
   const [pickTimeMetrix, setPickTimeMetrix] = useState("");
-  // const [type, setType] = useState("");
+
   const sideBar = useRef(null);
   const router = useRouter();
 
@@ -167,14 +167,19 @@ export default function MobileBottomSheet({ className, close }) {
         if (!isAllDay && !isRepeat) {
           let result = await req2srv.createPlan({
             startDate: new Date(
-              `${moment(startDate).format("YYYY-MM-DD")} ${moment(startTime)
-                .add(9, "h")
-                .format("HH:mm:00")}`
+              new Date(
+                `${startDate.getFullYear()}-${
+                  startDate.getMonth() + 1
+                }-${startDate.getDate()} ${startTime.getHours()}:${startTime.getMinutes()}:00`
+              ).setHours(startTime.getHours() + 9)
             ),
+
             endDate: new Date(
-              `${moment(startDate).format("YYYY-MM-DD")} ${moment(endTime)
-                .add(9, "h")
-                .format("HH:mm:00")}`
+              new Date(
+                `${startDate.getFullYear()}-${
+                  startDate.getMonth() + 1
+                }-${startDate.getDate()} ${endTime.getHours()}:${endTime.getMinutes()}:00`
+              ).setHours(endTime.getHours() + 9)
             ),
             title,
             color: pickColor,
@@ -185,10 +190,18 @@ export default function MobileBottomSheet({ className, close }) {
         } else if (isAllDay && !isRepeat) {
           let result = await req2srv.createPlan({
             startDate: new Date(
-              `${moment(startDate).format("YYYY-MM-DD 00:00:00")}`
+              new Date(
+                `${startDate.getFullYear()}-${startDate.getMonth() + 1}-${
+                  startDate.getDate() + 1
+                } 00:00:00`
+              )
             ),
             endDate: new Date(
-              `${moment(startDate).add(1, "d").format("YYYY-MM-DD 00:00:00")}`
+              new Date(
+                `${startDate.getFullYear()}-${startDate.getMonth() + 1}-${
+                  startDate.getDate() + 2
+                } 00:00:00`
+              )
             ),
             title,
             color: pickColor,
@@ -199,17 +212,25 @@ export default function MobileBottomSheet({ className, close }) {
         } else if (isAllDay && isRepeat) {
           let result = await req2srv.createPlan({
             startDate: new Date(
-              `${moment(startDate).format("YYYY-MM-DD 00:00:00")}`
+              new Date(
+                `${startDate.getFullYear()}-${startDate.getMonth() + 1}-${
+                  startDate.getDate() + 1
+                } 00:00:00`
+              )
             ),
             endDate: new Date(
-              `${moment(startDate).add(1, "d").format("YYYY-MM-DD 00:00:00")}`
+              new Date(
+                `${startDate.getFullYear()}-${startDate.getMonth() + 1}-${
+                  startDate.getDate() + 2
+                } 00:00:00`
+              )
             ),
             title,
             color: pickColor,
             isrepeat: isRepeat,
             type: pickTimeMetrix,
             repeatLastDay: new Date(
-              `${moment(repeatLastDay).format("YYYY-MM-DD 09:00:00")}`
+              new Date(repeatLastDay).setHours(9, 0, 0, 0)
             ),
             repeatDay: repeatDay,
             isRepeatComplete: repeatComplete,
@@ -217,21 +238,26 @@ export default function MobileBottomSheet({ className, close }) {
         } else if (!isAllDay && isRepeat) {
           let result = await req2srv.createPlan({
             startDate: new Date(
-              `${moment(startDate).format("YYYY-MM-DD")} ${moment(startTime)
-                .add(9, "h")
-                .format("HH:mm:00")}`
+              new Date(
+                `${startDate.getFullYear()}-${
+                  startDate.getMonth() + 1
+                }-${startDate.getDate()} ${startTime.getHours()}:${startTime.getMinutes()}:00`
+              ).setHours(startTime.getHours() + 9)
             ),
+
             endDate: new Date(
-              `${moment(startDate).format("YYYY-MM-DD")} ${moment(endTime)
-                .add(9, "h")
-                .format("HH:mm:00")}`
+              new Date(
+                `${startDate.getFullYear()}-${
+                  startDate.getMonth() + 1
+                }-${startDate.getDate()} ${endTime.getHours()}:${endTime.getMinutes()}:00`
+              ).setHours(endTime.getHours() + 9)
             ),
             title,
             color: pickColor,
             isrepeat: isRepeat,
             type: pickTimeMetrix,
             repeatLastDay: new Date(
-              `${moment(repeatLastDay).format("YYYY-MM-DD 09:00:00")}`
+              new Date(repeatLastDay).setHours(9, 0, 0, 0)
             ),
             repeatDay,
             isRepeatComplete: repeatComplete,
@@ -378,7 +404,6 @@ export default function MobileBottomSheet({ className, close }) {
 
           <div className={classname("picker")}>
             <div className={classname("picker-time")}>
-              {" "}
               날짜
               <DatePickers pickDate={startDate} setDate={setStartDate} />
             </div>
@@ -413,7 +438,7 @@ export default function MobileBottomSheet({ className, close }) {
                 <DatePickers
                   pickDate={repeatLastDay}
                   setDate={setRepeatLastDay}
-                />{" "}
+                />
                 <div className={classname("body14")}>까지 반복</div>
               </div>
             </div>
