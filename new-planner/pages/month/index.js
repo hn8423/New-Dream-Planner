@@ -77,8 +77,8 @@ export default function Month({ scheduleList }) {
           type,
         }) => {
           let result = [];
-          let temp_startDate = moment(startDate).subtract(1, "d");
-          let temp_endDate = moment(endDate).subtract(1, "d");
+          let temp_startDate;
+          let temp_endDate;
 
           let temp_repeatLastDay;
           let realStartDate;
@@ -86,16 +86,17 @@ export default function Month({ scheduleList }) {
             moment(startDate).format("hh:mm:ss") ===
             moment(endDate).format("hh:mm:ss")
           ) {
+            temp_startDate = moment(startDate).subtract(1, "d");
+            temp_endDate = moment(endDate).subtract(1, "d");
             realStartDate = moment(startDate);
+            temp_repeatLastDay = moment(repeatLastDay);
           } else {
-            realStartDate = moment(startDate).subtract(1, "d");
+            temp_startDate = moment(startDate).subtract(1, "d");
+            temp_endDate = moment(endDate).subtract(1, "d");
+            realStartDate = moment(startDate);
+            temp_repeatLastDay = moment(repeatLastDay);
           }
           let realEndDate = moment(endDate);
-          // if (isrepeat) {
-          // temp_repeatLastDay = moment(repeatLastDay);
-          // } else {
-          temp_repeatLastDay = moment(repeatLastDay);
-          // }
 
           while (temp_startDate <= temp_repeatLastDay) {
             [...repeatDay].forEach((e) => {
@@ -171,10 +172,6 @@ export default function Month({ scheduleList }) {
     // 새롭게 data 값에 반복된 값들 추가된 값 넣기
   }, [data]);
 
-  // useEffect(() => {
-  //   console.log(plan);
-  // }, [plan]);
-
   //function
   //function
   function open() {
@@ -206,7 +203,7 @@ export default function Month({ scheduleList }) {
         backgroundColor: data.color,
         borderRadius: "8px",
       }}
-      onClick={AppointmentClick(data)}
+      onClick={data.type !== "S" ? AppointmentClick(data) : () => {}}
     >
       {children}
     </Appointments.Appointment>

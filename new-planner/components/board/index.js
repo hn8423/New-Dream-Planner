@@ -83,12 +83,26 @@ export default function Board({
         }) => {
           /**@type {(import('@prisma/client').Schedule)[]} */
           let result = [];
-          let temp_startDate = moment(startDate);
-          let temp_endDate = moment(endDate);
+          let temp_startDate;
+          let temp_endDate;
           let temp_repeatLastDay = moment(repeatLastDay);
 
           let pickIsComplete = [...isRepeatComplete];
           let count;
+          let realStartDate = moment(startDate);
+          let realEndDate = moment(endDate);
+          if (
+            moment(startDate).format("hh:mm:ss") ===
+            moment(endDate).format("hh:mm:ss")
+          ) {
+            temp_repeatLastDay = moment(repeatLastDay).add(1, "d");
+            temp_startDate = moment(startDate).subtract(1, "d");
+            temp_endDate = moment(endDate).subtract(1, "d");
+          } else {
+            temp_repeatLastDay = moment(repeatLastDay);
+            temp_startDate = moment(startDate).subtract(1, "d");
+            temp_endDate = moment(endDate).subtract(1, "d");
+          }
 
           while (temp_startDate <= temp_repeatLastDay) {
             [...repeatDay].forEach((e, i) => {
@@ -106,6 +120,8 @@ export default function Board({
                   isComplete,
                   count,
                   isRepeatComplete,
+                  realStartDate,
+                  realEndDate,
                 };
                 temp.startDate = temp_startDate;
                 temp.endDate = temp_endDate;

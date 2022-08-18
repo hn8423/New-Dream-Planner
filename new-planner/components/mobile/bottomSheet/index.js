@@ -6,7 +6,6 @@ import _ from "lodash";
 import DatePickers from "components/datepicker";
 import TimePickers from "components/timepicker";
 import req2srv from "lib/req2srv/plan";
-import moment from "moment";
 
 const classname = classOption(style);
 
@@ -31,11 +30,9 @@ export default function MobileBottomSheet({ className, close }) {
   const [startDate, setStartDate] = useState(new Date());
   const [startTime, setStartTime] = useState(new Date());
   const [endTime, setEndTime] = useState(new Date());
-  // const [year, setYear] = useState(0)
-  // const [month, setMonth] = useState(0)
-  // const [date, setDate] = useState(0)
+
   const [pickTimeMetrix, setPickTimeMetrix] = useState("");
-  // const [type, setType] = useState("");
+
   const sideBar = useRef(null);
   const router = useRouter();
 
@@ -407,7 +404,6 @@ export default function MobileBottomSheet({ className, close }) {
 
           <div className={classname("picker")}>
             <div className={classname("picker-time")}>
-              {" "}
               날짜
               <DatePickers pickDate={startDate} setDate={setStartDate} />
             </div>
@@ -442,7 +438,7 @@ export default function MobileBottomSheet({ className, close }) {
                 <DatePickers
                   pickDate={repeatLastDay}
                   setDate={setRepeatLastDay}
-                />{" "}
+                />
                 <div className={classname("body14")}>까지 반복</div>
               </div>
             </div>

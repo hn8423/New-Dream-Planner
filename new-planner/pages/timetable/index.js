@@ -87,23 +87,22 @@ export default function TimeTable({ scheduleList }) {
             moment(startDate).format("HH:mm") ===
             moment(endDate).format("HH:mm")
           ) {
-            temp_startDate = moment(startDate);
-            temp_endDate = moment(endDate);
+            temp_startDate = moment(startDate).subtract(1, "d");
+            temp_endDate = moment(endDate).subtract(1, "d");
             realStartDate = moment(startDate);
             realEndDate = moment(endDate);
+            temp_repeatLastDay = moment(repeatLastDay);
           } else {
             temp_startDate = moment(startDate).subtract(9, "h");
             temp_endDate = moment(endDate).subtract(9, "h");
-            realStartDate = moment(startDate).subtract(1, "d");
-            realEndDate = moment(endDate).subtract(1, "d");
+            realStartDate = moment(startDate);
+            realEndDate = moment(endDate);
+            temp_repeatLastDay = moment(repeatLastDay).add(1, "d");
           }
 
           let temp_repeatLastDay;
 
           if (isrepeat) {
-            temp_repeatLastDay = moment(repeatLastDay);
-          } else {
-            temp_repeatLastDay = moment(repeatLastDay).add(1, "d");
           }
           let realId;
 
@@ -172,8 +171,6 @@ export default function TimeTable({ scheduleList }) {
             temp_endDate = moment(endDate).subtract(9, "h");
           }
 
-          let temp_repeatLastDay;
-          let realStartDate = moment(startDate);
           if (isrepeat) {
             temp_repeatLastDay = moment(repeatLastDay);
           } else {
@@ -210,10 +207,6 @@ export default function TimeTable({ scheduleList }) {
     // 새롭게 data 값에 반복된 값들 추가된 값 넣기
   }, [data]);
 
-  // useEffect(() => {
-  //   console.log(plan);
-  // }, [plan]);
-
   //function
   //function
   function open() {
@@ -245,10 +238,9 @@ export default function TimeTable({ scheduleList }) {
         backgroundColor: data.color,
         borderRadius: "8px",
       }}
-      onClick={AppointmentClick(data)}
+      onClick={data.type !== "S" ? AppointmentClick(data) : () => {}}
     >
       {children}
-      {/* {console.log(data)} */}
     </Appointments.Appointment>
   );
 

@@ -30,9 +30,7 @@ export default function MobileBottomSheet({ className, close, data }) {
   ]);
   const [repeatLastDay, setRepeatLastDay] = useState(new Date());
 
-  const [startDate, setStartDate] = useState(
-    new Date(moment(appointmentItem.startDate))
-  );
+  const [startDate, setStartDate] = useState(new Date());
   const [startTime, setStartTime] = useState(new Date());
 
   const [endTime, setEndTime] = useState(new Date());
@@ -220,7 +218,10 @@ export default function MobileBottomSheet({ className, close, data }) {
           });
         } else if (isAllDay && isRepeat) {
           let repeatComplete;
-          if (appointmentItem.isRepeatComplete) {
+          if (
+            !!appointmentItem.isRepeatComplete &&
+            repeatDay.length === appointmentItem.isRepeatComplete.length
+          ) {
             repeatComplete = appointmentItem.isRepeatComplete;
           } else {
             repeatComplete = new Array(repeatDay.length).fill("0").join("");
@@ -253,7 +254,10 @@ export default function MobileBottomSheet({ className, close, data }) {
           });
         } else if (!isAllDay && isRepeat) {
           let repeatComplete;
-          if (appointmentItem.isRepeatComplete) {
+          if (
+            !!appointmentItem.isRepeatComplete &&
+            repeatDay.length === appointmentItem.isRepeatComplete.length
+          ) {
             repeatComplete = appointmentItem.isRepeatComplete;
           } else {
             repeatComplete = new Array(repeatDay.length).fill("0").join("");
@@ -401,27 +405,32 @@ export default function MobileBottomSheet({ className, close, data }) {
           moment(appointmentItem.repeatLastDay).format("YYYY-MM-DD 00:00:00")
         )
       );
-      // console.log(
-      //   moment(appointmentItem.realStartDate).format("hh:mm:ss") ===
-      //     moment(appointmentItem.realEndDate).format("hh:mm:ss")
-      // );
+
       if (
+        !!appointmentItem.realStartDate &&
         moment(appointmentItem.realStartDate).format("hh:mm:ss") ===
-        moment(appointmentItem.realEndDate).format("hh:mm:ss")
+          moment(appointmentItem.realEndDate).format("hh:mm:ss")
       ) {
         setStartDate(
           new Date(moment(appointmentItem.realStartDate).subtract(1, "d"))
         );
       } else {
-        setStartDate(new Date(appointmentItem.realStartDate));
+        if (!!appointmentItem.realStartDate) {
+          setStartDate(
+            new Date(moment(appointmentItem.realStartDate).subtract(9, "h"))
+          );
+        } else {
+          setStartDate(new Date(appointmentItem.startDate));
+        }
       }
     }
     //하루종일
     if (
       moment(appointmentItem.startDate).format("hh:mm:ss") ===
         moment(appointmentItem.endDate).format("hh:mm:ss") ||
-      moment(appointmentItem.realStartDate).format("hh:mm:ss") ===
-        moment(appointmentItem.realEndDate).format("hh:mm:ss")
+      (!!appointmentItem.realStartDate &&
+        moment(appointmentItem.realStartDate).format("hh:mm:ss") ===
+          moment(appointmentItem.realEndDate).format("hh:mm:ss"))
     ) {
       setIsAllDay(true);
     } else {
@@ -459,7 +468,6 @@ export default function MobileBottomSheet({ className, close, data }) {
           )
         );
       } else {
-        // console.log("yes");
         setStartTime(
           new Date(
             moment(appointmentItem.startDate)
@@ -499,14 +507,7 @@ export default function MobileBottomSheet({ className, close, data }) {
         />
       </div>
       <div className={classname("contents")}>
-        <div className={classname("contents-title", "sub16")}>
-          {/* <img
-            className={classname("contents-img")}
-            src="/images/bottom/pen.png"
-            alt="pen"
-          /> */}
-          일정 제목
-        </div>
+        <div className={classname("contents-title", "sub16")}>일정 제목</div>
         <input
           className={classname(["contents-input", "body14"])}
           type="text"
