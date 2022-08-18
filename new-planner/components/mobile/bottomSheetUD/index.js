@@ -175,20 +175,40 @@ export default function MobileBottomSheet({ className, close, data }) {
           let result = await req2srv.updatePlan({
             id: itemId,
 
-            startDate: new Date(
+            startDate:
+              // new Date(
+              // new Date(
+              //   `${startDate.getFullYear()}-${
+              //     startDate.getMonth() + 1
+              //   }-${startDate.getDate()} ${startTime.getHours()}:${startTime.getMinutes()}:00`
+              // ).setHours(startTime.getHours() + 9)
               new Date(
-                `${startDate.getFullYear()}-${
-                  startDate.getMonth() + 1
-                }-${startDate.getDate()} ${startTime.getHours()}:${startTime.getMinutes()}:00`
-              ).setHours(startTime.getHours() + 9)
-            ),
-            endDate: new Date(
+                startDate.getFullYear(),
+                startDate.getMonth() + 1,
+                startDate.getDate(),
+                startTime.getHours() + 9,
+                startTime.getMinutes(),
+                0,
+                0
+                // )
+              ),
+            endDate:
+              // new Date(
+              //   new Date(
+              //     `${startDate.getFullYear()}-${
+              //       startDate.getMonth() + 1
+              //     }-${startDate.getDate()} ${endTime.getHours()}:${endTime.getMinutes()}:00`
+              //   ).setHours(endTime.getHours() + 9)
+              // )
               new Date(
-                `${startDate.getFullYear()}-${
-                  startDate.getMonth() + 1
-                }-${startDate.getDate()} ${endTime.getHours()}:${endTime.getMinutes()}:00`
-              ).setHours(endTime.getHours() + 9)
-            ),
+                startDate.getFullYear(),
+                startDate.getMonth() + 1,
+                startDate.getDate(),
+                endTime.getHours() + 9,
+                endTime.getMinutes(),
+                0,
+                0
+              ),
             title,
             color: pickColor,
             isrepeat: isRepeat,
@@ -197,20 +217,40 @@ export default function MobileBottomSheet({ className, close, data }) {
         } else if (isAllDay && !isRepeat) {
           let result = await req2srv.updatePlan({
             id: itemId,
-            startDate: new Date(
+            startDate:
+              //  new Date(
+              //   new Date(
+              //     `${startDate.getFullYear()}-${startDate.getMonth() + 1}-${
+              //       startDate.getDate() + 1
+              //     } 00:00:00`
+              //   )
+              // )
               new Date(
-                `${startDate.getFullYear()}-${startDate.getMonth() + 1}-${
-                  startDate.getDate() + 1
-                } 00:00:00`
-              )
-            ),
-            endDate: new Date(
+                startDate.getFullYear(),
+                startDate.getMonth() + 1,
+                startDate.getDate() + 1,
+                0,
+                0,
+                0,
+                0
+              ),
+            endDate:
+              // new Date(
+              //   new Date(
+              //     `${startDate.getFullYear()}-${startDate.getMonth() + 1}-${
+              //       startDate.getDate() + 2
+              //     } 00:00:00`
+              //   )
+              // ),
               new Date(
-                `${startDate.getFullYear()}-${startDate.getMonth() + 1}-${
-                  startDate.getDate() + 2
-                } 00:00:00`
-              )
-            ),
+                startDate.getFullYear(),
+                startDate.getMonth() + 1,
+                startDate.getDate() + 2,
+                0,
+                0,
+                0,
+                0
+              ),
             title,
             color: pickColor,
             isrepeat: isRepeat,
@@ -228,20 +268,40 @@ export default function MobileBottomSheet({ className, close, data }) {
           }
           let result = await req2srv.updatePlan({
             id: itemId,
-            startDate: new Date(
+            startDate:
+              // new Date(
+              //   new Date(
+              //     `${startDate.getFullYear()}-${startDate.getMonth() + 1}-${
+              //       startDate.getDate() + 1
+              //     } 00:00:00`
+              //   )
+              // ),
               new Date(
-                `${startDate.getFullYear()}-${startDate.getMonth() + 1}-${
-                  startDate.getDate() + 1
-                } 00:00:00`
-              )
-            ),
-            endDate: new Date(
+                startDate.getFullYear(),
+                startDate.getMonth() + 1,
+                startDate.getDate() + 1,
+                0,
+                0,
+                0,
+                0
+              ),
+            endDate:
+              // new Date(
+              //   new Date(
+              //     `${startDate.getFullYear()}-${startDate.getMonth() + 1}-${
+              //       startDate.getDate() + 2
+              //     } 00:00:00`
+              //   )
+              // ),
               new Date(
-                `${startDate.getFullYear()}-${startDate.getMonth() + 1}-${
-                  startDate.getDate() + 2
-                } 00:00:00`
-              )
-            ),
+                startDate.getFullYear(),
+                startDate.getMonth() + 1,
+                startDate.getDate() + 2,
+                0,
+                0,
+                0,
+                0
+              ),
             title,
             color: pickColor,
             isrepeat: isRepeat,
@@ -264,20 +324,40 @@ export default function MobileBottomSheet({ className, close, data }) {
           }
           let result = await req2srv.updatePlan({
             id: itemId,
-            startDate: new Date(
+            startDate:
+              // new Date(
+              //   new Date(
+              //     `${startDate.getFullYear()}-${
+              //       startDate.getMonth() + 1
+              //     }-${startDate.getDate()} ${startTime.getHours()}:${startTime.getMinutes()}:00`
+              //   ).setHours(startTime.getHours() + 9)
+              // ),
               new Date(
-                `${startDate.getFullYear()}-${
-                  startDate.getMonth() + 1
-                }-${startDate.getDate()} ${startTime.getHours()}:${startTime.getMinutes()}:00`
-              ).setHours(startTime.getHours() + 9)
-            ),
-            endDate: new Date(
+                startDate.getFullYear(),
+                startDate.getMonth() + 1,
+                startDate.getDate(),
+                startTime.getHours() + 9,
+                startTime.getMinutes(),
+                0,
+                0
+              ),
+            endDate:
+              // new Date(
+              //   new Date(
+              //     `${startDate.getFullYear()}-${
+              //       startDate.getMonth() + 1
+              //     }-${startDate.getDate()} ${endTime.getHours()}:${endTime.getMinutes()}:00`
+              //   ).setHours(endTime.getHours() + 9)
+              // ),
               new Date(
-                `${startDate.getFullYear()}-${
-                  startDate.getMonth() + 1
-                }-${startDate.getDate()} ${endTime.getHours()}:${endTime.getMinutes()}:00`
-              ).setHours(endTime.getHours() + 9)
-            ),
+                startDate.getFullYear(),
+                startDate.getMonth() + 1,
+                startDate.getDate(),
+                endTime.getHours() + 9,
+                endTime.getMinutes(),
+                0,
+                0
+              ),
             title,
             color: pickColor,
             isrepeat: isRepeat,
@@ -394,22 +474,32 @@ export default function MobileBottomSheet({ className, close, data }) {
     }
     let copyArr = new Array(6).fill(false);
     //반복시
+
+    let customRealStartDate = new Date(appointmentItem.realStartDate);
+    let customRealEndDate = new Date(appointmentItem.realEndDate);
+    let customStartDate = new Date(appointmentItem.startDate);
+    let customEndDate = new Date(appointmentItem.endDate);
     if (appointmentItem.isrepeat === true) {
       [...appointmentItem.repeatDay].forEach((e) => {
         copyArr[e] = true;
       });
       setDay(copyArr);
       setIsRepeat(true);
-      setRepeatLastDay(
-        new Date(
-          moment(appointmentItem.repeatLastDay).format("YYYY-MM-DD 00:00:00")
-        )
+      let dateLastDay = new Date(appointmentItem.repeatLastDay);
+      let innerDateLastDate = new Date(
+        dateLastDay.getFullYear(),
+        dateLastDay.getMonth() + 1,
+        dateLastDay.getDate(),
+        0,
+        0,
+        0
       );
 
+      setRepeatLastDay(innerDateLastDate);
       if (
         !!appointmentItem.realStartDate &&
-        moment(appointmentItem.realStartDate).format("hh:mm:ss") ===
-          moment(appointmentItem.realEndDate).format("hh:mm:ss")
+        customRealStartDate.getHours() === customRealEndDate.getHours() &&
+        customRealStartDate.getMinutes() === customRealEndDate.getMinutes()
       ) {
         setStartDate(
           new Date(moment(appointmentItem.realStartDate).subtract(1, "d"))
@@ -425,61 +515,154 @@ export default function MobileBottomSheet({ className, close, data }) {
       }
     }
     //하루종일
+
     if (
-      moment(appointmentItem.startDate).format("hh:mm:ss") ===
-        moment(appointmentItem.endDate).format("hh:mm:ss") ||
+      (customStartDate.getHours() === customEndDate.getHours() &&
+        customStartDate.getMinutes() === customEndDate.getMinutes()) ||
       (!!appointmentItem.realStartDate &&
-        moment(appointmentItem.realStartDate).format("hh:mm:ss") ===
-          moment(appointmentItem.realEndDate).format("hh:mm:ss"))
+        customRealStartDate.getHours() === customRealEndDate.getHours() &&
+        customRealStartDate.getMinutes() === customRealEndDate.getMinutes())
     ) {
       setIsAllDay(true);
     } else {
       //하루종일이 아닐때
       if (appointmentItem.unrepeatRealStartDate) {
+        let customUnrepeatRealStartDate = new Date(
+          appointmentItem.unrepeatRealStartDate
+        );
+        let customUnrepeatRealEndDate = new Date(
+          appointmentItem.unrepeatRealEndDate
+        );
+        // console.log("1");
         setStartTime(
+          // new Date(
+          //   moment(appointmentItem.unrepeatRealStartDate).subtract(9, "h")
+          //   /* .format("YYYY-MM-DD HH:mm:00") */
+          // )
+          // new Date(
+          //   new Date(
+          //     `${customUnrepeatRealStartDate.getFullYear()}-${
+          //       customUnrepeatRealStartDate.getMonth() + 1
+          //     }-${customUnrepeatRealStartDate.getDate()} ${customUnrepeatRealStartDate.getHours()}:${customUnrepeatRealStartDate.getMinutes()}:00`
+          //   ).setHours(customUnrepeatRealStartDate.getHours() - 9)
+          // )
           new Date(
-            moment(appointmentItem.unrepeatRealStartDate)
-              .subtract(9, "h")
-              .format("YYYY-MM-DD HH:mm:00")
+            customUnrepeatRealStartDate.getFullYear(),
+            customUnrepeatRealStartDate.getMonth() + 1,
+            customUnrepeatRealStartDate.getDate(),
+            customUnrepeatRealStartDate.getHours() - 9,
+            customUnrepeatRealStartDate.getMinutes(),
+            0,
+            0
           )
         );
         setEndTime(
+          // new Date(
+          //   moment(appointmentItem.unrepeatRealEndDate).subtract(9, "h")
+          //   /* .format("YYYY-MM-DD HH:mm:00") */
+          // )
+          // new Date(
+          //   new Date(
+          //     `${customUnrepeatRealEndDate.getFullYear()}-${
+          //       customUnrepeatRealEndDate.getMonth() + 1
+          //     }-${customUnrepeatRealEndDate.getDate()} ${customUnrepeatRealEndDate.getHours()}:${customUnrepeatRealEndDate.getMinutes()}:00`
+          //   ).setHours(customUnrepeatRealEndDate.getHours() - 9)
+          // )
           new Date(
-            moment(appointmentItem.unrepeatRealEndDate)
-              .subtract(9, "h")
-              .format("YYYY-MM-DD HH:mm:00")
+            customUnrepeatRealEndDate.getFullYear(),
+            customUnrepeatRealEndDate.getMonth() + 1,
+            customUnrepeatRealEndDate.getDate(),
+            customUnrepeatRealEndDate.getHours() - 9,
+            customUnrepeatRealEndDate.getMinutes(),
+            0,
+            0
           )
         );
       } else if (appointmentItem.realStartDate) {
+        let customRealStartDate = new Date(appointmentItem.realStartDate);
+        let customRealEndDate = new Date(appointmentItem.realEndDate);
         setStartTime(
+          // new Date(
+          //   new Date(
+          //     `${customRealStartDate.getFullYear()}-${
+          //       customRealStartDate.getMonth() + 1
+          //     }-${customRealStartDate.getDate()} ${customRealStartDate.getHours()}:${customRealStartDate.getMinutes()}:00`
+          //   ).setHours(customRealStartDate.getHours() - 33)
+          // )
           new Date(
-            moment(appointmentItem.realStartDate)
-              .subtract(9, "h")
-              // .subtract(1, "d")
-              .format("YYYY-MM-DD HH:mm:00")
+            customRealStartDate.getFullYear(),
+            customRealStartDate.getMonth() + 1,
+            customRealStartDate.getDate() - 1,
+            customRealStartDate.getHours() - 9,
+            customRealStartDate.getMinutes(),
+            0,
+            0
           )
         );
         setEndTime(
+          // new Date(
+          //   new Date(
+          //     `${customRealEndDate.getFullYear()}-${
+          //       customRealEndDate.getMonth() + 1
+          //     }-${customRealEndDate.getDate()} ${customRealEndDate.getHours()}:${customRealEndDate.getMinutes()}:00`
+          //   ).setHours(customRealEndDate.getHours() - 33)
+          // )
           new Date(
-            moment(appointmentItem.realEndDate)
-              .subtract(9, "h")
-              // .subtract(1, "d")
-              .format("YYYY-MM-DD HH:mm:00")
+            customRealEndDate.getFullYear(),
+            customRealEndDate.getMonth() + 1,
+            customRealEndDate.getDate() - 1,
+            customRealEndDate.getHours() - 9,
+            customRealEndDate.getMinutes(),
+            0,
+            0
           )
         );
       } else {
+        // console.log("3");
+        let customStartDate = new Date(appointmentItem.StartDate);
+        let customEndDate = new Date(appointmentItem.EndDate);
         setStartTime(
+          // new Date(
+          //   moment(appointmentItem.startDate).subtract(9, "h")
+          //   /* .format("YYYY-MM-DD HH:mm:00") */
+          // )
+          // new Date(
+          //   new Date(
+          //     `${customStartDate.getFullYear()}-${
+          //       customStartDate.getMonth() + 1
+          //     }-${customStartDate.getDate()} ${customStartDate.getHours()}:${customStartDate.getMinutes()}:00`
+          //   ).setHours(customStartDate.getHours() - 9)
+          // )
           new Date(
-            moment(appointmentItem.startDate)
-              .subtract(9, "h")
-              .format("YYYY-MM-DD HH:mm:00")
+            customStartDate.getFullYear(),
+            customStartDate.getMonth() + 1,
+            customStartDate.getDate(),
+            customStartDate.getHours() - 9,
+            customStartDate.getMinutes(),
+            0,
+            0
           )
         );
         setEndTime(
+          // new Date(
+          //   new Date(
+          //     `${customEndDate.getFullYear()}-${
+          //       customEndDate.getMonth() + 1
+          //     }-${customEndDate.getDate()} ${customEndDate.getHours()}:${customEndDate.getMinutes()}:00`
+          //   ).setHours(customEndDate.getHours() - 9)
+          // )
+          // new Date(
+          //   moment(appointmentItem.endDate).subtract(9, "h")
+          //   /* .format("YYYY-MM-DD HH:mm:00") */
+          // )
           new Date(
-            moment(appointmentItem.endDate)
-              .subtract(9, "h")
-              .format("YYYY-MM-DD HH:mm:00")
+            customEndDate.getFullYear(),
+            customEndDate.getMonth() + 1,
+            customEndDate.getDate(),
+            customEndDate.getHours() - 9,
+            customEndDate.getMinutes(),
+            0,
+            0
           )
         );
       }
