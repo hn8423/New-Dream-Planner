@@ -152,18 +152,22 @@ export default function MobileBottomSheet({ className, close, headerRef }) {
         if (isAllDay && isRepeat) {
           let result = await req2srv.createPlan({
             startDate: new Date(
-              new Date(
-                `${startDate.getFullYear()}-${startDate.getMonth() + 1}-${
-                  startDate.getDate() + 1
-                } 00:00:00`
-              )
+              startDate.getFullYear(),
+              startDate.getMonth(),
+              startDate.getDate() + 1,
+              0,
+              0,
+              0,
+              0
             ),
             endDate: new Date(
-              new Date(
-                `${startDate.getFullYear()}-${startDate.getMonth() + 1}-${
-                  startDate.getDate() + 2
-                } 00:00:00`
-              )
+              startDate.getFullYear(),
+              startDate.getMonth(),
+              startDate.getDate() + 2,
+              0,
+              0,
+              0,
+              0
             ),
             title,
             color: pickColor,
@@ -178,19 +182,23 @@ export default function MobileBottomSheet({ className, close, headerRef }) {
         } else if (!isAllDay && isRepeat) {
           let result = await req2srv.createPlan({
             startDate: new Date(
-              new Date(
-                `${startDate.getFullYear()}-${
-                  startDate.getMonth() + 1
-                }-${startDate.getDate()} ${startTime.getHours()}:${startTime.getMinutes()}:00`
-              ).setHours(startTime.getHours() + 9)
+              startDate.getFullYear(),
+              startDate.getMonth(),
+              startDate.getDate(),
+              startTime.getHours() + 9,
+              startTime.getMinutes(),
+              0,
+              0
             ),
 
             endDate: new Date(
-              new Date(
-                `${startDate.getFullYear()}-${
-                  startDate.getMonth() + 1
-                }-${startDate.getDate()} ${endTime.getHours()}:${endTime.getMinutes()}:00`
-              ).setHours(endTime.getHours() + 9)
+              startDate.getFullYear(),
+              startDate.getMonth(),
+              startDate.getDate(),
+              endTime.getHours() + 9,
+              endTime.getMinutes(),
+              0,
+              0
             ),
             title,
             color: pickColor,

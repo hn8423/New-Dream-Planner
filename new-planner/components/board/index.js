@@ -99,7 +99,7 @@ export default function Board({
             temp_startDate = moment(startDate).subtract(1, "d");
             temp_endDate = moment(endDate).subtract(1, "d");
           } else {
-            temp_repeatLastDay = moment(repeatLastDay);
+            temp_repeatLastDay = moment(repeatLastDay).add(1, "d");
             temp_startDate = moment(startDate).subtract(1, "d");
             temp_endDate = moment(endDate).subtract(1, "d");
           }
@@ -139,7 +139,44 @@ export default function Board({
       )
       .value();
 
-    let allList = [...createdList, ...unReapeatList];
+    let createdUnrepeatList = _(unReapeatList)
+      .flatMap(({ color, endDate, id, isrepeat, startDate, title, type }) => {
+        let result = [];
+        let temp_startDate = moment(startDate).subtract(9, "h");
+        let temp_endDate;
+        if (
+          moment(startDate).format("hh:mm:00") ===
+          moment(endDate).format("hh:mm:00")
+        ) {
+          temp_endDate = moment(endDate).subtract(1, "d");
+          // temp_startDate = moment(startDate).subtract(1, "d");
+        } else {
+          temp_endDate = moment(endDate).subtract(9, "h");
+        }
+
+        let realStartDate = moment(startDate);
+        let realEndDate = moment(endDate);
+
+        let temp = {
+          color,
+          title,
+          id,
+          isrepeat,
+          startDate,
+          endDate,
+          type,
+          realStartDate,
+          realEndDate,
+        };
+        temp.startDate = temp_startDate;
+        temp.endDate = temp_endDate;
+        result.push(temp);
+
+        return result;
+      })
+      .value();
+
+    let allList = [...createdList, ...createdUnrepeatList];
 
     let SunFilter = allList.filter(
       (v) =>
