@@ -4,6 +4,26 @@ const classname = classOption(style);
 import { signIn } from "next-auth/react";
 import useSignWith from "hooks/useSignWith";
 import { useRouter } from "next/router";
+import { getSession } from "next-auth/react";
+
+// /**@type {import('next').GetServerSideProps} */
+// export async function getServerSideProps(ctx) {
+//   /**@type {import('next-auth').Session&{user:{id:string}}} */
+//   const session = await getSession(ctx);
+
+//   const redirect = {
+//     redirect: {
+//       permanent: false,
+//       destination: "/mission",
+//     },
+//   };
+
+//   if (!session) {
+//     return redirect;
+//   }
+//   return;
+// }
+
 export default function Login() {
   const router = useRouter();
   const { callbackUrl } = router.query;

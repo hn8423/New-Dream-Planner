@@ -18,7 +18,7 @@ export default function ProgressBar({
       <div
         className={classname("highlight")}
         // style={{ transform: `scaleX(${currentLevel / 100}})` }}
-        style={{ transform: `scaleX(${currentLevel})` }}
+        style={{ transform: `scaleX(${percentValue})` }}
       ></div>
     </div>
   );

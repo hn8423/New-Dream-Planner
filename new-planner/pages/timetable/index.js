@@ -99,7 +99,7 @@ export default function TimeTable({ scheduleList }) {
             temp_endDate = moment(endDate).subtract(9, "h");
             realStartDate = moment(startDate);
             realEndDate = moment(endDate);
-            temp_repeatLastDay = moment(repeatLastDay).add(1, "d");
+            temp_repeatLastDay = moment(repeatLastDay).add(15, "h");
           }
 
           let realId;
@@ -169,7 +169,6 @@ export default function TimeTable({ scheduleList }) {
             temp_startDate = moment(startDate).subtract(9, "h");
             temp_endDate = moment(endDate).subtract(9, "h");
           }
-
           temp_repeatLastDay = moment(repeatLastDay).add(1, "d");
 
           let temp = {

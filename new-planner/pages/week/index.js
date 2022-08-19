@@ -229,7 +229,7 @@ export default function Week({
       return 0;
     } else {
       let int = complete / sItemList.length;
-      return Math.round(int * 100) / 100;
+      return Math.round(int * 100);
     }
   }, [sItemList]);
 
@@ -240,7 +240,8 @@ export default function Week({
       return 0;
     } else {
       let int = complete / otherItem.length;
-      return Math.round(int * 100) / 100;
+      // console.log(Math.round(int * 100));
+      return Math.round(int * 100);
     }
   }, [otherItem]);
 
@@ -515,7 +516,7 @@ export default function Week({
               <div
                 className={classname(["week-statistics-core-progress-percent"])}
               >
-                {coreMissionComplete * 100}%
+                {coreMissionComplete}%
               </div>
             </div>
           </div>
@@ -536,7 +537,7 @@ export default function Week({
               <div
                 className={classname(["week-statistics-core-progress-percent"])}
               >
-                {weeklyMissionComplete * 100}%
+                {weeklyMissionComplete}%
               </div>
             </div>
           </div>
@@ -545,7 +546,7 @@ export default function Week({
               이번 주 미션 달성률{" "}
             </div>
             <div className={classname(["week-statistics-core-sub", "cap12"])}>
-              핵심 미션 달성률 + 주간 미션 달성률 / 2 (총 평균){" "}
+              핵심 미션 달성률 + 주간 미션 달성률 / 2 (총 평균)
             </div>
             <div className={classname(["week-statistics-core-progress"])}>
               <div className={classname("progress-bar-wrapper")}>
@@ -558,7 +559,7 @@ export default function Week({
               <div
                 className={classname(["week-statistics-core-progress-percent"])}
               >
-                {allAverageComplete * 100}%
+                {allAverageComplete}%
               </div>
             </div>
           </div>
