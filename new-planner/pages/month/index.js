@@ -50,7 +50,7 @@ export default function Month({ scheduleList }) {
   //data
   //data
   //data
-  const [Pickmonth, setPickMonth] = useState(new Date());
+  const [Pickmonth, setPickMonth] = useState(new Date(moment()));
   const isLoading = useSignCheck();
   const [data] = useState(scheduleList);
   const router = useRouter();
@@ -91,8 +91,8 @@ export default function Month({ scheduleList }) {
             realStartDate = moment(startDate);
             temp_repeatLastDay = moment(repeatLastDay);
           } else {
-            temp_startDate = moment(startDate).subtract(1, "d");
-            temp_endDate = moment(endDate).subtract(1, "d");
+            temp_startDate = moment(startDate).subtract(15, "h");
+            temp_endDate = moment(endDate).subtract(15, "h");
             realStartDate = moment(startDate);
             temp_repeatLastDay = moment(repeatLastDay).add(9, "h");
           }

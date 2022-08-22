@@ -21,6 +21,7 @@ export default function Board({
   weekOfMonth,
   updateStype,
   UDopen,
+  Pickmonth,
 }) {
   //data
   //data
@@ -48,6 +49,31 @@ export default function Board({
   const [lookInsideSat, setLookSat] = useState(
     lookInsideText.length === 0 ? "" : lookInsideText[0].lookInsideSat
   );
+
+  useEffect(() => {
+    setLookSun(
+      lookInsideText.length === 0 ? "" : lookInsideText[0].lookInsideSun
+    );
+    setLookMon(
+      lookInsideText.length === 0 ? "" : lookInsideText[0].lookInsideMon
+    );
+    setLookTue(
+      lookInsideText.length === 0 ? "" : lookInsideText[0].lookInsideTue
+    );
+    setLookWed(
+      lookInsideText.length === 0 ? "" : lookInsideText[0].lookInsideWed
+    );
+
+    setLookThu(
+      lookInsideText.length === 0 ? "" : lookInsideText[0].lookInsideThu
+    );
+    setLookFri(
+      lookInsideText.length === 0 ? "" : lookInsideText[0].lookInsideFri
+    );
+    setLookSat(
+      lookInsideText.length === 0 ? "" : lookInsideText[0].lookInsideSat
+    );
+  }, [Pickmonth, lookInsideText]);
 
   //function
   //function
@@ -181,7 +207,7 @@ export default function Board({
     let SunFilter = allList.filter(
       (v) =>
         moment(v.startDate).format("YYYY-MM-DD") ===
-        moment().day(0).format("YYYY-MM-DD")
+        moment(Pickmonth).day(0).format("YYYY-MM-DD")
     );
 
     let [isdoneSunList, undoneSunList] = _(SunFilter)
@@ -193,7 +219,7 @@ export default function Board({
     let MonFilter = allList.filter(
       (v) =>
         moment(v.startDate).format("YYYY-MM-DD") ===
-        moment().day(1).format("YYYY-MM-DD")
+        moment(Pickmonth).day(1).format("YYYY-MM-DD")
     );
 
     let [isdoneMonList, undoneMonList] = _(MonFilter)
@@ -205,7 +231,7 @@ export default function Board({
     let TueFilter = allList.filter(
       (v) =>
         moment(v.startDate).format("YYYY-MM-DD") ===
-        moment().day(2).format("YYYY-MM-DD")
+        moment(Pickmonth).day(2).format("YYYY-MM-DD")
     );
 
     let [isdoneTueList, undoneTueList] = _(TueFilter)
@@ -217,7 +243,7 @@ export default function Board({
     let WedFilter = allList.filter(
       (v) =>
         moment(v.startDate).format("YYYY-MM-DD") ===
-        moment().day(3).format("YYYY-MM-DD")
+        moment(Pickmonth).day(3).format("YYYY-MM-DD")
     );
 
     let [isdoneWedList, undoneWedList] = _(WedFilter)
@@ -229,7 +255,7 @@ export default function Board({
     let ThuFilter = allList.filter(
       (v) =>
         moment(v.startDate).format("YYYY-MM-DD") ===
-        moment().day(4).format("YYYY-MM-DD")
+        moment(Pickmonth).day(4).format("YYYY-MM-DD")
     );
 
     let [isdoneThuList, undoneThuList] = _(ThuFilter)
@@ -240,7 +266,7 @@ export default function Board({
     let FriFilter = allList.filter(
       (v) =>
         moment(v.startDate).format("YYYY-MM-DD") ===
-        moment().day(5).format("YYYY-MM-DD")
+        moment(Pickmonth).day(5).format("YYYY-MM-DD")
     );
     let [isdoneFriList, undoneFriList] = _(FriFilter)
       .partition((v) => v.isComplete)
@@ -250,7 +276,7 @@ export default function Board({
     let SatFilter = allList.filter(
       (v) =>
         moment(v.startDate).format("YYYY-MM-DD") ===
-        moment().day(6).format("YYYY-MM-DD")
+        moment(Pickmonth).day(6).format("YYYY-MM-DD")
     );
     let [isdoneSatList, undoneSatList] = _(SatFilter)
       .partition((v) => v.isComplete)
@@ -264,7 +290,7 @@ export default function Board({
     // startDate에서 repeatLastDay 까지 일정 가져오기
     // 요일별 숫자로 체크 해서 해당 요일 반복 된 것 만 필터링
     // 새롭게 data 값에 반복된 값들 추가된 값 넣기
-  }, [scheduleLists]);
+  }, [scheduleLists, Pickmonth]);
   //function
   //function
   //function

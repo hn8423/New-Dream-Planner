@@ -78,15 +78,18 @@ model Mission {
 model WeeklyAnalysis {
   id String @id @default(cuid())
 
-  userId      String  @unique
-  year        String?
-  month       String?
-  week        String?
-  coreMission String? @db.Text
-  lookInside  String? @db.Text
-  mainFocus   String? @db.Text
+  userId          String
+  year            String
+  month           String
+  week            String
+  coreMission     String? @db.Text
+  lookInside      String? @db.Text
+  mainFocus       String? @db.Text
+  lifeCoreMission String? @db.Text
+  lifeLookInside  String? @db.Text
+  lifeMainFocus   String? @db.Text
 
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id])
 
   @@unique([year, month, week, userId])
 }
@@ -94,7 +97,7 @@ model WeeklyAnalysis {
 model DailyLookInside {
   id String @id @default(cuid())
 
-  userId String  @unique
+  userId String
   year   String?
   month  String?
   week   String?

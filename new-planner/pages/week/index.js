@@ -16,6 +16,7 @@ import MobileBottomSheetUD from "components/mobile/bottomSheetUD";
 import ProgressBar from "components/progressBar";
 import _ from "lodash";
 import prisma from "lib/prisma";
+import MonthPickers from "components/monthpicker";
 
 const weekOfMonth = (m) => m.week() - moment(m).startOf("month").week();
 
@@ -33,26 +34,26 @@ export async function getServerSideProps(ctx) {
     const weeklyText = await prisma.weeklyAnalysis.findMany({
       where: {
         userId: session.user.id,
-        year: moment().format("YYYY"),
-        month: moment().format("M"),
-        week: String(weekOfMonth(moment())),
+        // year: moment().format("YYYY"),
+        // month: moment().format("M"),
+        // week: String(weekOfMonth(moment())),
       },
     });
     const lookInsideText = await prisma.dailyLookInside.findMany({
       where: {
         userId: session.user.id,
-        year: moment().format("YYYY"),
-        month: moment().format("M"),
-        week: String(weekOfMonth(moment())),
+        // year: moment().format("YYYY"),
+        // month: moment().format("M"),
+        // week: String(weekOfMonth(moment())),
       },
     });
     const scheduleList = await prisma.schedule.findMany({
       where: {
         userId: session.user.id,
-        startDate: {
-          gte: new Date(moment().day(0).hour(0).minute(0).second(0)),
-          lt: new Date(moment().day(7).hour(0).minute(0).second(0)),
-        },
+        // startDate: {
+        //   gte: new Date(moment().day(0).hour(0).minute(0).second(0)),
+        //   lt: new Date(moment().day(7).hour(0).minute(0).second(0)),
+        // },
       },
     });
 
@@ -93,6 +94,8 @@ export default function Week({
   scheduleList,
   lookInsideText,
 }) {
+  const [Pickmonth, setPickMonth] = useState(new Date(moment()));
+
   const [isSOpen, setSOpen] = useState(false);
   const [isUDSOpened, setUDSOpened] = useState(false);
   const [isDayOpen, setDayOpen] = useState(false);
@@ -112,21 +115,66 @@ export default function Week({
   const [myMission, setMyMission] = useState(
     missionText.length === 0 ? "" : missionText[0].myMission
   );
-  const [coreMission, setCoreMission] = useState(
-    weeklyText.length === 0 ? "" : weeklyText[0].coreMission
-  );
-  const [lookInside, setLookInside] = useState(
-    weeklyText.length === 0 ? "" : weeklyText[0].lookInside
-  );
-  const [mainFocus, setMainFocus] = useState(
-    weeklyText.length === 0 ? "" : weeklyText[0].mainFocus
-  );
+  const [coreMission, setCoreMission] = useState("");
+  const [lookInside, setLookInside] = useState("");
+  const [mainFocus, setMainFocus] = useState("");
 
   //memo
   //memo
   //memo
+
+  const weeklyAnalysisText = useMemo(() => {
+    let filter = weeklyText.filter((v) => {
+      if (
+        v.year === moment(Pickmonth).format("YYYY") &&
+        v.month === moment(Pickmonth).format("M") &&
+        v.week === String(weekOfMonth(moment(Pickmonth)))
+      ) {
+        return true;
+      } else {
+        return false;
+      }
+    });
+
+    return filter;
+  }, [Pickmonth]);
+
+  const weeklyLookInSide = useMemo(() => {
+    let filter = lookInsideText.filter((v) => {
+      if (
+        v.year === moment(Pickmonth).format("YYYY") &&
+        v.month === moment(Pickmonth).format("M") &&
+        v.week === String(weekOfMonth(moment(Pickmonth)))
+      ) {
+        return true;
+      }
+    });
+    return filter;
+  }, [Pickmonth]);
+
+  // useEffect(() => {
+  //   // console.log(String(weekOfMonth(moment(Pickmonth))));
+  //   // console.log(moment(Pickmonth).format("YYYY"));
+  //   // console.log(moment(Pickmonth).format("M"));
+  //   console.log(weeklyLookInSide);
+  // }, [Pickmonth]);
+
   const plan = useMemo(() => {
-    let [reapeatList, unReapeatList] = _(scheduleLists)
+    let weeklySchedule = scheduleList.filter((v) => {
+      if (
+        moment(moment(v.startDate).format("YYYY-MM-DD")).isSameOrAfter(
+          moment(Pickmonth).day(0).format("YYYY-MM-DD")
+        ) &&
+        moment(moment(v.startDate).format("YYYY-MM-DD")).isSameOrAfter(
+          moment(Pickmonth).day(6).format("YYYY-MM-DD")
+        )
+      ) {
+        return true;
+      } else {
+        return false;
+      }
+    });
+    let [reapeatList, unReapeatList] = _(weeklySchedule)
       .partition((v) => v.isrepeat)
       .value();
 
@@ -211,10 +259,28 @@ export default function Week({
     // 새롭게 data 값에 반복된 값들 추가된 값 넣기
   }, [scheduleLists]);
 
+  // useEffect(() => {
+  //   console.log(moment(Pickmonth).day(0).format("YYYY-MM-DD"));
+  // }, [Pickmonth]);
+
   const sItem = useMemo(() => {
-    return scheduleLists.filter((v) => v.type === "S");
+    return scheduleLists.filter((v) => {
+      if (
+        v.type === "S" &&
+        moment(moment(v.startDate).format("YYYY-MM-DD")).isSameOrAfter(
+          moment(Pickmonth).day(0).format("YYYY-MM-DD")
+        ) &&
+        moment(moment(v.startDate).format("YYYY-MM-DD")).isSameOrAfter(
+          moment(Pickmonth).day(6).format("YYYY-MM-DD")
+        )
+      ) {
+        return true;
+      } else {
+        return false;
+      }
+    });
     // return scheduleList.filter((v) => v.type === "S");
-  }, [scheduleLists]);
+  }, [scheduleLists, Pickmonth]);
   const sItemList = useMemo(() => {
     return plan.filter((v) => v.type === "S");
   }, [plan]);
@@ -240,7 +306,6 @@ export default function Week({
       return 0;
     } else {
       let int = complete / otherItem.length;
-      // console.log(Math.round(int * 100));
       return Math.round(int * 100);
     }
   }, [otherItem]);
@@ -264,9 +329,9 @@ export default function Week({
         const result = await req2srv.changeWeekly({
           myMission,
           missionId: missionText[0].id,
-          year: moment().format("YYYY"),
-          month: moment().format("M"),
-          week: String(weekOfMonth(moment())),
+          year: moment(Pickmonth).format("YYYY"),
+          month: moment(Pickmonth).format("M"),
+          week: String(weekOfMonth(moment(Pickmonth))),
           coreMission,
           lookInside,
           mainFocus,
@@ -288,6 +353,7 @@ export default function Week({
   const updateStype = (v) => {
     return () => {
       weekRef.current.scrollIntoView({});
+
       setPickData(v);
       setTimeout(() => {
         setUDSOpened(true);
@@ -357,7 +423,7 @@ export default function Week({
     });
 
     return result;
-  }, []);
+  }, [Pickmonth]);
 
   return (
     <>
@@ -379,8 +445,9 @@ export default function Week({
             <div className={classname(["sub15"])}>주간 미션 </div>
           </div>
           <div className={classname(["week-count", "sub15"])}>
-            <span red="">{moment().format("M")}</span>월 /{" "}
-            <span red="">{weekOfMonth(moment())}</span>
+            <MonthPickers Pickmonth={Pickmonth} setPickMonth={setPickMonth} />
+            <span red="">{moment(Pickmonth).format("M")}</span>월 /{" "}
+            <span red="">{weekOfMonth(moment(Pickmonth))}</span>
             째주
           </div>
         </div>
@@ -414,7 +481,11 @@ export default function Week({
             // onKeyDown={identityRefResize} // keydown이되엇을때마다 autoResizeTextarea실행
             // onKeyUp={identityRefResize} // keyup이되엇을때마다 autoResizeTextarea실행
 
-            defaultValue={coreMission}
+            defaultValue={
+              weeklyAnalysisText.length === 0
+                ? ""
+                : weeklyAnalysisText[0].coreMission
+            }
             onChange={setTargetValue(setCoreMission)}
           />
         </div>
@@ -432,7 +503,11 @@ export default function Week({
             placeholder="근본적인 한계를 적어주세요"
             // onKeyDown={identityRefResize} // keydown이되엇을때마다 autoResizeTextarea실행
             // onKeyUp={identityRefResize} // keyup이되엇을때마다 autoResizeTextarea실행
-            defaultValue={lookInside}
+            defaultValue={
+              weeklyAnalysisText.length === 0
+                ? ""
+                : weeklyAnalysisText[0].lookInside
+            }
             onChange={setTargetValue(setLookInside)}
           />
         </div>
@@ -450,7 +525,11 @@ export default function Week({
             placeholder="가장 중요한 실행점을 적어주세요"
             // onKeyDown={identityRefResize} // keydown이되엇을때마다 autoResizeTextarea실행
             // onKeyUp={identityRefResize} // keyup이되엇을때마다 autoResizeTextarea실행
-            defaultValue={mainFocus}
+            defaultValue={
+              weeklyAnalysisText.length === 0
+                ? ""
+                : weeklyAnalysisText[0].mainFocus
+            }
             onChange={setTargetValue(setMainFocus)}
           />
         </div>
@@ -479,12 +558,13 @@ export default function Week({
         </div>
         <Board
           scheduleLists={scheduleLists}
-          lookInsideText={lookInsideText}
+          lookInsideText={weeklyLookInSide}
           setDayNum={setDayNum}
           openDay={openDay}
           weekOfMonth={weekOfMonth}
           updateStype={updateStype}
           UDopen={UDopen}
+          Pickmonth={Pickmonth}
         />
 
         <div className={classname(["week-statistics"])}>

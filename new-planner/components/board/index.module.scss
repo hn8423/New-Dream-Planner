@@ -105,6 +105,12 @@
                   border-radius: 50%;
                   color: #fff;
                 }
+
+                .week-plan-list-item-title {
+                  text-overflow: ellipsis;
+                  width: 200px;
+                  overflow: hidden;
+                }
               }
 
               .board-item-right {

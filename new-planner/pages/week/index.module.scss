@@ -21,6 +21,7 @@
       align-items: center;
     }
     .week-count {
+      display: flex;
       [red] {
         color: var(--primary-0);
       }
