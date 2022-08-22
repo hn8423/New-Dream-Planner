@@ -28,18 +28,10 @@ export default function Board({
   //data
   const item = useRef(null);
   const router = useRouter();
-  const [lookInsideSun, setLookSun] = useState(
-    lookInsideText.length === 0 ? "" : lookInsideText[0].lookInsideSun
-  );
-  const [lookInsideMon, setLookMon] = useState(
-    lookInsideText.length === 0 ? "" : lookInsideText[0].lookInsideMon
-  );
-  const [lookInsideTue, setLookTue] = useState(
-    lookInsideText.length === 0 ? "" : lookInsideText[0].lookInsideTue
-  );
-  const [lookInsideWed, setLookWed] = useState(
-    lookInsideText.length === 0 ? "" : lookInsideText[0].lookInsideWed
-  );
+  const [lookInsideSun, setLookSun] = useState("");
+  const [lookInsideMon, setLookMon] = useState("");
+  const [lookInsideTue, setLookTue] = useState("");
+  const [lookInsideWed, setLookWed] = useState("");
   const [lookInsideThu, setLookThu] = useState(
     lookInsideText.length === 0 ? "" : lookInsideText[0].lookInsideThu
   );
@@ -49,31 +41,6 @@ export default function Board({
   const [lookInsideSat, setLookSat] = useState(
     lookInsideText.length === 0 ? "" : lookInsideText[0].lookInsideSat
   );
-
-  useEffect(() => {
-    setLookSun(
-      lookInsideText.length === 0 ? "" : lookInsideText[0].lookInsideSun
-    );
-    setLookMon(
-      lookInsideText.length === 0 ? "" : lookInsideText[0].lookInsideMon
-    );
-    setLookTue(
-      lookInsideText.length === 0 ? "" : lookInsideText[0].lookInsideTue
-    );
-    setLookWed(
-      lookInsideText.length === 0 ? "" : lookInsideText[0].lookInsideWed
-    );
-
-    setLookThu(
-      lookInsideText.length === 0 ? "" : lookInsideText[0].lookInsideThu
-    );
-    setLookFri(
-      lookInsideText.length === 0 ? "" : lookInsideText[0].lookInsideFri
-    );
-    setLookSat(
-      lookInsideText.length === 0 ? "" : lookInsideText[0].lookInsideSat
-    );
-  }, [Pickmonth, lookInsideText]);
 
   //function
   //function
@@ -519,7 +486,11 @@ export default function Board({
                 // onKeyDown={identityRefResize} // keydown이되엇을때마다 autoResizeTextarea실행
                 // onKeyUp={identityRefResize} // keyup이되엇을때마다 autoResizeTextarea실행
 
-                defaultValue={lookInsideSun}
+                defaultValue={
+                  lookInsideText.length === 0
+                    ? ""
+                    : lookInsideText[0].lookInsideSun
+                }
                 onChange={setTargetValue(setLookSun)}
               />
             </div>
@@ -561,7 +532,11 @@ export default function Board({
                 // onKeyDown={identityRefResize} // keydown이되엇을때마다 autoResizeTextarea실행
                 // onKeyUp={identityRefResize} // keyup이되엇을때마다 autoResizeTextarea실행
 
-                defaultValue={lookInsideMon}
+                defaultValue={
+                  lookInsideText.length === 0
+                    ? ""
+                    : lookInsideText[0].lookInsideMon
+                }
                 onChange={setTargetValue(setLookMon)}
               />
             </div>
@@ -604,7 +579,11 @@ export default function Board({
                 // onKeyDown={identityRefResize} // keydown이되엇을때마다 autoResizeTextarea실행
                 // onKeyUp={identityRefResize} // keyup이되엇을때마다 autoResizeTextarea실행
 
-                defaultValue={lookInsideTue}
+                defaultValue={
+                  lookInsideText.length === 0
+                    ? ""
+                    : lookInsideText[0].lookInsideTue
+                }
                 onChange={setTargetValue(setLookTue)}
               />
             </div>
@@ -646,7 +625,11 @@ export default function Board({
                 // onKeyDown={identityRefResize} // keydown이되엇을때마다 autoResizeTextarea실행
                 // onKeyUp={identityRefResize} // keyup이되엇을때마다 autoResizeTextarea실행
 
-                defaultValue={lookInsideWed}
+                defaultValue={
+                  lookInsideText.length === 0
+                    ? ""
+                    : lookInsideText[0].lookInsideWed
+                }
                 onChange={setTargetValue(setLookWed)}
               />
             </div>
