@@ -27,8 +27,6 @@ export default async function apiHandler(req, res) {
   /**@type {import('next-auth').Session&{user:{id:string}}} */
   const session = await getSession({ req });
 
-  console.log("req.body :", req.body);
-
   try {
     const check = await prisma.weeklyAnalysis.findMany({
       where: { userId: session.user.id, year, month, week },
@@ -41,32 +39,17 @@ export default async function apiHandler(req, res) {
         data: {
           user: {
             connect: {
-              id: "cl6u5kzvj0657m8p3cnt5bskx",
+              id: session.user.id,
             },
           },
-          year: "2024",
-          month: "9",
-          week: "3",
+          year,
+          month,
+          week,
           coreMission,
           lookInside,
           mainFocus,
         },
       });
-      // await prisma.weeklyAnalysis.create({
-      //   data: {
-      //     user: {
-      //       connect: {
-      //         id: session.user.id,
-      //       },
-      //     },
-      //     year : '2022',
-      //     month: '8',
-      //     week: '3',
-      //     coreMission,
-      //     lookInside,
-      //     mainFocus,
-      //   },
-      // });
     } else {
       await prisma.weeklyAnalysis.update({
         where: {

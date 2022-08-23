@@ -84,7 +84,6 @@ CREATE TABLE `DailyLookInside` (
   `lookInsideTue` text COLLATE utf8mb4_unicode_ci,
   `lookInsideWed` text COLLATE utf8mb4_unicode_ci,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `DailyLookInside_userId_key` (`userId`),
   UNIQUE KEY `DailyLookInside_year_month_week_userId_key` (`year`,`month`,`week`,`userId`),
   CONSTRAINT `DailyLookInside_userId_fkey` FOREIGN KEY (`userId`) REFERENCES `User` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -239,7 +238,6 @@ CREATE TABLE `WeeklyAnalysis` (
   `lifeLookInside` text COLLATE utf8mb4_unicode_ci,
   `lifeMainFocus` text COLLATE utf8mb4_unicode_ci,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `WeeklyAnalysis_userId_key` (`userId`),
   UNIQUE KEY `WeeklyAnalysis_year_month_week_userId_key` (`year`,`month`,`week`,`userId`),
   CONSTRAINT `WeeklyAnalysis_userId_fkey` FOREIGN KEY (`userId`) REFERENCES `User` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -259,31 +257,10 @@ UNLOCK TABLES;
 -- Table structure for table `_prisma_migrations`
 --
 
-DROP TABLE IF EXISTS `_prisma_migrations`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `_prisma_migrations` (
-  `id` varchar(36) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `checksum` varchar(64) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `finished_at` datetime(3) DEFAULT NULL,
-  `migration_name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `logs` text COLLATE utf8mb4_unicode_ci,
-  `rolled_back_at` datetime(3) DEFAULT NULL,
-  `started_at` datetime(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
-  `applied_steps_count` int unsigned NOT NULL DEFAULT '0',
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
 --
 -- Dumping data for table `_prisma_migrations`
 --
 
-LOCK TABLES `_prisma_migrations` WRITE;
-/*!40000 ALTER TABLE `_prisma_migrations` DISABLE KEYS */;
-INSERT INTO `_prisma_migrations` VALUES ('03f013c1-6106-4ad3-b086-977a0bc2ca1e','122d743a0403e77ad7e0ed9447f5b8826f2fbdbc55612d936eff004dd13c2eec','2022-07-20 13:26:53.853','20220720132636_restart_for_mission_view',NULL,NULL,'2022-07-20 13:26:52.821',1),('0cf603bb-06a4-4915-af0f-1ab91d21145c','cd00e0eaeec6f0e0d7727d1ec3cd8d35b6fa7b4a58cef0be07d766f6f7f346bf','2022-08-16 06:50:28.536','20220816065009_change_unique_in_weeklyanalysis',NULL,NULL,'2022-08-16 06:50:27.472',1),('34c102f1-6794-4c1c-8c89-c31d4b780bcf','121045975a68f392d2985635f8e885fc0d9bbab6958052d9c8d72f430cba93ca','2022-08-07 07:38:53.884','20220807073828_add_field_iscomplete',NULL,NULL,'2022-08-07 07:38:52.704',1),('4dc3e78e-ebe0-44e6-84a2-90ee4c4495ec','122d743a0403e77ad7e0ed9447f5b8826f2fbdbc55612d936eff004dd13c2eec','2022-08-13 02:53:52.901','20220813025335_change_account',NULL,NULL,'2022-08-13 02:53:51.927',1),('50c5e43d-abf7-499d-b03c-2b8b56a2885f','122d743a0403e77ad7e0ed9447f5b8826f2fbdbc55612d936eff004dd13c2eec','2022-07-20 13:26:09.014','20220717154544_restart_deploy',NULL,NULL,'2022-07-20 13:26:08.410',1),('5486bfce-fa92-41f8-9d11-c12d7404fe1a','61e1448e211d8144942058a05d8a7464d8ba4394c0593b0d66448e45a342bb30','2022-08-13 10:29:18.788','20220813102800_change_user',NULL,NULL,'2022-08-13 10:29:17.662',1),('5ba62aad-87cd-46b7-b4d1-378f900ed76c','122d743a0403e77ad7e0ed9447f5b8826f2fbdbc55612d936eff004dd13c2eec','2022-07-20 13:26:08.195','20220717152743_start_rds_deploy',NULL,NULL,'2022-07-20 13:26:07.581',1),('5bbc2e78-a4b8-4b38-b45f-fa9b7bdfc655','9576f2489cd500b132b049d66d75084deabae6863067805d089a44b70c585525','2022-07-20 13:26:06.551','20220717121532_make_mission_table',NULL,NULL,'2022-07-20 13:26:05.829',1),('622b6234-774e-4561-9d43-87ef6284807e','25808c959dd62bfaae705a240cb69c31ec7df9be9124cc8015410f627b4601e4','2022-08-02 02:35:42.462','20220802023451_create_schedule_table',NULL,NULL,'2022-08-02 02:35:41.226',1),('6261f79f-fbfe-4ab7-beda-b2ab2b7fda25','5d7b1b259ddb3a075e91bf3db1b95918ffcb96def5f61d038bd2ec8352197cc0','2022-07-20 13:26:07.385','20220717121645_make_mission_many_write',NULL,NULL,'2022-07-20 13:26:06.748',1),('689e5bd9-7218-466d-a20f-c2d815b2b9d8','bc25b8653d25f0be2949ccfc09f34cf1aef5e47220b10234945a0534bb16386e','2022-08-10 06:04:22.012','20220810060353_add_other_lookinside',NULL,NULL,'2022-08-10 06:04:20.811',1),('88986cab-fd43-4c0c-af31-984a713e68e0','122d743a0403e77ad7e0ed9447f5b8826f2fbdbc55612d936eff004dd13c2eec','2022-08-20 23:42:48.921','20220820234215_change_userid',NULL,NULL,'2022-08-20 23:42:47.939',1),('9052e1e3-fffe-43f9-9129-6191c902abe8','20e24ca21372953dbdea3a2e28773ffa8dc2806a59eb0d023fa8e0525891c6af','2022-08-10 05:23:58.665','20220810052236_create_dailylookinside_table',NULL,NULL,'2022-08-10 05:23:57.583',1),('9276c6b2-b620-4089-aead-35dbc07a1fa6','50ee01be27edc38c5600cda1315c016a3936c11781b705a5dd61ecfab170cc80','2022-08-10 06:41:47.477','20220810064109_create_unique',NULL,NULL,'2022-08-10 06:41:46.390',1),('9ae62804-023d-44f8-a3b7-70858b438f4a','be1bc6c5f9ec9b95296c28e3b0c32825c6cb60784574746a12060addb4985b89','2022-08-20 23:37:19.231','20220820232720_change_unique_userid',NULL,NULL,'2022-08-20 23:37:18.152',1),('9dedd80c-5775-4b8a-9daa-206667ed49d5','4480654f0c9fd8535e9d6efc52fd52052618f984b33d00d0ba1549427dd37a52','2022-08-18 01:38:53.745','20220818013834_change_lookinside',NULL,NULL,'2022-08-18 01:38:52.692',1),('a1f622d3-ba2d-4501-b11e-07ec59b57c5a','122d743a0403e77ad7e0ed9447f5b8826f2fbdbc55612d936eff004dd13c2eec','2022-08-22 06:45:36.213','20220822064523_change_weeklyanalysis_structure',NULL,NULL,'2022-08-22 06:45:35.212',1),('aebbe6f3-c80a-41ee-a461-a01407aeec85','a826afd5fa115c71a7a95e491c6cabb04c99143e542ecea32cf63edbf6733d15','2022-07-20 13:26:05.432','20220716102244_start_real_project',NULL,NULL,'2022-07-20 13:26:04.158',1),('c384349e-143a-4d90-a8fb-ee80d73395dc','488c2dcf5665746eff700ee04bfb536a5d33d5b0dfd5db90057c36cd61b456af','2022-08-08 01:11:11.051','20220808011053_make_unique_year_month_week',NULL,NULL,'2022-08-08 01:11:09.989',1),('d255dccd-28d1-4ea5-9f87-55b2b15b3a3f','ba1e150c5855b91e8e7bb2eb4d87cce27d0e5636597f507a35e2af59c3f51646','2022-08-22 07:22:05.846','20220822072139_change_not_null',NULL,NULL,'2022-08-22 07:22:04.671',1),('d51a6534-73dd-46da-9bc4-3d2aa0393d84','3a98ddb13aae5602dd96c5980ec45fcc0861ccc3e54555bd7973482928910627','2022-08-12 01:13:14.532','20220812011250_create_is_repeat_complete',NULL,NULL,'2022-08-12 01:13:13.486',1),('e18afe76-c3fb-46a1-9d44-0c58ae4f4ca7','39637e886f1b8e351c177044c37babd571a05f8f06340d05fa519b0406b79732','2022-08-07 23:29:45.670','20220807232919_',NULL,NULL,'2022-08-07 23:29:44.592',1),('ecbbeece-edd1-4456-b115-4ea670dda5c4','49ed66649a148b8f54e8f047e9e6c73b0485cea22c39388219e36bd30a94563e','2022-08-12 01:15:38.496','20220812011506_create_new_field_repeatcomplete',NULL,NULL,'2022-08-12 01:15:37.434',1);
-/*!40000 ALTER TABLE `_prisma_migrations` ENABLE KEYS */;
-UNLOCK TABLES;
 -- SET @@SESSION.SQL_LOG_BIN = @MYSQLDUMP_TEMP_LOG_BIN;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 

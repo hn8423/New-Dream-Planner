@@ -2,11 +2,13 @@ import style from "./index.module.scss";
 import { classOption, enterToBr } from "utill";
 import { useEffect, useMemo, useCallback, useState, useRef } from "react";
 const classname = classOption(style);
-import _ from "lodash";
+import _, { subtract } from "lodash";
 import moment from "moment";
 import req2srv from "lib/req2srv/weekly";
 import req2srvPlan from "lib/req2srv/plan";
 import { useRouter } from "next/router";
+
+const weekOfMonth = (m) => m.week() - moment(m).startOf("month").week();
 
 /**
  * @type {(props:{missionText: (import('@prisma/client').Mission)[]
@@ -26,21 +28,48 @@ export default function Board({
   //data
   //data
   //data
-  const item = useRef(null);
   const router = useRouter();
   const [lookInsideSun, setLookSun] = useState("");
   const [lookInsideMon, setLookMon] = useState("");
   const [lookInsideTue, setLookTue] = useState("");
   const [lookInsideWed, setLookWed] = useState("");
-  const [lookInsideThu, setLookThu] = useState(
-    lookInsideText.length === 0 ? "" : lookInsideText[0].lookInsideThu
-  );
-  const [lookInsideFri, setLookFri] = useState(
-    lookInsideText.length === 0 ? "" : lookInsideText[0].lookInsideFri
-  );
-  const [lookInsideSat, setLookSat] = useState(
-    lookInsideText.length === 0 ? "" : lookInsideText[0].lookInsideSat
-  );
+  const [lookInsideThu, setLookThu] = useState("");
+  const [lookInsideFri, setLookFri] = useState("");
+  const [lookInsideSat, setLookSat] = useState("");
+
+  useEffect(() => {
+    if (lookInsideText.length !== 0) {
+      setLookSun(
+        lookInsideText.length === 0 ? "" : lookInsideText[0].lookInsideSun
+      );
+      setLookMon(
+        lookInsideText.length === 0 ? "" : lookInsideText[0].lookInsideMon
+      );
+      setLookTue(
+        lookInsideText.length === 0 ? "" : lookInsideText[0].lookInsideTue
+      );
+      setLookWed(
+        lookInsideText.length === 0 ? "" : lookInsideText[0].lookInsideWed
+      );
+      setLookThu(
+        lookInsideText.length === 0 ? "" : lookInsideText[0].lookInsideThu
+      );
+      setLookFri(
+        lookInsideText.length === 0 ? "" : lookInsideText[0].lookInsideFri
+      );
+      setLookSat(
+        lookInsideText.length === 0 ? "" : lookInsideText[0].lookInsideSat
+      );
+    } else {
+      setLookSun("");
+      setLookMon("");
+      setLookTue("");
+      setLookWed("");
+      setLookThu("");
+      setLookFri("");
+      setLookSat("");
+    }
+  }, [lookInsideText]);
 
   //function
   //function
@@ -54,6 +83,7 @@ export default function Board({
   //memo
   //memo
   //memo
+
   const plan = useMemo(() => {
     let [reapeatList, unReapeatList] = _(scheduleLists)
       .partition((v) => v.isrepeat)
@@ -98,7 +128,7 @@ export default function Board({
           }
 
           while (temp_startDate <= temp_repeatLastDay) {
-            [...repeatDay].forEach((e, i) => {
+            [...isRepeatComplete].forEach((e, i) => {
               if (`${e}` === temp_startDate.format("d")) {
                 let temp = {
                   color,
@@ -169,7 +199,18 @@ export default function Board({
       })
       .value();
 
-    let allList = [...createdList, ...createdUnrepeatList];
+    console.log(createdList);
+
+    let allList = [...createdList, ...createdUnrepeatList].filter((v) => {
+      if (
+        weekOfMonth(moment(v.startDate).subtract("9", "h")) ===
+        weekOfMonth(moment(Pickmonth))
+      ) {
+        return true;
+      } else {
+        return false;
+      }
+    });
 
     let SunFilter = allList.filter(
       (v) =>
@@ -258,6 +299,11 @@ export default function Board({
     // 요일별 숫자로 체크 해서 해당 요일 반복 된 것 만 필터링
     // 새롭게 data 값에 반복된 값들 추가된 값 넣기
   }, [scheduleLists, Pickmonth]);
+
+  // useEffect(() => {
+  //
+  // }, [plan]);
+
   //function
   //function
   //function
@@ -266,9 +312,19 @@ export default function Board({
     async function clickChange() {
       try {
         const result = await req2srv.changeLookInside({
-          year: moment().format("YYYY"),
-          month: moment().format("M"),
-          week: String(weekOfMonth(moment())),
+          year:
+            weekOfMonth(moment(Pickmonth)) === 0
+              ? moment(Pickmonth).add(0).format("YYYY")
+              : moment(Pickmonth).format("YYYY"),
+          month:
+            weekOfMonth(moment(Pickmonth)) === 0
+              ? moment(Pickmonth).day(0).format("M")
+              : moment(Pickmonth).format("M"),
+          week: String(
+            weekOfMonth(moment(Pickmonth)) === 0
+              ? weekOfMonth(moment(Pickmonth).day(0))
+              : weekOfMonth(moment(Pickmonth))
+          ),
           lookInsideSun,
           lookInsideMon,
           lookInsideTue,
@@ -303,7 +359,6 @@ export default function Board({
 
   const DeleteSchedule = useCallback(() => {
     return async (id) => {
-      // console.log(id);
       let result = await req2srvPlan.deletePlan({
         id: v.id,
       });
@@ -411,7 +466,6 @@ export default function Board({
                 <div
                   className={classname("board-item-right-done")}
                   onClick={async () => {
-                    // console.log(v.isRepeatComplete);
                     if (v.isrepeat) {
                       let arr = [...v.isRepeatComplete];
                       arr[v.count] = "1";
@@ -443,7 +497,7 @@ export default function Board({
       });
       return list;
     };
-  }, [plan, clickedList]);
+  }, [plan, clickedList, Pickmonth]);
 
   return (
     <>
@@ -486,11 +540,7 @@ export default function Board({
                 // onKeyDown={identityRefResize} // keydown이되엇을때마다 autoResizeTextarea실행
                 // onKeyUp={identityRefResize} // keyup이되엇을때마다 autoResizeTextarea실행
 
-                defaultValue={
-                  lookInsideText.length === 0
-                    ? ""
-                    : lookInsideText[0].lookInsideSun
-                }
+                defaultValue={lookInsideSun}
                 onChange={setTargetValue(setLookSun)}
               />
             </div>
@@ -532,11 +582,7 @@ export default function Board({
                 // onKeyDown={identityRefResize} // keydown이되엇을때마다 autoResizeTextarea실행
                 // onKeyUp={identityRefResize} // keyup이되엇을때마다 autoResizeTextarea실행
 
-                defaultValue={
-                  lookInsideText.length === 0
-                    ? ""
-                    : lookInsideText[0].lookInsideMon
-                }
+                defaultValue={lookInsideMon}
                 onChange={setTargetValue(setLookMon)}
               />
             </div>
@@ -579,11 +625,7 @@ export default function Board({
                 // onKeyDown={identityRefResize} // keydown이되엇을때마다 autoResizeTextarea실행
                 // onKeyUp={identityRefResize} // keyup이되엇을때마다 autoResizeTextarea실행
 
-                defaultValue={
-                  lookInsideText.length === 0
-                    ? ""
-                    : lookInsideText[0].lookInsideTue
-                }
+                defaultValue={lookInsideTue}
                 onChange={setTargetValue(setLookTue)}
               />
             </div>
@@ -625,11 +667,7 @@ export default function Board({
                 // onKeyDown={identityRefResize} // keydown이되엇을때마다 autoResizeTextarea실행
                 // onKeyUp={identityRefResize} // keyup이되엇을때마다 autoResizeTextarea실행
 
-                defaultValue={
-                  lookInsideText.length === 0
-                    ? ""
-                    : lookInsideText[0].lookInsideWed
-                }
+                defaultValue={lookInsideWed}
                 onChange={setTargetValue(setLookWed)}
               />
             </div>

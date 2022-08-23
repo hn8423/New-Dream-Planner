@@ -162,7 +162,36 @@ export default function DayBottomSheet({ className, close, dayNum }) {
           })
           .join("");
 
-        let repeatComplete = new Array(repeatDay.length).fill("0").join("");
+        let date1 = moment(startDate); // 2017-11-30
+        let date2 = moment(repeatLastDay); // 2017-12-6
+
+        let count = 0;
+
+        let repeatDayArray = day.map((v, i) => {
+          if (v === true) {
+            return i;
+          } else {
+            // return;
+          }
+        });
+        while (true) {
+          let temp_date = date1;
+          if (temp_date > date2) {
+            break;
+          } else {
+            let tmp = temp_date.day();
+            repeatDayArray.forEach((v) => {
+              if (v === tmp) {
+                count++;
+              }
+              return;
+            });
+
+            temp_date.add(1, "d");
+          }
+        }
+
+        let repeatComplete = new Array(count).fill("0").join("");
 
         if (!isAllDay && !isRepeat) {
           let result = await req2srv.createPlan({

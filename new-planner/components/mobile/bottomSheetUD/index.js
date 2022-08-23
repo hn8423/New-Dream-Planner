@@ -15,9 +15,7 @@ export default function MobileBottomSheet({ className, close, data }) {
   // data
   // data
   const [appointmentItem] = useState(data);
-  useEffect(() => {
-    console.log(appointmentItem);
-  }, [appointmentItem]);
+
   const [isClosing, setClosing] = useState(false);
   const [isAllDay, setIsAllDay] = useState(false);
   const [isRepeat, setIsRepeat] = useState(false);

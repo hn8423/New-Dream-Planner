@@ -138,6 +138,18 @@ export default function Week({
 
     return filter;
   }, [Pickmonth]);
+  useEffect(() => {
+    if (weeklyAnalysisText.length !== 0) {
+      setCoreMission(weeklyAnalysisText[0].coreMission);
+      setLookInside(weeklyAnalysisText[0].lookInside);
+      setMainFocus(weeklyAnalysisText[0].mainFocus);
+    } else {
+      setCoreMission("");
+      setLookInside("");
+      setMainFocus("");
+    }
+    // }, 1000);
+  }, [Pickmonth]);
 
   const weeklyLookInSide = useMemo(() => {
     let filter = lookInsideText.filter((v) => {
@@ -150,14 +162,7 @@ export default function Week({
       }
     });
     return filter;
-  }, [Pickmonth]);
-
-  // useEffect(() => {
-  //   // console.log(String(weekOfMonth(moment(Pickmonth))));
-  //   // console.log(moment(Pickmonth).format("YYYY"));
-  //   // console.log(moment(Pickmonth).format("M"));
-  //   console.log(weeklyLookInSide);
-  // }, [Pickmonth]);
+  }, [Pickmonth, lookInsideText]);
 
   const plan = useMemo(() => {
     let weeklySchedule = scheduleList.filter((v) => {
@@ -165,7 +170,7 @@ export default function Week({
         moment(moment(v.startDate).format("YYYY-MM-DD")).isSameOrAfter(
           moment(Pickmonth).day(0).format("YYYY-MM-DD")
         ) &&
-        moment(moment(v.startDate).format("YYYY-MM-DD")).isSameOrAfter(
+        moment(moment(v.startDate).format("YYYY-MM-DD")).isSameOrBefore(
           moment(Pickmonth).day(6).format("YYYY-MM-DD")
         )
       ) {
@@ -329,9 +334,19 @@ export default function Week({
         const result = await req2srv.changeWeekly({
           myMission,
           missionId: missionText[0].id,
-          year: moment(Pickmonth).format("YYYY"),
-          month: moment(Pickmonth).format("M"),
-          week: String(weekOfMonth(moment(Pickmonth))),
+          year:
+            weekOfMonth(moment(Pickmonth)) === 0
+              ? moment(Pickmonth).add(0).format("YYYY")
+              : moment(Pickmonth).format("YYYY"),
+          month:
+            weekOfMonth(moment(Pickmonth)) === 0
+              ? moment(Pickmonth).day(0).format("M")
+              : moment(Pickmonth).format("M"),
+          week: String(
+            weekOfMonth(moment(Pickmonth)) === 0
+              ? weekOfMonth(moment(Pickmonth).day(0))
+              : weekOfMonth(moment(Pickmonth))
+          ),
           coreMission,
           lookInside,
           mainFocus,
@@ -446,8 +461,17 @@ export default function Week({
           </div>
           <div className={classname(["week-count", "sub15"])}>
             <MonthPickers Pickmonth={Pickmonth} setPickMonth={setPickMonth} />
-            <span red="">{moment(Pickmonth).format("M")}</span>월 /{" "}
-            <span red="">{weekOfMonth(moment(Pickmonth))}</span>
+            <span red="">
+              {weekOfMonth(moment(Pickmonth)) === 0
+                ? moment(Pickmonth).day(0).format("M")
+                : moment(Pickmonth).format("M")}
+            </span>
+            월 /{" "}
+            <span red="">
+              {weekOfMonth(moment(Pickmonth)) === 0
+                ? weekOfMonth(moment(Pickmonth).day(0))
+                : weekOfMonth(moment(Pickmonth))}
+            </span>
             째주
           </div>
         </div>
@@ -481,11 +505,7 @@ export default function Week({
             // onKeyDown={identityRefResize} // keydown이되엇을때마다 autoResizeTextarea실행
             // onKeyUp={identityRefResize} // keyup이되엇을때마다 autoResizeTextarea실행
 
-            defaultValue={
-              weeklyAnalysisText.length === 0
-                ? ""
-                : weeklyAnalysisText[0].coreMission
-            }
+            defaultValue={coreMission}
             onChange={setTargetValue(setCoreMission)}
           />
         </div>
@@ -503,11 +523,7 @@ export default function Week({
             placeholder="근본적인 한계를 적어주세요"
             // onKeyDown={identityRefResize} // keydown이되엇을때마다 autoResizeTextarea실행
             // onKeyUp={identityRefResize} // keyup이되엇을때마다 autoResizeTextarea실행
-            defaultValue={
-              weeklyAnalysisText.length === 0
-                ? ""
-                : weeklyAnalysisText[0].lookInside
-            }
+            defaultValue={lookInside}
             onChange={setTargetValue(setLookInside)}
           />
         </div>
@@ -525,11 +541,7 @@ export default function Week({
             placeholder="가장 중요한 실행점을 적어주세요"
             // onKeyDown={identityRefResize} // keydown이되엇을때마다 autoResizeTextarea실행
             // onKeyUp={identityRefResize} // keyup이되엇을때마다 autoResizeTextarea실행
-            defaultValue={
-              weeklyAnalysisText.length === 0
-                ? ""
-                : weeklyAnalysisText[0].mainFocus
-            }
+            defaultValue={mainFocus}
             onChange={setTargetValue(setMainFocus)}
           />
         </div>
