@@ -76,6 +76,7 @@ export default function TimeTable({ scheduleList }) {
           title,
           repeatDay,
           type,
+          isRepeatComplete,
         }) => {
           let result = [];
 
@@ -120,6 +121,7 @@ export default function TimeTable({ scheduleList }) {
                   type,
                   realStartDate,
                   realEndDate,
+                  isRepeatComplete,
                 };
 
                 temp.startDate = temp_startDate;

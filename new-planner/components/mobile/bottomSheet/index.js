@@ -1,7 +1,7 @@
 import { classOption } from "utill/index";
 import style from "./index.module.scss";
 import { useRouter } from "next/router";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import _ from "lodash";
 import DatePickers from "components/datepicker";
 import TimePickers from "components/timepicker";
@@ -138,6 +138,8 @@ export default function MobileBottomSheet({ className, close }) {
           }
         }
 
+        clickClose();
+
         let pickColor = "";
         switch (pickTimeMetrix) {
           case "A":
@@ -164,8 +166,8 @@ export default function MobileBottomSheet({ className, close }) {
           })
           .join("");
 
-        let date1 = moment(startDate).hour(0).minute(0); // 2017-11-30
-        let date2 = moment(repeatLastDay).hour(0).minute(0); // 2017-12-6
+        let date1 = moment(startDate).hour(0).minute(0);
+        let date2 = moment(repeatLastDay).hour(0).minute(0);
 
         let count = 1;
 
@@ -309,15 +311,15 @@ export default function MobileBottomSheet({ className, close }) {
             isRepeatComplete: repeatComplete,
           });
         }
+
         alert("일정을 등록 했습니다.");
-        close();
         router.reload();
       } catch (err) {
         console.log(err);
       }
     },
     [
-      close,
+      clickClose,
       day,
       endTime,
       isAllDay,
@@ -331,11 +333,6 @@ export default function MobileBottomSheet({ className, close }) {
     ]
   );
 
-  // useEffect(() => {
-  //   // console.log(moment(repeatLastDay - startDate).duration());
-
-  //   console.log(count);
-  // }, [startDate, repeatLastDay, day]);
   // renderMap
   // renderMap
   // renderMap

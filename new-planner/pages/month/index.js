@@ -75,6 +75,7 @@ export default function Month({ scheduleList }) {
           title,
           repeatDay,
           type,
+          isRepeatComplete,
         }) => {
           let result = [];
           let temp_startDate;
@@ -113,6 +114,7 @@ export default function Month({ scheduleList }) {
                   type,
                   realStartDate,
                   realEndDate,
+                  isRepeatComplete,
                 };
                 temp.startDate = temp_startDate;
                 temp.endDate = temp_endDate;

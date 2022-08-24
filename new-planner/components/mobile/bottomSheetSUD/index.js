@@ -131,6 +131,8 @@ export default function BottomSheetStype({ className, close, data }) {
           }
         }
 
+        clickClose();
+
         let pickColor = "";
         switch (pickTimeMetrix) {
           case "S":
@@ -244,6 +246,9 @@ export default function BottomSheetStype({ className, close, data }) {
     },
     [
       appointmentItem.id,
+      appointmentItem.isRepeatComplete,
+      appointmentItem.realId,
+      clickClose,
       close,
       day,
       endTime,

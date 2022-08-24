@@ -1,7 +1,7 @@
 import { classOption } from "utill/index";
 import style from "./index.module.scss";
 import { useRouter } from "next/router";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import _ from "lodash";
 import DatePickers from "components/datepicker";
 import TimePickers from "components/timepicker";
@@ -135,6 +135,8 @@ export default function DayBottomSheet({ className, close, dayNum }) {
             return;
           }
         }
+
+        clickClose();
 
         let pickColor = "";
         switch (pickTimeMetrix) {
@@ -316,6 +318,7 @@ export default function DayBottomSheet({ className, close, dayNum }) {
       }
     },
     [
+      clickClose,
       close,
       day,
       endTime,

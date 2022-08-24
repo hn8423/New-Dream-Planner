@@ -1,7 +1,7 @@
 import { classOption } from "utill/index";
 import style from "./index.module.scss";
 import { useRouter } from "next/router";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import _, { subtract } from "lodash";
 import DatePickers from "components/datepicker";
 import TimePickers from "components/timepicker";
@@ -139,6 +139,8 @@ export default function MobileBottomSheet({ className, close, data }) {
           }
         }
 
+        clickClose();
+
         let pickColor = "";
         switch (pickTimeMetrix) {
           case "A":
@@ -165,10 +167,10 @@ export default function MobileBottomSheet({ className, close, data }) {
           })
           .join("");
 
-        let date1 = moment(startDate); // 2017-11-30
-        let date2 = moment(repeatLastDay); // 2017-12-6
+        let date1 = moment(startDate).hour(0).minute(0); // 2017-11-30
+        let date2 = moment(repeatLastDay).hour(0).minute(0); // 2017-12-6
 
-        let count = 0;
+        let count = 1;
 
         let repeatDayArray = day.map((v, i) => {
           if (v === true) {
@@ -187,7 +189,6 @@ export default function MobileBottomSheet({ className, close, data }) {
               if (v === tmp) {
                 count++;
               }
-              return;
             });
 
             temp_date.add(1, "d");
@@ -335,7 +336,8 @@ export default function MobileBottomSheet({ className, close, data }) {
       }
     },
     [
-      appointmentItem.id,
+      appointmentItem,
+      clickClose,
       close,
       day,
       endTime,

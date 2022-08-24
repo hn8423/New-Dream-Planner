@@ -216,10 +216,6 @@ export default function Board({
       }
     });
 
-    let temp = allList.map((v) =>
-      moment(v.startDate).format("YYYY-MM-DD HH:mm:ss")
-    );
-
     let SunFilter = allList.filter(
       (v) =>
         moment(v.startDate).subtract(9, "h").format("YYYY-MM-DD") ===
@@ -229,6 +225,22 @@ export default function Board({
     let [isdoneSunList, undoneSunList] = _(SunFilter)
       .partition((v) => v.isComplete)
       .value();
+
+    undoneSunList.sort(function (a, b) {
+      if (a.type === "S") {
+        return -1;
+      }
+      if (b.type === "S") {
+        return 1;
+      }
+      if (a.type > b.type) {
+        return 1;
+      } else if (b.type > a.type) {
+        return -1;
+      } else {
+        return 0;
+      }
+    });
 
     let Sun = [...undoneSunList, ...isdoneSunList];
 
@@ -242,6 +254,22 @@ export default function Board({
       .partition((v) => v.isComplete)
       .value();
 
+    undoneMonList.sort(function (a, b) {
+      if (a.type === "S") {
+        return -1;
+      }
+      if (b.type === "S") {
+        return 1;
+      }
+      if (a.type > b.type) {
+        return 1;
+      } else if (b.type > a.type) {
+        return -1;
+      } else {
+        return 0;
+      }
+    });
+
     let Mon = [...undoneMonList, ...isdoneMonList];
 
     let TueFilter = allList.filter(
@@ -253,6 +281,22 @@ export default function Board({
     let [isdoneTueList, undoneTueList] = _(TueFilter)
       .partition((v) => v.isComplete)
       .value();
+
+    undoneTueList.sort(function (a, b) {
+      if (a.type === "S") {
+        return -1;
+      }
+      if (b.type === "S") {
+        return 1;
+      }
+      if (a.type > b.type) {
+        return 1;
+      } else if (b.type > a.type) {
+        return -1;
+      } else {
+        return 0;
+      }
+    });
 
     let Tue = [...undoneTueList, ...isdoneTueList];
 
@@ -266,6 +310,22 @@ export default function Board({
       .partition((v) => v.isComplete)
       .value();
 
+    undoneWedList.sort(function (a, b) {
+      if (a.type === "S") {
+        return -1;
+      }
+      if (b.type === "S") {
+        return 1;
+      }
+      if (a.type > b.type) {
+        return 1;
+      } else if (b.type > a.type) {
+        return -1;
+      } else {
+        return 0;
+      }
+    });
+
     let Wed = [...undoneWedList, ...isdoneWedList];
 
     let ThuFilter = allList.filter(
@@ -278,6 +338,22 @@ export default function Board({
       .partition((v) => v.isComplete)
       .value();
 
+    undoneThuList.sort(function (a, b) {
+      if (a.type === "S") {
+        return -1;
+      }
+      if (b.type === "S") {
+        return 1;
+      }
+      if (a.type > b.type) {
+        return 1;
+      } else if (b.type > a.type) {
+        return -1;
+      } else {
+        return 0;
+      }
+    });
+
     let Thu = [...undoneThuList, ...isdoneThuList];
     let FriFilter = allList.filter(
       (v) =>
@@ -287,6 +363,22 @@ export default function Board({
     let [isdoneFriList, undoneFriList] = _(FriFilter)
       .partition((v) => v.isComplete)
       .value();
+
+    undoneFriList.sort(function (a, b) {
+      if (a.type === "S") {
+        return -1;
+      }
+      if (b.type === "S") {
+        return 1;
+      }
+      if (a.type > b.type) {
+        return 1;
+      } else if (b.type > a.type) {
+        return -1;
+      } else {
+        return 0;
+      }
+    });
 
     let Fri = [...undoneFriList, ...isdoneFriList];
     let SatFilter = allList.filter(
@@ -298,6 +390,22 @@ export default function Board({
       .partition((v) => v.isComplete)
       .value();
 
+    undoneSatList.sort(function (a, b) {
+      if (a.type === "S") {
+        return -1;
+      }
+      if (b.type === "S") {
+        return 1;
+      }
+      if (a.type > b.type) {
+        return 1;
+      } else if (b.type > a.type) {
+        return -1;
+      } else {
+        return 0;
+      }
+    });
+
     let Sat = [...undoneSatList, ...isdoneSatList];
 
     return [Sun, Mon, Tue, Wed, Thu, Fri, Sat];
@@ -307,10 +415,6 @@ export default function Board({
     // 요일별 숫자로 체크 해서 해당 요일 반복 된 것 만 필터링
     // 새롭게 data 값에 반복된 값들 추가된 값 넣기
   }, [scheduleLists, weekOfMonth, Pickmonth]);
-
-  // useEffect(() => {
-  //
-  // }, [plan]);
 
   //function
   //function
