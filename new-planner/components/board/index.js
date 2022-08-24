@@ -164,40 +164,52 @@ export default function Board({
       .value();
 
     let createdUnrepeatList = _(unReapeatList)
-      .flatMap(({ color, endDate, id, isrepeat, startDate, title, type }) => {
-        let result = [];
-        let temp_startDate = moment(startDate).subtract(9, "h");
-        let temp_endDate;
-        if (
-          moment(startDate).format("hh:mm:00") ===
-          moment(endDate).format("hh:mm:00")
-        ) {
-          temp_endDate = moment(endDate).subtract(1, "d");
-          // temp_startDate = moment(startDate).subtract(1, "d");
-        } else {
-          temp_endDate = moment(endDate).subtract(9, "h");
-        }
-
-        let realStartDate = moment(startDate);
-        let realEndDate = moment(endDate);
-
-        let temp = {
+      .flatMap(
+        ({
           color,
-          title,
+          endDate,
           id,
           isrepeat,
           startDate,
-          endDate,
+          title,
           type,
-          realStartDate,
-          realEndDate,
-        };
-        temp.startDate = temp_startDate;
-        temp.endDate = temp_endDate;
-        result.push(temp);
+          isComplete,
+        }) => {
+          let result = [];
+          let temp_startDate = moment(startDate).subtract(9, "h");
+          let temp_endDate;
+          if (
+            moment(startDate).format("hh:mm:00") ===
+            moment(endDate).format("hh:mm:00")
+          ) {
+            temp_endDate = moment(endDate).subtract(1, "d");
+            // temp_startDate = moment(startDate).subtract(1, "d");
+          } else {
+            temp_endDate = moment(endDate).subtract(9, "h");
+          }
 
-        return result;
-      })
+          let realStartDate = moment(startDate);
+          let realEndDate = moment(endDate);
+
+          let temp = {
+            color,
+            title,
+            id,
+            isrepeat,
+            startDate,
+            endDate,
+            type,
+            realStartDate,
+            realEndDate,
+            isComplete,
+          };
+          temp.startDate = temp_startDate;
+          temp.endDate = temp_endDate;
+          result.push(temp);
+
+          return result;
+        }
+      )
       .value();
 
     let allList = [...createdList, ...createdUnrepeatList].filter((v) => {
@@ -581,7 +593,7 @@ export default function Board({
                 <div
                   className={classname("board-item-right-done")}
                   onClick={async () => {
-                    if (v.isrepeat) {
+                    if (!!v.isrepeat) {
                       let arr = [...v.isRepeatComplete];
                       arr[v.count] = "1";
                       let doneRepeatComplete = arr.join("");
@@ -592,9 +604,11 @@ export default function Board({
                         isRepeatComplete: doneRepeatComplete,
                       });
                     } else {
+                      // console.log(v);
                       await req2srvPlan.updateComplete({
                         id: v.id,
                         isrepeat: v.isrepeat,
+                        isComplete: true,
                       });
                     }
 

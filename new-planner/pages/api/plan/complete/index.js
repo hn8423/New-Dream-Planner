@@ -18,31 +18,23 @@ export default async function apiHandler(req, res) {
     return;
   }
 
-  const { id, isrepeat, isRepeatComplete } = req.body;
-  // console.log(req.body);
+  const { id, isrepeat, isRepeatComplete, isComplete } = req.body;
 
   /**@type {import('next-auth').Session&{user:{id:string}}} */
   const session = await getSession({ req });
-  // console.log(session);
+
   if (!session) {
     invalidCall(res);
     return;
   }
   try {
-    // console.log(repeatDay);
     if (isrepeat === false) {
       let result = await prisma.schedule.update({
         where: {
           id,
         },
         data: {
-          isComplete: true,
-
-          // user: {
-          //   connect: {
-          //     id: session.user.id,
-          //   },
-          // },
+          isComplete,
         },
       });
 
@@ -64,7 +56,6 @@ export default async function apiHandler(req, res) {
       }
     }
   } catch (err) {
-    // errHandler(err);
     console.log(err);
   }
 }

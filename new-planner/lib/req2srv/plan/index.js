@@ -26,7 +26,7 @@ const req2srv = {
       .catch((err) => errHandler(err));
     return result;
   },
-  /**@type {(body:{id: string,isRepeatComplete:string,isrepeat:boolean,  })} */
+  /**@type {(body:{id: string,isRepeatComplete:string,isrepeat:boolean,isComplete:boolean  })} */
   async updateComplete(body) {
     const result = await axios
       .post("/api/plan/complete", body)
