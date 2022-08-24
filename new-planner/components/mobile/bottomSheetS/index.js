@@ -1,7 +1,7 @@
 import { classOption } from "utill/index";
 import style from "./index.module.scss";
 import { useRouter } from "next/router";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import _ from "lodash";
 import TimePickers from "components/timepicker";
 import req2srv from "lib/req2srv/plan";
@@ -122,6 +122,8 @@ export default function MobileBottomSheet({ className, close, headerRef }) {
           }
         }
 
+        clickClose();
+
         let pickColor = "";
         switch (pickTimeMetrix) {
           case "S":
@@ -219,6 +221,7 @@ export default function MobileBottomSheet({ className, close, headerRef }) {
       }
     },
     [
+      clickClose,
       close,
       day,
       endTime,
