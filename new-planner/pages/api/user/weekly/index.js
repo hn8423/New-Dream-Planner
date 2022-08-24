@@ -22,6 +22,9 @@ export default async function apiHandler(req, res) {
     coreMission,
     lookInside,
     mainFocus,
+    lifeCoreMission,
+    lifeLookInside,
+    lifeMainFocus,
   } = req.body;
 
   /**@type {import('next-auth').Session&{user:{id:string}}} */
@@ -48,6 +51,9 @@ export default async function apiHandler(req, res) {
           coreMission,
           lookInside,
           mainFocus,
+          lifeCoreMission,
+          lifeLookInside,
+          lifeMainFocus,
         },
       });
     } else {
@@ -67,6 +73,9 @@ export default async function apiHandler(req, res) {
           coreMission,
           lookInside,
           mainFocus,
+          lifeCoreMission,
+          lifeLookInside,
+          lifeMainFocus,
         },
       });
     }

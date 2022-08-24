@@ -165,6 +165,45 @@ export default function MobileBottomSheet({ className, close, data }) {
           })
           .join("");
 
+        let date1 = moment(startDate); // 2017-11-30
+        let date2 = moment(repeatLastDay); // 2017-12-6
+
+        let count = 0;
+
+        let repeatDayArray = day.map((v, i) => {
+          if (v === true) {
+            return i;
+          } else {
+            // return;
+          }
+        });
+        while (true) {
+          let temp_date = date1;
+          if (temp_date > date2) {
+            break;
+          } else {
+            let tmp = temp_date.day();
+            repeatDayArray.forEach((v) => {
+              if (v === tmp) {
+                count++;
+              }
+              return;
+            });
+
+            temp_date.add(1, "d");
+          }
+        }
+
+        let repeatComplete;
+        if (
+          appointmentItem.isRepeatComplete.length === count &&
+          repeatDay === appointmentItem.repeatDay
+        ) {
+          repeatComplete = appointmentItem.isRepeatComplete;
+        } else {
+          repeatComplete = new Array(count).fill("0").join("");
+        }
+
         let itemId;
         if (appointmentItem.realId) {
           itemId = appointmentItem.realId;
@@ -226,15 +265,6 @@ export default function MobileBottomSheet({ className, close, data }) {
             type: pickTimeMetrix,
           });
         } else if (isAllDay && isRepeat) {
-          let repeatComplete;
-          if (
-            !!appointmentItem.isRepeatComplete &&
-            repeatDay.length === appointmentItem.isRepeatComplete.length
-          ) {
-            repeatComplete = appointmentItem.isRepeatComplete;
-          } else {
-            repeatComplete = new Array(repeatDay.length).fill("0").join("");
-          }
           let result = await req2srv.updatePlan({
             id: itemId,
             startDate: new Date(
@@ -266,15 +296,6 @@ export default function MobileBottomSheet({ className, close, data }) {
             isRepeatComplete: repeatComplete,
           });
         } else if (!isAllDay && isRepeat) {
-          let repeatComplete;
-          if (
-            !!appointmentItem.isRepeatComplete &&
-            repeatDay.length === appointmentItem.isRepeatComplete.length
-          ) {
-            repeatComplete = appointmentItem.isRepeatComplete;
-          } else {
-            repeatComplete = new Array(repeatDay.length).fill("0").join("");
-          }
           let result = await req2srv.updatePlan({
             id: itemId,
             startDate: new Date(
@@ -346,7 +367,7 @@ export default function MobileBottomSheet({ className, close, data }) {
       close();
       router.reload();
     },
-    [appointmentItem.id, close, router, title]
+    [appointmentItem, close, router, title]
   );
 
   // renderMap

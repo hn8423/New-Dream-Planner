@@ -26,36 +26,39 @@ export async function getServerSideProps(ctx) {
   const session = await getSession(ctx);
 
   try {
-    const missionText = await prisma.mission.findMany({
-      where: {
-        userId: session.user.id,
-      },
-    });
-    const weeklyText = await prisma.weeklyAnalysis.findMany({
-      where: {
-        userId: session.user.id,
-        // year: moment().format("YYYY"),
-        // month: moment().format("M"),
-        // week: String(weekOfMonth(moment())),
-      },
-    });
-    const lookInsideText = await prisma.dailyLookInside.findMany({
-      where: {
-        userId: session.user.id,
-        // year: moment().format("YYYY"),
-        // month: moment().format("M"),
-        // week: String(weekOfMonth(moment())),
-      },
-    });
-    const scheduleList = await prisma.schedule.findMany({
-      where: {
-        userId: session.user.id,
-        // startDate: {
-        //   gte: new Date(moment().day(0).hour(0).minute(0).second(0)),
-        //   lt: new Date(moment().day(7).hour(0).minute(0).second(0)),
-        // },
-      },
-    });
+    const [missionText, weeklyText, lookInsideText, scheduleList] =
+      await Promise.all([
+        prisma.mission.findMany({
+          where: {
+            userId: session.user.id,
+          },
+        }),
+        prisma.weeklyAnalysis.findMany({
+          where: {
+            userId: session.user.id,
+            // year: moment().format("YYYY"),
+            // month: moment().format("M"),
+            // week: String(weekOfMonth(moment())),
+          },
+        }),
+        prisma.dailyLookInside.findMany({
+          where: {
+            userId: session.user.id,
+            // year: moment().format("YYYY"),
+            // month: moment().format("M"),
+            // week: String(weekOfMonth(moment())),
+          },
+        }),
+        prisma.schedule.findMany({
+          where: {
+            userId: session.user.id,
+            // startDate: {
+            //   gte: new Date(moment().day(0).hour(0).minute(0).second(0)),
+            //   lt: new Date(moment().day(7).hour(0).minute(0).second(0)),
+            // },
+          },
+        }),
+      ]);
 
     return {
       props: {
@@ -118,6 +121,9 @@ export default function Week({
   const [coreMission, setCoreMission] = useState("");
   const [lookInside, setLookInside] = useState("");
   const [mainFocus, setMainFocus] = useState("");
+  const [lifeCoreMission, setLifeCoreMission] = useState("");
+  const [lifeLookInside, setLifeLookInside] = useState("");
+  const [lifeMainFocus, setLifeMainFocus] = useState("");
 
   //memo
   //memo
@@ -137,19 +143,47 @@ export default function Week({
     });
 
     return filter;
-  }, [Pickmonth]);
+  }, [Pickmonth, weeklyText]);
   useEffect(() => {
     if (weeklyAnalysisText.length !== 0) {
-      setCoreMission(weeklyAnalysisText[0].coreMission);
-      setLookInside(weeklyAnalysisText[0].lookInside);
-      setMainFocus(weeklyAnalysisText[0].mainFocus);
+      setCoreMission(
+        !!weeklyAnalysisText[0].coreMission
+          ? weeklyAnalysisText[0].coreMission
+          : ""
+      );
+      setLookInside(
+        !!weeklyAnalysisText[0].lookInside
+          ? weeklyAnalysisText[0].lookInside
+          : ""
+      );
+      setMainFocus(
+        !!weeklyAnalysisText[0].mainFocus ? weeklyAnalysisText[0].mainFocus : ""
+      );
+      setLifeCoreMission(
+        !!weeklyAnalysisText[0].lifeCoreMission
+          ? weeklyAnalysisText[0].lifeCoreMission
+          : ""
+      );
+      setLifeLookInside(
+        !!weeklyAnalysisText[0].lifeLookInside
+          ? weeklyAnalysisText[0].lifeLookInside
+          : ""
+      );
+      setLifeMainFocus(
+        !!weeklyAnalysisText[0].lifeMainFocus
+          ? weeklyAnalysisText[0].lifeMainFocus
+          : ""
+      );
     } else {
       setCoreMission("");
       setLookInside("");
       setMainFocus("");
+      setLifeCoreMission("");
+      setLifeLookInside("");
+      setLifeMainFocus("");
     }
     // }, 1000);
-  }, [Pickmonth]);
+  }, [Pickmonth, weeklyAnalysisText]);
 
   const weeklyLookInSide = useMemo(() => {
     let filter = lookInsideText.filter((v) => {
@@ -270,15 +304,15 @@ export default function Week({
 
   const sItem = useMemo(() => {
     return scheduleLists.filter((v) => {
-      if (
-        v.type === "S" &&
-        moment(moment(v.startDate).format("YYYY-MM-DD")).isSameOrAfter(
-          moment(Pickmonth).day(0).format("YYYY-MM-DD")
-        ) &&
-        moment(moment(v.startDate).format("YYYY-MM-DD")).isSameOrAfter(
-          moment(Pickmonth).day(6).format("YYYY-MM-DD")
-        )
-      ) {
+      let itemWeekOfMonth =
+        weekOfMonth(moment(v.startDate).subtract("9", "h")) === 0
+          ? weekOfMonth(moment(v.startDate).subtract("9", "h").day(0))
+          : weekOfMonth(moment(v.startDate).subtract("9", "h"));
+      let pickWeekOfMonth =
+        weekOfMonth(moment(Pickmonth)) === 0
+          ? weekOfMonth(moment(Pickmonth).day(0))
+          : weekOfMonth(moment(Pickmonth));
+      if (itemWeekOfMonth === pickWeekOfMonth && v.type === "S") {
         return true;
       } else {
         return false;
@@ -286,6 +320,7 @@ export default function Week({
     });
     // return scheduleList.filter((v) => v.type === "S");
   }, [scheduleLists, Pickmonth]);
+
   const sItemList = useMemo(() => {
     return plan.filter((v) => v.type === "S");
   }, [plan]);
@@ -350,6 +385,9 @@ export default function Week({
           coreMission,
           lookInside,
           mainFocus,
+          lifeCoreMission,
+          lifeLookInside,
+          lifeMainFocus,
         });
         alert("나의 선언서가 저장되었습니다.");
         router.reload();
@@ -358,7 +396,18 @@ export default function Week({
         alert("나의 사명을 사명탭에서 먼저 써주시길 바랍니다.");
       }
     },
-    [coreMission, lookInside, mainFocus]
+    [
+      myMission,
+      missionText,
+      Pickmonth,
+      coreMission,
+      lookInside,
+      mainFocus,
+      lifeCoreMission,
+      lifeLookInside,
+      lifeMainFocus,
+      router,
+    ]
   );
 
   //function
@@ -441,251 +490,311 @@ export default function Week({
   }, [Pickmonth]);
 
   return (
-    <>
-      <div
-        className={classname([
-          "week",
-          { loading: isLoading },
-          { openChange: isSOpen || isDayOpen || isUDSOpened || isUDOpend },
-        ])}
-      >
-        <div className={classname(["week-header"])} ref={weekRef}>
-          <img
-            className={classname(["week-header-arrows"])}
-            src="/images/header/arrow.png"
-            alt="arrows"
-            onClick={goToBack}
-          />
-          <div className={classname(["week-title"])}>
-            <div className={classname(["sub15"])}>주간 미션 </div>
-          </div>
-          <div className={classname(["week-count", "sub15"])}>
-            <MonthPickers Pickmonth={Pickmonth} setPickMonth={setPickMonth} />
-            <span red="">
-              {weekOfMonth(moment(Pickmonth)) === 0
-                ? moment(Pickmonth).day(0).format("M")
-                : moment(Pickmonth).format("M")}
-            </span>
-            월 /{" "}
-            <span red="">
-              {weekOfMonth(moment(Pickmonth)) === 0
-                ? weekOfMonth(moment(Pickmonth).day(0))
-                : weekOfMonth(moment(Pickmonth))}
-            </span>
-            째주
-          </div>
+    <div
+      className={classname([
+        "week",
+        { loading: isLoading },
+        { openChange: isSOpen || isDayOpen || isUDSOpened || isUDOpend },
+      ])}
+    >
+      <div className={classname(["week-header"])} ref={weekRef}>
+        <img
+          className={classname(["week-header-arrows"])}
+          src="/images/header/arrow.png"
+          alt="arrows"
+          onClick={goToBack}
+        />
+        <div className={classname(["week-title"])}>
+          <div className={classname(["sub15"])}>주간 미션 </div>
         </div>
-        <div className={classname(["week-mymission"])}>
-          <div className={classname(["week-mymission-title", "sub18"])}>
-            나의 사명
-          </div>
-          <textarea
-            // ref={identityRef}
-            className={classname(["week-mymission-input", "sub16"])}
-            type="text"
-            // placeholder="나의 정체성을 적어보세요"
-            // onKeyDown={identityRefResize} // keydown이되엇을때마다 autoResizeTextarea실행
-            // onKeyUp={identityRefResize} // keyup이되엇을때마다 autoResizeTextarea실행
-            defaultValue={myMission}
-            onChange={setTargetValue(setMyMission)}
-          />
+        <div className={classname(["week-count", "sub15"])}>
+          <MonthPickers Pickmonth={Pickmonth} setPickMonth={setPickMonth} />
+          <span red="">
+            {weekOfMonth(moment(Pickmonth)) === 0
+              ? moment(Pickmonth).day(0).format("M")
+              : moment(Pickmonth).format("M")}
+          </span>
+          월 /{" "}
+          <span red="">
+            {weekOfMonth(moment(Pickmonth)) === 0
+              ? weekOfMonth(moment(Pickmonth).day(0))
+              : weekOfMonth(moment(Pickmonth))}
+          </span>
+          째주
         </div>
-        <div className={classname(["week-core-mission"])}>
-          <div className={classname(["week-core-mission-title", "sub18"])}>
-            Core Mission
-          </div>
-          <div className={classname(["week-core-mission-sub", "cab12"])}>
-            이번 주 핵심 미션
-          </div>
-          <textarea
-            // ref={identityRef}
-            className={classname(["week-core-mission-input", "sub16"])}
-            type="text"
-            placeholder="핵심 미션을 적어주세요"
-            // onKeyDown={identityRefResize} // keydown이되엇을때마다 autoResizeTextarea실행
-            // onKeyUp={identityRefResize} // keyup이되엇을때마다 autoResizeTextarea실행
+      </div>
 
-            defaultValue={coreMission}
-            onChange={setTargetValue(setCoreMission)}
-          />
+      <div className={classname(["week-mymission"])}>
+        <div className={classname(["week-mymission-title", "sub18"])}>
+          나의 사명
         </div>
-        <div className={classname(["week-look-inside"])}>
-          <div className={classname(["week-look-inside-title", "sub18"])}>
-            Look Inside
-          </div>
-          <div className={classname(["week-look-inside-sub", "cab12"])}>
-            핵심 미션 달성을 가로막는 나의 근본적인 한계
-          </div>
-          <textarea
-            // ref={identityRef}
-            className={classname(["week-look-inside-input", "sub16"])}
-            type="text"
-            placeholder="근본적인 한계를 적어주세요"
-            // onKeyDown={identityRefResize} // keydown이되엇을때마다 autoResizeTextarea실행
-            // onKeyUp={identityRefResize} // keyup이되엇을때마다 autoResizeTextarea실행
-            defaultValue={lookInside}
-            onChange={setTargetValue(setLookInside)}
-          />
-        </div>
-        <div className={classname(["week-main-focus"])}>
-          <div className={classname(["week-main-focus-title", "sub18"])}>
-            Main Focus
-          </div>
-          <div className={classname(["week-main-focus-sub", "cab12"])}>
-            가장 중요한 실행점
-          </div>
-          <textarea
-            // ref={identityRef}
-            className={classname(["week-main-focus-input", "sub16"])}
-            type="text"
-            placeholder="가장 중요한 실행점을 적어주세요"
-            // onKeyDown={identityRefResize} // keydown이되엇을때마다 autoResizeTextarea실행
-            // onKeyUp={identityRefResize} // keyup이되엇을때마다 autoResizeTextarea실행
-            defaultValue={mainFocus}
-            onChange={setTargetValue(setMainFocus)}
-          />
-        </div>
-        <div className={classname(["week-write-change"])}>
-          <div
-            className={classname(["week-write-change-button"], "btn")}
-            onClick={clickChange}
-          >
-            저장하기
-          </div>
-        </div>
-        <div className={classname(["week-plan"])}>
-          <div className={classname(["week-plan-title", "sub18"])}>
-            Plan
-            <img
-              className={classname(["week-plan-plus"])}
-              src="images/week/plus.png"
-              alt="plus"
-              onClick={openSModal}
+        <textarea
+          // ref={identityRef}
+          className={classname(["week-mymission-input", "sub16"])}
+          type="text"
+          // placeholder="나의 정체성을 적어보세요"
+          // onKeyDown={identityRefResize} // keydown이되엇을때마다 autoResizeTextarea실행
+          // onKeyUp={identityRefResize} // keyup이되엇을때마다 autoResizeTextarea실행
+          defaultValue={myMission}
+          onChange={setTargetValue(setMyMission)}
+        />
+      </div>
+      <div className={classname(["week-analysis-area"])}>
+        <div className={classname(["week-core-mission-wrapper"])}>
+          <div className={classname(["week-core-mission"])}>
+            <div className={classname(["week-core-mission-title", "sub18"])}>
+              Core Mission
+            </div>
+            <div className={classname(["week-core-mission-sub", "cab12"])}>
+              이번 주 핵심 미션
+            </div>
+            <textarea
+              // ref={identityRef}
+              className={classname(["week-core-mission-input", "sub16"])}
+              type="text"
+              placeholder="핵심 미션을 적어주세요"
+              // onKeyDown={identityRefResize} // keydown이되엇을때마다 autoResizeTextarea실행
+              // onKeyUp={identityRefResize} // keyup이되엇을때마다 autoResizeTextarea실행
+
+              defaultValue={coreMission}
+              onChange={setTargetValue(setCoreMission)}
             />
           </div>
-          <div className={classname(["week-plan-sub", "cab12"])}>
-            Main Focus를 이루기 위한 구체적인 실행전략
-          </div>
-          <div className={classname(["week-plan-list"])}>{sPlan}</div>
-        </div>
-        <Board
-          scheduleLists={scheduleLists}
-          lookInsideText={weeklyLookInSide}
-          setDayNum={setDayNum}
-          openDay={openDay}
-          weekOfMonth={weekOfMonth}
-          updateStype={updateStype}
-          UDopen={UDopen}
-          Pickmonth={Pickmonth}
-        />
+          <div className={classname(["week-core-mission"])}>
+            <div className={classname(["week-core-mission-title", "sub18"])}>
+              Life Core Mission
+            </div>
+            <div className={classname(["week-core-mission-sub", "cab12"])}>
+              이번 주 생활 핵심 미션
+            </div>
+            <textarea
+              // ref={identityRef}
+              className={classname(["week-core-mission-input", "sub16"])}
+              type="text"
+              placeholder="생활 핵심 미션을 적어주세요"
+              // onKeyDown={identityRefResize} // keydown이되엇을때마다 autoResizeTextarea실행
+              // onKeyUp={identityRefResize} // keyup이되엇을때마다 autoResizeTextarea실행
 
-        <div className={classname(["week-statistics"])}>
-          <div className={classname(["week-statistics-header"])}>
-            <div
-              className={classname(["week-statistics-header-title", "sub18"])}
-            >
-              미션 달성률
-            </div>
-            <div className={classname(["week-statistics-header-sub", "cap12"])}>
-              이번 주 미션 달성률을 확인하세요
-            </div>
-          </div>
-          <div className={classname(["week-statistics-core"])}>
-            <div className={classname(["week-statistics-core-title", "sub18"])}>
-              핵심 미션 달성률
-            </div>
-            <div className={classname(["week-statistics-core-sub", "cap12"])}>
-              주간 핵심 미션에 나온 플랜(S)의 달성률
-            </div>
-            <div className={classname(["week-statistics-core-progress"])}>
-              <div className={classname("progress-bar-wrapper")}>
-                <ProgressBar
-                  className={classname("progress-bar")}
-                  currentLevel={coreMissionComplete}
-                  // currentLevel={0.5}
-                ></ProgressBar>
-              </div>
-              <div
-                className={classname(["week-statistics-core-progress-percent"])}
-              >
-                {coreMissionComplete}%
-              </div>
-            </div>
-          </div>
-          <div className={classname(["week-statistics-core"])}>
-            <div className={classname(["week-statistics-core-title", "sub18"])}>
-              주간 미션 달성률{" "}
-            </div>
-            <div className={classname(["week-statistics-core-sub", "cap12"])}>
-              A B C D의 달성률{" "}
-            </div>
-            <div className={classname(["week-statistics-core-progress"])}>
-              <div className={classname("progress-bar-wrapper")}>
-                <ProgressBar
-                  className={classname("progress-bar")}
-                  currentLevel={weeklyMissionComplete}
-                ></ProgressBar>
-              </div>
-              <div
-                className={classname(["week-statistics-core-progress-percent"])}
-              >
-                {weeklyMissionComplete}%
-              </div>
-            </div>
-          </div>
-          <div className={classname(["week-statistics-core"])}>
-            <div className={classname(["week-statistics-core-title", "sub18"])}>
-              이번 주 미션 달성률{" "}
-            </div>
-            <div className={classname(["week-statistics-core-sub", "cap12"])}>
-              핵심 미션 달성률 + 주간 미션 달성률 / 2 (총 평균)
-            </div>
-            <div className={classname(["week-statistics-core-progress"])}>
-              <div className={classname("progress-bar-wrapper")}>
-                <ProgressBar
-                  className={classname("progress-bar")}
-                  // maxLevel={100}
-                  currentLevel={allAverageComplete}
-                ></ProgressBar>
-              </div>
-              <div
-                className={classname(["week-statistics-core-progress-percent"])}
-              >
-                {allAverageComplete}%
-              </div>
-            </div>
+              defaultValue={lifeCoreMission}
+              onChange={setTargetValue(setLifeCoreMission)}
+            />
           </div>
         </div>
-
-        {isSOpen && (
-          <MobileBottomSheetS
-            className={classname("side-bar")}
-            close={close}
-            headerRef={headerRef}
-          />
-        )}
-        {isDayOpen && (
-          <DayBottomSheet
-            className={classname("side-bar")}
-            dayNum={dayNum}
-            close={closeDay}
-          />
-        )}
-        {isUDSOpened && (
-          <BottomSheetStype
-            className={classname("side-bar")}
-            data={pickData}
-            close={closeUDS}
-          />
-        )}
-        {isUDOpend && (
-          <MobileBottomSheetUD
-            className={classname("side-bar")}
-            close={UDclose}
-            data={pickData}
-          />
-        )}
+        <div className={classname(["week-look-inside-wrapper"])}>
+          <div className={classname(["week-look-inside"])}>
+            <div className={classname(["week-look-inside-title", "sub18"])}>
+              Look Inside
+            </div>
+            <div className={classname(["week-look-inside-sub", "cab12"])}>
+              핵심 미션 달성을 가로막는 나의 근본적인 한계
+            </div>
+            <textarea
+              // ref={identityRef}
+              className={classname(["week-look-inside-input", "sub16"])}
+              type="text"
+              placeholder="근본적인 한계를 적어주세요"
+              // onKeyDown={identityRefResize} // keydown이되엇을때마다 autoResizeTextarea실행
+              // onKeyUp={identityRefResize} // keyup이되엇을때마다 autoResizeTextarea실행
+              defaultValue={lookInside}
+              onChange={setTargetValue(setLookInside)}
+            />
+          </div>
+          <div className={classname(["week-look-inside"])}>
+            <div className={classname(["week-look-inside-title", "sub18"])}>
+              Life Look Inside
+            </div>
+            <div className={classname(["week-look-inside-sub", "cab12"])}>
+              생활 핵심 미션 달성을 가로막는 나의 근본적인 한계
+            </div>
+            <textarea
+              // ref={identityRef}
+              className={classname(["week-look-inside-input", "sub16"])}
+              type="text"
+              placeholder="생활 영역에서 근본적인 한계를 적어주세요"
+              // onKeyDown={identityRefResize} // keydown이되엇을때마다 autoResizeTextarea실행
+              // onKeyUp={identityRefResize} // keyup이되엇을때마다 autoResizeTextarea실행
+              defaultValue={lifeLookInside}
+              onChange={setTargetValue(setLifeLookInside)}
+            />
+          </div>
+        </div>
+        <div className={classname(["week-main-focus-wrapper"])}>
+          <div className={classname(["week-main-focus"])}>
+            <div className={classname(["week-main-focus-title", "sub18"])}>
+              Main Focus
+            </div>
+            <div className={classname(["week-main-focus-sub", "cab12"])}>
+              가장 중요한 실행점
+            </div>
+            <textarea
+              // ref={identityRef}
+              className={classname(["week-main-focus-input", "sub16"])}
+              type="text"
+              placeholder="가장 중요한 실행점을 적어주세요"
+              // onKeyDown={identityRefResize} // keydown이되엇을때마다 autoResizeTextarea실행
+              // onKeyUp={identityRefResize} // keyup이되엇을때마다 autoResizeTextarea실행
+              defaultValue={mainFocus}
+              onChange={setTargetValue(setMainFocus)}
+            />
+          </div>
+          <div className={classname(["week-main-focus"])}>
+            <div className={classname(["week-main-focus-title", "sub18"])}>
+              Life Main Focus
+            </div>
+            <div className={classname(["week-main-focus-sub", "cab12"])}>
+              생활 영역에서 가장 중요한 실행점
+            </div>
+            <textarea
+              // ref={identityRef}
+              className={classname(["week-main-focus-input", "sub16"])}
+              type="text"
+              placeholder="생활 영역에서 가장 중요한 실행점을 적어주세요"
+              // onKeyDown={identityRefResize} // keydown이되엇을때마다 autoResizeTextarea실행
+              // onKeyUp={identityRefResize} // keyup이되엇을때마다 autoResizeTextarea실행
+              defaultValue={lifeMainFocus}
+              onChange={setTargetValue(setLifeMainFocus)}
+            />
+          </div>
+        </div>
       </div>
-    </>
+      <div className={classname(["week-write-change"])}>
+        <div
+          className={classname(["week-write-change-button"], "btn")}
+          onClick={clickChange}
+        >
+          저장하기
+        </div>
+      </div>
+      <div className={classname(["week-plan"])}>
+        <div className={classname(["week-plan-title", "sub18"])}>
+          Plan
+          <img
+            className={classname(["week-plan-plus"])}
+            src="images/week/plus.png"
+            alt="plus"
+            onClick={openSModal}
+          />
+        </div>
+        <div className={classname(["week-plan-sub", "cab12"])}>
+          Main Focus를 이루기 위한 구체적인 실행전략
+        </div>
+        <div className={classname(["week-plan-list"])}>{sPlan}</div>
+      </div>
+      <Board
+        scheduleLists={scheduleLists}
+        lookInsideText={weeklyLookInSide}
+        setDayNum={setDayNum}
+        openDay={openDay}
+        weekOfMonth={weekOfMonth}
+        updateStype={updateStype}
+        UDopen={UDopen}
+        Pickmonth={Pickmonth}
+      />
+
+      <div className={classname(["week-statistics"])}>
+        <div className={classname(["week-statistics-header"])}>
+          <div className={classname(["week-statistics-header-title", "sub18"])}>
+            미션 달성률
+          </div>
+          <div className={classname(["week-statistics-header-sub", "cap12"])}>
+            이번 주 미션 달성률을 확인하세요
+          </div>
+        </div>
+        <div className={classname(["week-statistics-core"])}>
+          <div className={classname(["week-statistics-core-title", "sub18"])}>
+            핵심 미션 달성률
+          </div>
+          <div className={classname(["week-statistics-core-sub", "cap12"])}>
+            주간 핵심 미션에 나온 플랜(S)의 달성률
+          </div>
+          <div className={classname(["week-statistics-core-progress"])}>
+            <div className={classname("progress-bar-wrapper")}>
+              <ProgressBar
+                className={classname("progress-bar")}
+                currentLevel={coreMissionComplete}
+                // currentLevel={0.5}
+              ></ProgressBar>
+            </div>
+            <div
+              className={classname(["week-statistics-core-progress-percent"])}
+            >
+              {coreMissionComplete}%
+            </div>
+          </div>
+        </div>
+        <div className={classname(["week-statistics-core"])}>
+          <div className={classname(["week-statistics-core-title", "sub18"])}>
+            주간 미션 달성률{" "}
+          </div>
+          <div className={classname(["week-statistics-core-sub", "cap12"])}>
+            A B C D의 달성률{" "}
+          </div>
+          <div className={classname(["week-statistics-core-progress"])}>
+            <div className={classname("progress-bar-wrapper")}>
+              <ProgressBar
+                className={classname("progress-bar")}
+                currentLevel={weeklyMissionComplete}
+              ></ProgressBar>
+            </div>
+            <div
+              className={classname(["week-statistics-core-progress-percent"])}
+            >
+              {weeklyMissionComplete}%
+            </div>
+          </div>
+        </div>
+        <div className={classname(["week-statistics-core"])}>
+          <div className={classname(["week-statistics-core-title", "sub18"])}>
+            이번 주 미션 달성률{" "}
+          </div>
+          <div className={classname(["week-statistics-core-sub", "cap12"])}>
+            핵심 미션 달성률 + 주간 미션 달성률 / 2 (총 평균)
+          </div>
+          <div className={classname(["week-statistics-core-progress"])}>
+            <div className={classname("progress-bar-wrapper")}>
+              <ProgressBar
+                className={classname("progress-bar")}
+                // maxLevel={100}
+                currentLevel={allAverageComplete}
+              ></ProgressBar>
+            </div>
+            <div
+              className={classname(["week-statistics-core-progress-percent"])}
+            >
+              {allAverageComplete}%
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {isSOpen && (
+        <MobileBottomSheetS
+          className={classname("side-bar")}
+          close={close}
+          headerRef={headerRef}
+        />
+      )}
+      {isDayOpen && (
+        <DayBottomSheet
+          className={classname("side-bar")}
+          dayNum={dayNum}
+          close={closeDay}
+        />
+      )}
+      {isUDSOpened && (
+        <BottomSheetStype
+          className={classname("side-bar")}
+          data={pickData}
+          close={closeUDS}
+        />
+      )}
+      {isUDOpend && (
+        <MobileBottomSheetUD
+          className={classname("side-bar")}
+          close={UDclose}
+          data={pickData}
+        />
+      )}
+    </div>
   );
 }

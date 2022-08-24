@@ -111,7 +111,7 @@ export default function Board({
           let temp_repeatLastDay = moment(repeatLastDay);
 
           let pickIsComplete = [...isRepeatComplete];
-          let count;
+          let count = 0;
           let realStartDate = moment(startDate);
           let realEndDate = moment(endDate);
           if (
@@ -119,16 +119,16 @@ export default function Board({
             moment(endDate).format("hh:mm:ss")
           ) {
             temp_repeatLastDay = moment(repeatLastDay).add(1, "d");
-            temp_startDate = moment(startDate).subtract(1, "d");
-            temp_endDate = moment(endDate).subtract(1, "d");
+            temp_startDate = moment(startDate).subtract(9, "h");
+            temp_endDate = moment(endDate).subtract(9, "h");
           } else {
             temp_repeatLastDay = moment(repeatLastDay).add(1, "d");
-            temp_startDate = moment(startDate).subtract(1, "d");
-            temp_endDate = moment(endDate).subtract(1, "d");
+            temp_startDate = moment(startDate).subtract(9, "h");
+            temp_endDate = moment(endDate).subtract(9, "h");
           }
 
           while (temp_startDate <= temp_repeatLastDay) {
-            [...isRepeatComplete].forEach((e, i) => {
+            [...repeatDay].forEach((e, i) => {
               if (`${e}` === temp_startDate.format("d")) {
                 let temp = {
                   color,
@@ -148,9 +148,10 @@ export default function Board({
                 };
                 temp.startDate = temp_startDate;
                 temp.endDate = temp_endDate;
-                temp.count = i;
-                temp.isComplete = pickIsComplete[i] === "0" ? false : true;
+                temp.count = count;
+                temp.isComplete = pickIsComplete[count] === "0" ? false : true;
                 result.push(temp);
+                count++;
               }
             });
             temp_startDate = moment(temp_startDate).add(1, "d");
@@ -199,22 +200,29 @@ export default function Board({
       })
       .value();
 
-    console.log(createdList);
-
     let allList = [...createdList, ...createdUnrepeatList].filter((v) => {
-      if (
-        weekOfMonth(moment(v.startDate).subtract("9", "h")) ===
-        weekOfMonth(moment(Pickmonth))
-      ) {
+      let itemWeekOfMonth =
+        weekOfMonth(moment(v.startDate).subtract("9", "h")) === 0
+          ? weekOfMonth(moment(v.startDate).subtract("9", "h").day(0))
+          : weekOfMonth(moment(v.startDate).subtract("9", "h"));
+      let pickWeekOfMonth =
+        weekOfMonth(moment(Pickmonth)) === 0
+          ? weekOfMonth(moment(Pickmonth).day(0))
+          : weekOfMonth(moment(Pickmonth));
+      if (itemWeekOfMonth === pickWeekOfMonth) {
         return true;
       } else {
         return false;
       }
     });
 
+    let temp = allList.map((v) =>
+      moment(v.startDate).format("YYYY-MM-DD HH:mm:ss")
+    );
+
     let SunFilter = allList.filter(
       (v) =>
-        moment(v.startDate).format("YYYY-MM-DD") ===
+        moment(v.startDate).subtract(9, "h").format("YYYY-MM-DD") ===
         moment(Pickmonth).day(0).format("YYYY-MM-DD")
     );
 
@@ -226,7 +234,7 @@ export default function Board({
 
     let MonFilter = allList.filter(
       (v) =>
-        moment(v.startDate).format("YYYY-MM-DD") ===
+        moment(v.startDate).subtract(9, "h").format("YYYY-MM-DD") ===
         moment(Pickmonth).day(1).format("YYYY-MM-DD")
     );
 
@@ -238,7 +246,7 @@ export default function Board({
 
     let TueFilter = allList.filter(
       (v) =>
-        moment(v.startDate).format("YYYY-MM-DD") ===
+        moment(v.startDate).subtract(9, "h").format("YYYY-MM-DD") ===
         moment(Pickmonth).day(2).format("YYYY-MM-DD")
     );
 
@@ -250,7 +258,7 @@ export default function Board({
 
     let WedFilter = allList.filter(
       (v) =>
-        moment(v.startDate).format("YYYY-MM-DD") ===
+        moment(v.startDate).subtract(9, "h").format("YYYY-MM-DD") ===
         moment(Pickmonth).day(3).format("YYYY-MM-DD")
     );
 
@@ -262,7 +270,7 @@ export default function Board({
 
     let ThuFilter = allList.filter(
       (v) =>
-        moment(v.startDate).format("YYYY-MM-DD") ===
+        moment(v.startDate).subtract(9, "h").format("YYYY-MM-DD") ===
         moment(Pickmonth).day(4).format("YYYY-MM-DD")
     );
 
@@ -273,7 +281,7 @@ export default function Board({
     let Thu = [...undoneThuList, ...isdoneThuList];
     let FriFilter = allList.filter(
       (v) =>
-        moment(v.startDate).format("YYYY-MM-DD") ===
+        moment(v.startDate).subtract(9, "h").format("YYYY-MM-DD") ===
         moment(Pickmonth).day(5).format("YYYY-MM-DD")
     );
     let [isdoneFriList, undoneFriList] = _(FriFilter)
@@ -283,7 +291,7 @@ export default function Board({
     let Fri = [...undoneFriList, ...isdoneFriList];
     let SatFilter = allList.filter(
       (v) =>
-        moment(v.startDate).format("YYYY-MM-DD") ===
+        moment(v.startDate).subtract(9, "h").format("YYYY-MM-DD") ===
         moment(Pickmonth).day(6).format("YYYY-MM-DD")
     );
     let [isdoneSatList, undoneSatList] = _(SatFilter)

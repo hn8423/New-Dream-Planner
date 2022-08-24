@@ -44,6 +44,7 @@ export default function DatePickers({ pickDate, setDate }) {
         id={id}
         onClick={onClick}
         ref={ref}
+        readOnly
       />
     )
   );

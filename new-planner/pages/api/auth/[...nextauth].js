@@ -1,15 +1,8 @@
 import NextAuth from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
-import { PrismaClient } from "@prisma/client";
-import {
-  GOOGLE_CLIENT_ID,
-  GOOGLE_CLIENT_SECRET,
-  NEXTAUTH_SECRET,
-} from "../../../utill/dotenv";
 import KakaoProvider from "next-auth/providers/kakao";
-
-const prisma = new PrismaClient();
+import prisma from "lib/prisma";
 
 export default NextAuth({
   adapter: PrismaAdapter(prisma),
@@ -60,9 +53,12 @@ export default NextAuth({
           where: { id: token.userId },
           include: { accounts: { select: { type: true } } },
         });
-        const { id, name, email, emailVerified } = user;
+        const { id, name /* , email, emailVerified  */ } = user;
         const { type } = user.accounts;
-        session.user = { id, name, email, emailVerified: !!emailVerified };
+        session.user = {
+          id,
+          name /* , email, emailVerified: !!emailVerified  */,
+        };
       }
       return session;
     },

@@ -27,6 +27,7 @@ export default function TimePickers({ pick, setPick }) {
         id={id}
         onClick={onClick}
         ref={ref}
+        readOnly
       />
     )
   );
