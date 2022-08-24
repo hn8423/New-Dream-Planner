@@ -306,7 +306,7 @@ export default function Board({
     // startDate에서 repeatLastDay 까지 일정 가져오기
     // 요일별 숫자로 체크 해서 해당 요일 반복 된 것 만 필터링
     // 새롭게 data 값에 반복된 값들 추가된 값 넣기
-  }, [scheduleLists, Pickmonth]);
+  }, [scheduleLists, weekOfMonth, Pickmonth]);
 
   // useEffect(() => {
   //
@@ -348,6 +348,8 @@ export default function Board({
       }
     },
     [
+      weekOfMonth,
+      Pickmonth,
       lookInsideSun,
       lookInsideMon,
       lookInsideTue,
@@ -355,6 +357,7 @@ export default function Board({
       lookInsideThu,
       lookInsideFri,
       lookInsideSat,
+      router,
     ]
   );
 
@@ -505,7 +508,7 @@ export default function Board({
       });
       return list;
     };
-  }, [plan, clickedList, Pickmonth]);
+  }, [plan, clickedList, updateStype, UDopen, router]);
 
   return (
     <>
