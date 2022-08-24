@@ -265,6 +265,7 @@ export default function BottomSheetStype({ className, close, data }) {
 
   const DeleteSchedule = useCallback(
     async function onClickDelete() {
+      clickClose();
       let result = await req2srv.deletePlan({
         id: appointmentItem.id,
       });
@@ -273,7 +274,7 @@ export default function BottomSheetStype({ className, close, data }) {
       close();
       router.reload();
     },
-    [appointmentItem.id, close, router, title]
+    [appointmentItem.id, clickClose, close, router, title]
   );
 
   // renderMap

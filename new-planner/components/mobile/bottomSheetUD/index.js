@@ -360,6 +360,7 @@ export default function MobileBottomSheet({ className, close, data }) {
       } else {
         itemId = appointmentItem.id;
       }
+      clickClose();
 
       let result = await req2srv.deletePlan({
         id: itemId,
@@ -369,7 +370,14 @@ export default function MobileBottomSheet({ className, close, data }) {
       close();
       router.reload();
     },
-    [appointmentItem, close, router, title]
+    [
+      appointmentItem.id,
+      appointmentItem.realId,
+      clickClose,
+      close,
+      router,
+      title,
+    ]
   );
 
   // renderMap
