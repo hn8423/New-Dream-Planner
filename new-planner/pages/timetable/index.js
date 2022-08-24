@@ -208,6 +208,7 @@ export default function TimeTable({ scheduleList }) {
   function open() {
     setOpened(true);
   }
+
   function close() {
     setOpened(false);
   }
@@ -221,6 +222,10 @@ export default function TimeTable({ scheduleList }) {
 
   const AppointmentClick = (v) => {
     return () => {
+      if (v.type === "S") {
+        alert("S 플랜은 주간 탭에서 수정하세요");
+        return;
+      }
       setPickData(v);
       setUDOpened(true);
     };
@@ -234,7 +239,7 @@ export default function TimeTable({ scheduleList }) {
         backgroundColor: data.color,
         borderRadius: "8px",
       }}
-      onClick={data.type !== "S" ? AppointmentClick(data) : () => {}}
+      onClick={AppointmentClick(data)}
     >
       {children}
     </Appointments.Appointment>
