@@ -195,16 +195,6 @@ export default function MobileBottomSheet({ className, close, data }) {
           }
         }
 
-        let repeatComplete;
-        if (
-          appointmentItem.isRepeatComplete.length === count &&
-          repeatDay === appointmentItem.repeatDay
-        ) {
-          repeatComplete = appointmentItem.isRepeatComplete;
-        } else {
-          repeatComplete = new Array(count).fill("0").join("");
-        }
-
         let itemId;
         if (appointmentItem.realId) {
           itemId = appointmentItem.realId;
@@ -266,6 +256,12 @@ export default function MobileBottomSheet({ className, close, data }) {
             type: pickTimeMetrix,
           });
         } else if (isAllDay && isRepeat) {
+          let repeatComplete;
+          if (repeatDay === appointmentItem.repeatDay) {
+            repeatComplete = appointmentItem.isRepeatComplete;
+          } else {
+            repeatComplete = new Array(count).fill("0").join("");
+          }
           let result = await req2srv.updatePlan({
             id: itemId,
             startDate: new Date(
@@ -297,6 +293,12 @@ export default function MobileBottomSheet({ className, close, data }) {
             isRepeatComplete: repeatComplete,
           });
         } else if (!isAllDay && isRepeat) {
+          let repeatComplete;
+          if (repeatDay === appointmentItem.repeatDay) {
+            repeatComplete = appointmentItem.isRepeatComplete;
+          } else {
+            repeatComplete = new Array(count).fill("0").join("");
+          }
           let result = await req2srv.updatePlan({
             id: itemId,
             startDate: new Date(
