@@ -2,11 +2,13 @@ import style from "./index.module.scss";
 import { classOption, enterToBr } from "utill";
 import { useEffect, useMemo, useCallback, useState, useRef } from "react";
 const classname = classOption(style);
-import _ from "lodash";
+import _, { subtract } from "lodash";
 import moment from "moment";
 import req2srv from "lib/req2srv/weekly";
 import req2srvPlan from "lib/req2srv/plan";
 import { useRouter } from "next/router";
+
+const weekOfMonth = (m) => m.week() - moment(m).startOf("month").week();
 
 /**
  * @type {(props:{missionText: (import('@prisma/client').Mission)[]
@@ -21,33 +23,53 @@ export default function Board({
   weekOfMonth,
   updateStype,
   UDopen,
+  Pickmonth,
 }) {
   //data
   //data
   //data
-  const item = useRef(null);
   const router = useRouter();
-  const [lookInsideSun, setLookSun] = useState(
-    lookInsideText.length === 0 ? "" : lookInsideText[0].lookInsideSun
-  );
-  const [lookInsideMon, setLookMon] = useState(
-    lookInsideText.length === 0 ? "" : lookInsideText[0].lookInsideMon
-  );
-  const [lookInsideTue, setLookTue] = useState(
-    lookInsideText.length === 0 ? "" : lookInsideText[0].lookInsideTue
-  );
-  const [lookInsideWed, setLookWed] = useState(
-    lookInsideText.length === 0 ? "" : lookInsideText[0].lookInsideWed
-  );
-  const [lookInsideThu, setLookThu] = useState(
-    lookInsideText.length === 0 ? "" : lookInsideText[0].lookInsideThu
-  );
-  const [lookInsideFri, setLookFri] = useState(
-    lookInsideText.length === 0 ? "" : lookInsideText[0].lookInsideFri
-  );
-  const [lookInsideSat, setLookSat] = useState(
-    lookInsideText.length === 0 ? "" : lookInsideText[0].lookInsideSat
-  );
+  const [lookInsideSun, setLookSun] = useState("");
+  const [lookInsideMon, setLookMon] = useState("");
+  const [lookInsideTue, setLookTue] = useState("");
+  const [lookInsideWed, setLookWed] = useState("");
+  const [lookInsideThu, setLookThu] = useState("");
+  const [lookInsideFri, setLookFri] = useState("");
+  const [lookInsideSat, setLookSat] = useState("");
+
+  useEffect(() => {
+    if (lookInsideText.length !== 0) {
+      setLookSun(
+        lookInsideText.length === 0 ? "" : lookInsideText[0].lookInsideSun
+      );
+      setLookMon(
+        lookInsideText.length === 0 ? "" : lookInsideText[0].lookInsideMon
+      );
+      setLookTue(
+        lookInsideText.length === 0 ? "" : lookInsideText[0].lookInsideTue
+      );
+      setLookWed(
+        lookInsideText.length === 0 ? "" : lookInsideText[0].lookInsideWed
+      );
+      setLookThu(
+        lookInsideText.length === 0 ? "" : lookInsideText[0].lookInsideThu
+      );
+      setLookFri(
+        lookInsideText.length === 0 ? "" : lookInsideText[0].lookInsideFri
+      );
+      setLookSat(
+        lookInsideText.length === 0 ? "" : lookInsideText[0].lookInsideSat
+      );
+    } else {
+      setLookSun("");
+      setLookMon("");
+      setLookTue("");
+      setLookWed("");
+      setLookThu("");
+      setLookFri("");
+      setLookSat("");
+    }
+  }, [lookInsideText]);
 
   //function
   //function
@@ -61,6 +83,7 @@ export default function Board({
   //memo
   //memo
   //memo
+
   const plan = useMemo(() => {
     let [reapeatList, unReapeatList] = _(scheduleLists)
       .partition((v) => v.isrepeat)
@@ -88,7 +111,7 @@ export default function Board({
           let temp_repeatLastDay = moment(repeatLastDay);
 
           let pickIsComplete = [...isRepeatComplete];
-          let count;
+          let count = 0;
           let realStartDate = moment(startDate);
           let realEndDate = moment(endDate);
           if (
@@ -96,12 +119,12 @@ export default function Board({
             moment(endDate).format("hh:mm:ss")
           ) {
             temp_repeatLastDay = moment(repeatLastDay).add(1, "d");
-            temp_startDate = moment(startDate).subtract(1, "d");
-            temp_endDate = moment(endDate).subtract(1, "d");
+            temp_startDate = moment(startDate).subtract(9, "h");
+            temp_endDate = moment(endDate).subtract(9, "h");
           } else {
             temp_repeatLastDay = moment(repeatLastDay).add(1, "d");
-            temp_startDate = moment(startDate).subtract(1, "d");
-            temp_endDate = moment(endDate).subtract(1, "d");
+            temp_startDate = moment(startDate).subtract(9, "h");
+            temp_endDate = moment(endDate).subtract(9, "h");
           }
 
           while (temp_startDate <= temp_repeatLastDay) {
@@ -125,9 +148,10 @@ export default function Board({
                 };
                 temp.startDate = temp_startDate;
                 temp.endDate = temp_endDate;
-                temp.count = i;
-                temp.isComplete = pickIsComplete[i] === "0" ? false : true;
+                temp.count = count;
+                temp.isComplete = pickIsComplete[count] === "0" ? false : true;
                 result.push(temp);
+                count++;
               }
             });
             temp_startDate = moment(temp_startDate).add(1, "d");
@@ -176,12 +200,30 @@ export default function Board({
       })
       .value();
 
-    let allList = [...createdList, ...createdUnrepeatList];
+    let allList = [...createdList, ...createdUnrepeatList].filter((v) => {
+      let itemWeekOfMonth =
+        weekOfMonth(moment(v.startDate).subtract("9", "h")) === 0
+          ? weekOfMonth(moment(v.startDate).subtract("9", "h").day(0))
+          : weekOfMonth(moment(v.startDate).subtract("9", "h"));
+      let pickWeekOfMonth =
+        weekOfMonth(moment(Pickmonth)) === 0
+          ? weekOfMonth(moment(Pickmonth).day(0))
+          : weekOfMonth(moment(Pickmonth));
+      if (itemWeekOfMonth === pickWeekOfMonth) {
+        return true;
+      } else {
+        return false;
+      }
+    });
+
+    let temp = allList.map((v) =>
+      moment(v.startDate).format("YYYY-MM-DD HH:mm:ss")
+    );
 
     let SunFilter = allList.filter(
       (v) =>
-        moment(v.startDate).format("YYYY-MM-DD") ===
-        moment().day(0).format("YYYY-MM-DD")
+        moment(v.startDate).subtract(9, "h").format("YYYY-MM-DD") ===
+        moment(Pickmonth).day(0).format("YYYY-MM-DD")
     );
 
     let [isdoneSunList, undoneSunList] = _(SunFilter)
@@ -192,8 +234,8 @@ export default function Board({
 
     let MonFilter = allList.filter(
       (v) =>
-        moment(v.startDate).format("YYYY-MM-DD") ===
-        moment().day(1).format("YYYY-MM-DD")
+        moment(v.startDate).subtract(9, "h").format("YYYY-MM-DD") ===
+        moment(Pickmonth).day(1).format("YYYY-MM-DD")
     );
 
     let [isdoneMonList, undoneMonList] = _(MonFilter)
@@ -204,8 +246,8 @@ export default function Board({
 
     let TueFilter = allList.filter(
       (v) =>
-        moment(v.startDate).format("YYYY-MM-DD") ===
-        moment().day(2).format("YYYY-MM-DD")
+        moment(v.startDate).subtract(9, "h").format("YYYY-MM-DD") ===
+        moment(Pickmonth).day(2).format("YYYY-MM-DD")
     );
 
     let [isdoneTueList, undoneTueList] = _(TueFilter)
@@ -216,8 +258,8 @@ export default function Board({
 
     let WedFilter = allList.filter(
       (v) =>
-        moment(v.startDate).format("YYYY-MM-DD") ===
-        moment().day(3).format("YYYY-MM-DD")
+        moment(v.startDate).subtract(9, "h").format("YYYY-MM-DD") ===
+        moment(Pickmonth).day(3).format("YYYY-MM-DD")
     );
 
     let [isdoneWedList, undoneWedList] = _(WedFilter)
@@ -228,8 +270,8 @@ export default function Board({
 
     let ThuFilter = allList.filter(
       (v) =>
-        moment(v.startDate).format("YYYY-MM-DD") ===
-        moment().day(4).format("YYYY-MM-DD")
+        moment(v.startDate).subtract(9, "h").format("YYYY-MM-DD") ===
+        moment(Pickmonth).day(4).format("YYYY-MM-DD")
     );
 
     let [isdoneThuList, undoneThuList] = _(ThuFilter)
@@ -239,8 +281,8 @@ export default function Board({
     let Thu = [...undoneThuList, ...isdoneThuList];
     let FriFilter = allList.filter(
       (v) =>
-        moment(v.startDate).format("YYYY-MM-DD") ===
-        moment().day(5).format("YYYY-MM-DD")
+        moment(v.startDate).subtract(9, "h").format("YYYY-MM-DD") ===
+        moment(Pickmonth).day(5).format("YYYY-MM-DD")
     );
     let [isdoneFriList, undoneFriList] = _(FriFilter)
       .partition((v) => v.isComplete)
@@ -249,8 +291,8 @@ export default function Board({
     let Fri = [...undoneFriList, ...isdoneFriList];
     let SatFilter = allList.filter(
       (v) =>
-        moment(v.startDate).format("YYYY-MM-DD") ===
-        moment().day(6).format("YYYY-MM-DD")
+        moment(v.startDate).subtract(9, "h").format("YYYY-MM-DD") ===
+        moment(Pickmonth).day(6).format("YYYY-MM-DD")
     );
     let [isdoneSatList, undoneSatList] = _(SatFilter)
       .partition((v) => v.isComplete)
@@ -264,7 +306,12 @@ export default function Board({
     // startDate에서 repeatLastDay 까지 일정 가져오기
     // 요일별 숫자로 체크 해서 해당 요일 반복 된 것 만 필터링
     // 새롭게 data 값에 반복된 값들 추가된 값 넣기
-  }, [scheduleLists]);
+  }, [scheduleLists, Pickmonth]);
+
+  // useEffect(() => {
+  //
+  // }, [plan]);
+
   //function
   //function
   //function
@@ -273,9 +320,19 @@ export default function Board({
     async function clickChange() {
       try {
         const result = await req2srv.changeLookInside({
-          year: moment().format("YYYY"),
-          month: moment().format("M"),
-          week: String(weekOfMonth(moment())),
+          year:
+            weekOfMonth(moment(Pickmonth)) === 0
+              ? moment(Pickmonth).add(0).format("YYYY")
+              : moment(Pickmonth).format("YYYY"),
+          month:
+            weekOfMonth(moment(Pickmonth)) === 0
+              ? moment(Pickmonth).day(0).format("M")
+              : moment(Pickmonth).format("M"),
+          week: String(
+            weekOfMonth(moment(Pickmonth)) === 0
+              ? weekOfMonth(moment(Pickmonth).day(0))
+              : weekOfMonth(moment(Pickmonth))
+          ),
           lookInsideSun,
           lookInsideMon,
           lookInsideTue,
@@ -310,7 +367,6 @@ export default function Board({
 
   const DeleteSchedule = useCallback(() => {
     return async (id) => {
-      // console.log(id);
       let result = await req2srvPlan.deletePlan({
         id: v.id,
       });
@@ -418,7 +474,6 @@ export default function Board({
                 <div
                   className={classname("board-item-right-done")}
                   onClick={async () => {
-                    // console.log(v.isRepeatComplete);
                     if (v.isrepeat) {
                       let arr = [...v.isRepeatComplete];
                       arr[v.count] = "1";
@@ -450,7 +505,7 @@ export default function Board({
       });
       return list;
     };
-  }, [plan, clickedList]);
+  }, [plan, clickedList, Pickmonth]);
 
   return (
     <>

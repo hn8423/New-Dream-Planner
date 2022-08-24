@@ -51,7 +51,7 @@ export default function TimeTable({ scheduleList }) {
   //data
   //data
   //data
-  const [Pickmonth, setPickMonth] = useState(new Date());
+  const [Pickmonth, setPickMonth] = useState(new Date(moment()));
   const isLoading = useSignCheck();
   const [data] = useState(scheduleList);
   const router = useRouter();

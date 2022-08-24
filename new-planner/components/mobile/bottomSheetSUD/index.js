@@ -352,11 +352,6 @@ export default function BottomSheetStype({ className, close, data }) {
         0
       );
       setRepeatLastDay(innerDateLastDate);
-      // setRepeatLastDay(
-      //   new Date(
-      //     moment(appointmentItem.repeatLastDay).format("YYYY-MM-DD 00:00:00")
-      //   )
-      // );
       if (
         !!appointmentItem.realStartDate &&
         customRealStartDate.getHours() === customRealEndDate.getHours() &&
@@ -457,9 +452,9 @@ export default function BottomSheetStype({ className, close, data }) {
           )
         );
       } else {
-        // console.log("yes");
-        let customStartDate = new Date(appointmentItem.StartDate);
-        let customEndDate = new Date(appointmentItem.EndDate);
+        let customStartDate = new Date(appointmentItem.startDate);
+        let customEndDate = new Date(appointmentItem.endDate);
+
         setStartDate(
           new Date(moment(appointmentItem.StartDate).subtract(9, "h"))
         );

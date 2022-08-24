@@ -27,7 +27,6 @@ export default async function apiHandler(req, res) {
   } = req.body;
   /**@type {import('next-auth').Session&{user:{id:string}}} */
   const session = await getSession({ req });
-  // console.log(lookInsideTue);
   try {
     const check = await prisma.dailyLookInside.findMany({
       where: { userId: session.user.id, year, month, week },

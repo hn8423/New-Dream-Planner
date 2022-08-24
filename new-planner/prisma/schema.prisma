@@ -5,7 +5,7 @@ generator client {
   provider = "prisma-client-js"
 }
 
-datasource db {
+datasource planner_db {
   provider = "mysql"
   url      = env("DATABASE_URL")
 }
@@ -17,12 +17,12 @@ model Account {
 
   provider                 String?
   providerAccountId        String?
-  refresh_token            String? @db.Text
-  access_token             String? @db.Text
+  refresh_token            String? @planner_db.Text
+  access_token             String? @planner_db.Text
   expires_at               Int?
   token_type               String?
   scope                    String?
-  id_token                 String? @db.Text
+  id_token                 String? @planner_db.Text
   session_state            String?
   refresh_token_expires_in Int?
   oauth_token_secret       String?
@@ -67,10 +67,10 @@ model Mission {
   id String @id @default(cuid())
 
   userId     String  @unique
-  identity   String? @db.Text
-  hurt       String? @db.Text
-  experience String? @db.Text
-  myMission  String? @db.Text
+  identity   String? @planner_db.Text
+  hurt       String? @planner_db.Text
+  experience String? @planner_db.Text
+  myMission  String? @planner_db.Text
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
@@ -78,15 +78,18 @@ model Mission {
 model WeeklyAnalysis {
   id String @id @default(cuid())
 
-  userId      String  @unique
-  year        String?
-  month       String?
-  week        String?
-  coreMission String? @db.Text
-  lookInside  String? @db.Text
-  mainFocus   String? @db.Text
+  userId          String
+  year            String
+  month           String
+  week            String
+  coreMission     String? @planner_db.Text
+  lookInside      String? @planner_db.Text
+  mainFocus       String? @planner_db.Text
+  lifeCoreMission String? @planner_db.Text
+  lifeLookInside  String? @planner_db.Text
+  lifeMainFocus   String? @planner_db.Text
 
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id])
 
   @@unique([year, month, week, userId])
 }
@@ -94,18 +97,18 @@ model WeeklyAnalysis {
 model DailyLookInside {
   id String @id @default(cuid())
 
-  userId String  @unique
+  userId String
   year   String?
   month  String?
   week   String?
 
-  lookInsideSun String? @db.Text
-  lookInsideMon String? @db.Text
-  lookInsideTue String? @db.Text
-  lookInsideWed String? @db.Text
-  lookInsideThu String? @db.Text
-  lookInsideFri String? @db.Text
-  lookInsideSat String? @db.Text
+  lookInsideSun String? @planner_db.Text
+  lookInsideMon String? @planner_db.Text
+  lookInsideTue String? @planner_db.Text
+  lookInsideWed String? @planner_db.Text
+  lookInsideThu String? @planner_db.Text
+  lookInsideFri String? @planner_db.Text
+  lookInsideSat String? @planner_db.Text
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 

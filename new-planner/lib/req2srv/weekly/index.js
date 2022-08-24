@@ -15,7 +15,7 @@ const errHandler = (err) => {
 };
 
 const req2srv = {
-  /**@type {(body:{myMission:string, missionId: string, year: string, month: string, week: string, coreMission: string, lookInside: string, mainFocus: string})} */
+  /**@type {(body:{myMission:string, missionId: string, year: string, month: string, week: string, coreMission: string, lookInside: string, mainFocus: string, lifeCoreMission: string,lifeLookInside: string, lifeMainFocus: string})} */
   async changeWeekly(body) {
     const result = await axios
       .post("/api/user/weekly", body)
@@ -23,7 +23,7 @@ const req2srv = {
     return result.data;
   },
 
-  /**@type {(body:{  year: string, month: string, week: string, lookInsideSun: string, lookInsideMon: string, lookInsideTue: string, lookInsideWed: string, lookInsideThu: string, lookInsideFri: string, lookInsideSat: string})} */
+  /**@type {(body:{  year: string, month: string, week: string, lookInsideSun: string, lookInsideMon: string, lookInsideTue: string, lookInsideWed: string, lookInsideThu: string, lookInsideFri: string, lookInsideSat: string })} */
   async changeLookInside(body) {
     const result = await axios
       .post("/api/user/lookinside", body)

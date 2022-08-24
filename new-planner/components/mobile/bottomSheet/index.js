@@ -6,6 +6,7 @@ import _ from "lodash";
 import DatePickers from "components/datepicker";
 import TimePickers from "components/timepicker";
 import req2srv from "lib/req2srv/plan";
+import moment from "moment";
 
 const classname = classOption(style);
 
@@ -16,7 +17,7 @@ export default function MobileBottomSheet({ className, close }) {
   const [isClosing, setClosing] = useState(false);
   const [isAllDay, setIsAllDay] = useState(false);
   const [isRepeat, setIsRepeat] = useState(false);
-  const [isDatePick, setIsDatePick] = useState(false);
+  const [isDatePick, setIsDatePick] = useState(true);
   const [day, setDay] = useState([
     false,
     false,
@@ -58,6 +59,7 @@ export default function MobileBottomSheet({ className, close }) {
   // method
   // method
   // method
+  // console.log("0000000000000000000000".length);
 
   const setTargetValue = (fn) => {
     return (e) => {
@@ -162,7 +164,35 @@ export default function MobileBottomSheet({ className, close }) {
           })
           .join("");
 
-        let repeatComplete = new Array(repeatDay.length).fill("0").join("");
+        let date1 = moment(startDate).hour(0).minute(0); // 2017-11-30
+        let date2 = moment(repeatLastDay).hour(0).minute(0); // 2017-12-6
+
+        let count = 1;
+
+        let repeatDayArray = day.map((v, i) => {
+          if (v === true) {
+            return i;
+          } else {
+            // return;
+          }
+        });
+        while (true) {
+          let temp_date = date1;
+          if (temp_date > date2) {
+            break;
+          } else {
+            let tmp = temp_date.day();
+            repeatDayArray.forEach((v) => {
+              if (v === tmp) {
+                count++;
+              }
+            });
+
+            temp_date.add(1, "d");
+          }
+        }
+
+        let repeatComplete = new Array(count).fill("0").join("");
 
         if (!isAllDay && !isRepeat) {
           let result = await req2srv.createPlan({
@@ -174,7 +204,6 @@ export default function MobileBottomSheet({ className, close }) {
               startTime.getMinutes(),
               0,
               0
-              // )
             ),
 
             endDate: new Date(
@@ -302,6 +331,11 @@ export default function MobileBottomSheet({ className, close }) {
     ]
   );
 
+  // useEffect(() => {
+  //   // console.log(moment(repeatLastDay - startDate).duration());
+
+  //   console.log(count);
+  // }, [startDate, repeatLastDay, day]);
   // renderMap
   // renderMap
   // renderMap
@@ -395,16 +429,9 @@ export default function MobileBottomSheet({ className, close }) {
         />
       </div>
       <div className={classname("time-metrix")}>{timeMetrix}</div>
-      <div className={classname("pick-date")} onClick={onClickDatePick}>
+      <div className={classname("pick-date")}>
         <div className={classname("pick-date-img")}></div>
         <div className={classname("pick-date-text")}>날짜를 선택해주세요</div>
-        <div className={classname("pick-date-down")}>
-          {!isDatePick ? (
-            <img src="/images/bottom/down.png" alt="down" />
-          ) : (
-            <img src="/images/bottom/up.png" alt="up" />
-          )}
-        </div>
       </div>
       {isDatePick && (
         <div className={classname("pick-control")}>
