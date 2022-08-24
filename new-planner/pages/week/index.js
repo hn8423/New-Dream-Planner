@@ -296,7 +296,7 @@ export default function Week({
     // startDate에서 repeatLastDay 까지 일정 가져오기
     // 요일별 숫자로 체크 해서 해당 요일 반복 된 것 만 필터링
     // 새롭게 data 값에 반복된 값들 추가된 값 넣기
-  }, [scheduleLists]);
+  }, [Pickmonth, scheduleList]);
 
   // useEffect(() => {
   //   console.log(moment(Pickmonth).day(0).format("YYYY-MM-DD"));
@@ -487,7 +487,7 @@ export default function Week({
     });
 
     return result;
-  }, [Pickmonth]);
+  }, [Pickmonth, sItem]);
 
   return (
     <div
