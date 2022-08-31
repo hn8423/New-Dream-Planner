@@ -123,8 +123,8 @@ export default function Board({
             temp_endDate = moment(endDate).subtract(9, "h");
           } else {
             temp_repeatLastDay = moment(repeatLastDay).add(1, "d");
-            temp_startDate = moment(startDate).subtract(9, "h");
-            temp_endDate = moment(endDate).subtract(9, "h");
+            temp_startDate = moment(startDate).subtract(6, "h");
+            temp_endDate = moment(endDate).subtract(6, "h");
           }
 
           while (temp_startDate <= temp_repeatLastDay) {
@@ -185,7 +185,8 @@ export default function Board({
             temp_endDate = moment(endDate).subtract(1, "d");
             // temp_startDate = moment(startDate).subtract(1, "d");
           } else {
-            temp_endDate = moment(endDate).subtract(9, "h");
+            temp_startDate = moment(startDate).subtract(6, "h");
+            temp_endDate = moment(endDate).subtract(6, "h");
           }
 
           let realStartDate = moment(startDate);
