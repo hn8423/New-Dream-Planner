@@ -196,8 +196,15 @@ export default function Week({
     let filter = lookInsideText.filter((v) => {
       if (
         v.year === moment(Pickmonth).format("YYYY") &&
-        v.month === moment(Pickmonth).format("M") &&
-        v.week === String(weekOfMonth(moment(Pickmonth)))
+        (v.month === weekOfMonth(moment(Pickmonth))) === 0
+          ? moment(Pickmonth).day(0).format("M")
+          : moment(Pickmonth).format("M") &&
+            v.week ===
+              String(
+                weekOfMonth(moment(Pickmonth)) === 0
+                  ? weekOfMonth(moment(Pickmonth).day(0))
+                  : weekOfMonth(moment(Pickmonth))
+              )
       ) {
         return true;
       }
