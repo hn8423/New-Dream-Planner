@@ -123,8 +123,8 @@ export default function Board({
             temp_endDate = moment(endDate).subtract(9, "h");
           } else {
             temp_repeatLastDay = moment(repeatLastDay).add(1, "d");
-            temp_startDate = moment(startDate).subtract(6, "h");
-            temp_endDate = moment(endDate).subtract(6, "h");
+            temp_startDate = moment(startDate).subtract(7, "h");
+            temp_endDate = moment(endDate).subtract(7, "h");
           }
 
           while (temp_startDate <= temp_repeatLastDay) {
@@ -485,17 +485,17 @@ export default function Board({
     };
   };
 
-  const DeleteSchedule = useCallback(() => {
-    return async (id) => {
-      let result = await req2srvPlan.deletePlan({
-        id: v.id,
-      });
+  // const DeleteSchedule = useCallback(() => {
+  //   return async (id) => {
+  //     let result = await req2srvPlan.deletePlan({
+  //       id: v.id,
+  //     });
 
-      alert(`${v.title}일정이 삭제 되었습니다.`);
+  //     alert(`${v.title}일정이 삭제 되었습니다.`);
 
-      router.reload();
-    };
-  }, [router]);
+  //     router.reload();
+  //   };
+  // }, [router]);
 
   // effect
   // effect

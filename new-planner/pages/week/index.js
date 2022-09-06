@@ -793,6 +793,7 @@ export default function Week({
           className={classname("side-bar")}
           dayNum={dayNum}
           close={closeDay}
+          Pickmonth={Pickmonth}
         />
       )}
       {isUDSOpened && (
