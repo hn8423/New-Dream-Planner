@@ -10,7 +10,12 @@ import moment from "moment";
 
 const classname = classOption(style);
 
-export default function DayBottomSheet({ className, close, dayNum }) {
+export default function DayBottomSheet({
+  className,
+  close,
+  dayNum,
+  Pickmonth,
+}) {
   // data
   // data
   // data
@@ -27,8 +32,12 @@ export default function DayBottomSheet({ className, close, dayNum }) {
     false,
     false,
   ]);
-  const [repeatLastDay, setRepeatLastDay] = useState(new Date());
-  const [startDate, setStartDate] = useState(new Date(moment().day(dayNum)));
+  const [repeatLastDay, setRepeatLastDay] = useState(
+    new Date(moment(Pickmonth).day(dayNum))
+  );
+  const [startDate, setStartDate] = useState(
+    new Date(moment(Pickmonth).day(dayNum))
+  );
   const [startTime, setStartTime] = useState(new Date());
   const [endTime, setEndTime] = useState(new Date());
   const [pickTimeMetrix, setPickTimeMetrix] = useState("");
