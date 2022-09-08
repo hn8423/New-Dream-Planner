@@ -12,7 +12,8 @@ import {
 import { useRouter } from "next/router";
 import { getSession } from "next-auth/react";
 
-import { useEffect, useMemo, useState } from "react";
+import req2srvReadSchedule from "lib/req2srv/weekly/refresh";
+import { useEffect, useMemo, useState, useCallback } from "react";
 import MobileBottomSheet from "components/mobile/bottomSheet";
 import MobileBottomSheetUD from "components/mobile/bottomSheetUD";
 import _, { add } from "lodash";
@@ -33,30 +34,39 @@ export async function getServerSideProps(ctx) {
 
     return {
       props: {
-        scheduleList: JSON.parse(JSON.stringify(scheduleList)),
+        session,
       },
     };
   } catch (err) {
     console.log(err);
-    return {
-      props: {
-        scheduleList: [],
-      },
-    };
+    return {};
   }
 }
 
-export default function Month({ scheduleList }) {
+export default function Month({ session }) {
   //data
   //data
   //data
+
   const [Pickmonth, setPickMonth] = useState(new Date(moment()));
   const isLoading = useSignCheck();
-  const [data] = useState(scheduleList);
+  const [data, setData] = useState([]);
   const router = useRouter();
   const [isOpend, setOpened] = useState(false);
   const [isUDOpend, setUDOpened] = useState(false);
   const [pickData, setPickData] = useState({});
+  const refreshSchedule = useCallback(() => {
+    req2srvReadSchedule
+      .readSchedule({
+        userId: session.user.id,
+      })
+      .then((v) => {
+        setData(v);
+      });
+  }, [session.user.id]);
+  useEffect(() => {
+    refreshSchedule();
+  }, [refreshSchedule]);
 
   const plan = useMemo(() => {
     let [reapeatList, unReapeatList] = _(data)
@@ -253,13 +263,18 @@ export default function Month({ scheduleList }) {
         </Scheduler>
       </Paper>
       {isOpend && (
-        <MobileBottomSheet className={classname("side-bar")} close={close} />
+        <MobileBottomSheet
+          className={classname("side-bar")}
+          close={close}
+          refreshSchedule={refreshSchedule}
+        />
       )}
       {isUDOpend && (
         <MobileBottomSheetUD
           className={classname("side-bar")}
           close={UDclose}
           data={pickData}
+          refreshSchedule={refreshSchedule}
         />
       )}
     </div>

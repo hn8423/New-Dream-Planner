@@ -15,6 +15,7 @@ export default function DayBottomSheet({
   close,
   dayNum,
   Pickmonth,
+  refreshSchedule,
 }) {
   // data
   // data
@@ -321,7 +322,11 @@ export default function DayBottomSheet({
         }
         alert("일정을 등록 했습니다.");
         close();
-        router.reload();
+        if (refreshSchedule) {
+          refreshSchedule();
+        } else {
+          router.reload();
+        }
       } catch (err) {
         console.log(err);
       }
@@ -334,6 +339,7 @@ export default function DayBottomSheet({
       isAllDay,
       isRepeat,
       pickTimeMetrix,
+      refreshSchedule,
       repeatLastDay,
       router,
       startDate,

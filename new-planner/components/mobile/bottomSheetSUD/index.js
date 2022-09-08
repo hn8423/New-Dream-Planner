@@ -9,7 +9,12 @@ import moment from "moment";
 
 const classname = classOption(style);
 
-export default function BottomSheetStype({ className, close, data }) {
+export default function BottomSheetStype({
+  className,
+  close,
+  data,
+  refreshSchedule,
+}) {
   // data
   // data
   // data
@@ -239,7 +244,11 @@ export default function BottomSheetStype({ className, close, data }) {
         }
         alert("일정이 수정 되었습니다.");
         close();
-        router.reload();
+        if (refreshSchedule) {
+          refreshSchedule();
+        } else {
+          router.reload();
+        }
       } catch (err) {
         console.log(err);
       }
@@ -255,6 +264,7 @@ export default function BottomSheetStype({ className, close, data }) {
       isAllDay,
       isRepeat,
       pickTimeMetrix,
+      refreshSchedule,
       repeatLastDay,
       router,
       startDate,

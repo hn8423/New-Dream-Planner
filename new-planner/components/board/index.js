@@ -24,6 +24,7 @@ export default function Board({
   updateStype,
   UDopen,
   Pickmonth,
+  refreshSchedule,
 }) {
   //data
   //data
@@ -614,8 +615,8 @@ export default function Board({
                     }
 
                     alert(`${v.title}일정 완료하였습니다`);
-
-                    router.reload();
+                    refreshSchedule();
+                    // router.reload();
                   }}
                 >
                   <img src="/images/week/done.png" alt="done" />

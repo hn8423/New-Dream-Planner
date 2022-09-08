@@ -9,6 +9,7 @@ import { getSession } from "next-auth/react";
 import { useEffect, useState, useCallback, useMemo, useRef } from "react";
 
 import req2srv from "lib/req2srv/weekly";
+import req2srvReadSchedule from "lib/req2srv/weekly/refresh";
 import MobileBottomSheetS from "components/mobile/bottomSheetS";
 import DayBottomSheet from "components/mobile/bottomSheetDay";
 import BottomSheetStype from "components/mobile/bottomSheetSUD";
@@ -26,46 +27,35 @@ export async function getServerSideProps(ctx) {
   const session = await getSession(ctx);
 
   try {
-    const [missionText, weeklyText, lookInsideText, scheduleList] =
-      await Promise.all([
-        prisma.mission.findMany({
-          where: {
-            userId: session.user.id,
-          },
-        }),
-        prisma.weeklyAnalysis.findMany({
-          where: {
-            userId: session.user.id,
-            // year: moment().format("YYYY"),
-            // month: moment().format("M"),
-            // week: String(weekOfMonth(moment())),
-          },
-        }),
-        prisma.dailyLookInside.findMany({
-          where: {
-            userId: session.user.id,
-            // year: moment().format("YYYY"),
-            // month: moment().format("M"),
-            // week: String(weekOfMonth(moment())),
-          },
-        }),
-        prisma.schedule.findMany({
-          where: {
-            userId: session.user.id,
-            // startDate: {
-            //   gte: new Date(moment().day(0).hour(0).minute(0).second(0)),
-            //   lt: new Date(moment().day(7).hour(0).minute(0).second(0)),
-            // },
-          },
-        }),
-      ]);
+    const [missionText, weeklyText, lookInsideText] = await Promise.all([
+      prisma.mission.findMany({
+        where: {
+          userId: session.user.id,
+        },
+      }),
+      prisma.weeklyAnalysis.findMany({
+        where: {
+          userId: session.user.id,
+          // year: moment().format("YYYY"),
+          // month: moment().format("M"),
+          // week: String(weekOfMonth(moment())),
+        },
+      }),
+      prisma.dailyLookInside.findMany({
+        where: {
+          userId: session.user.id,
+          // year: moment().format("YYYY"),
+          // month: moment().format("M"),
+          // week: String(weekOfMonth(moment())),
+        },
+      }),
+    ]);
 
     return {
       props: {
         missionText: JSON.parse(JSON.stringify(missionText)),
         weeklyText: JSON.parse(JSON.stringify(weeklyText)),
         lookInsideText: JSON.parse(JSON.stringify(lookInsideText)),
-        scheduleList: JSON.parse(JSON.stringify(scheduleList)),
         session,
       },
     };
@@ -75,7 +65,6 @@ export async function getServerSideProps(ctx) {
       props: {
         missionText: [],
         weeklyText: [],
-        scheduleList: [],
         lookInsideText: [],
         session,
       },
@@ -94,8 +83,9 @@ export async function getServerSideProps(ctx) {
 export default function Week({
   missionText,
   weeklyText,
-  scheduleList,
+  // scheduleList,
   lookInsideText,
+  session,
 }) {
   const [Pickmonth, setPickMonth] = useState(new Date(moment()));
 
@@ -112,7 +102,7 @@ export default function Week({
   //data
   //data
   //data
-  const [scheduleLists] = useState(scheduleList);
+  const [scheduleList, setScheduleList] = useState([]);
   const router = useRouter();
   const isLoading = useSignCheck();
   const [myMission, setMyMission] = useState(
@@ -124,6 +114,18 @@ export default function Week({
   const [lifeCoreMission, setLifeCoreMission] = useState("");
   const [lifeLookInside, setLifeLookInside] = useState("");
   const [lifeMainFocus, setLifeMainFocus] = useState("");
+  const refreshSchedule = useCallback(() => {
+    req2srvReadSchedule
+      .readSchedule({
+        userId: session.user.id,
+      })
+      .then((v) => {
+        setScheduleList(v);
+      });
+  }, [session.user.id]);
+  useEffect(() => {
+    refreshSchedule();
+  }, [refreshSchedule]);
 
   //memo
   //memo
@@ -317,7 +319,7 @@ export default function Week({
   // }, [Pickmonth]);
 
   const sItem = useMemo(() => {
-    return scheduleLists.filter((v) => {
+    return scheduleList.filter((v) => {
       let itemWeekOfMonth =
         weekOfMonth(moment(v.startDate).subtract("9", "h")) === 0
           ? weekOfMonth(moment(v.startDate).subtract("9", "h").day(0))
@@ -333,7 +335,7 @@ export default function Week({
       }
     });
     // return scheduleList.filter((v) => v.type === "S");
-  }, [scheduleLists, Pickmonth]);
+  }, [scheduleList, Pickmonth]);
 
   const sItemList = useMemo(() => {
     return plan.filter((v) => v.type === "S");
@@ -695,7 +697,7 @@ export default function Week({
         <div className={classname(["week-plan-list"])}>{sPlan}</div>
       </div>
       <Board
-        scheduleLists={scheduleLists}
+        scheduleLists={scheduleList}
         lookInsideText={weeklyLookInSide}
         setDayNum={setDayNum}
         openDay={openDay}
@@ -703,6 +705,7 @@ export default function Week({
         updateStype={updateStype}
         UDopen={UDopen}
         Pickmonth={Pickmonth}
+        refreshSchedule={refreshSchedule}
       />
 
       <div className={classname(["week-statistics"])}>
@@ -786,6 +789,7 @@ export default function Week({
           className={classname("side-bar")}
           close={close}
           headerRef={headerRef}
+          refreshSchedule={refreshSchedule}
         />
       )}
       {isDayOpen && (
@@ -794,6 +798,7 @@ export default function Week({
           dayNum={dayNum}
           close={closeDay}
           Pickmonth={Pickmonth}
+          refreshSchedule={refreshSchedule}
         />
       )}
       {isUDSOpened && (
@@ -801,6 +806,7 @@ export default function Week({
           className={classname("side-bar")}
           data={pickData}
           close={closeUDS}
+          refreshSchedule={refreshSchedule}
         />
       )}
       {isUDOpend && (
@@ -808,6 +814,7 @@ export default function Week({
           className={classname("side-bar")}
           close={UDclose}
           data={pickData}
+          refreshSchedule={refreshSchedule}
         />
       )}
     </div>

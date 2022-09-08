@@ -13,7 +13,8 @@ import {
 import { useRouter } from "next/router";
 import { getSession } from "next-auth/react";
 
-import { useEffect, useMemo, useState } from "react";
+import req2srvReadSchedule from "lib/req2srv/weekly/refresh";
+import { useEffect, useMemo, useState, useCallback } from "react";
 import MobileBottomSheet from "components/mobile/bottomSheet";
 import MobileBottomSheetUD from "components/mobile/bottomSheetUD";
 import _ from "lodash";
@@ -35,6 +36,7 @@ export async function getServerSideProps(ctx) {
     return {
       props: {
         scheduleList: JSON.parse(JSON.stringify(scheduleList)),
+        session,
       },
     };
   } catch (err) {
@@ -47,18 +49,29 @@ export async function getServerSideProps(ctx) {
   }
 }
 
-export default function TimeTable({ scheduleList }) {
+export default function TimeTable({ session }) {
   //data
   //data
   //data
   const [Pickmonth, setPickMonth] = useState(new Date(moment()));
   const isLoading = useSignCheck();
-  const [data] = useState(scheduleList);
+  const [data, setData] = useState([]);
   const router = useRouter();
   const [isOpend, setOpened] = useState(false);
   const [isUDOpend, setUDOpened] = useState(false);
   const [pickData, setPickData] = useState({});
-
+  const refreshSchedule = useCallback(() => {
+    req2srvReadSchedule
+      .readSchedule({
+        userId: session.user.id,
+      })
+      .then((v) => {
+        setData(v);
+      });
+  }, [session.user.id]);
+  useEffect(() => {
+    refreshSchedule();
+  }, [refreshSchedule]);
   const plan = useMemo(() => {
     let [reapeatList, unReapeatList] = _(data)
       .partition((v) => v.isrepeat)
@@ -159,12 +172,15 @@ export default function TimeTable({ scheduleList }) {
           let temp_endDate;
           let temp_repeatLastDay;
 
-          let unrepeatRealStartDate = moment(startDate);
-          let unrepeatRealEndDate = moment(endDate);
+          let realStartDate = moment(startDate);
+          let realEndDate = moment(endDate);
           if (
             moment(startDate).format("HH:mm") ===
             moment(endDate).format("HH:mm")
           ) {
+            temp_startDate = moment(startDate).subtract(1, "d");
+            temp_endDate = moment(endDate).subtract(1, "d");
+
             temp_startDate = moment(startDate).subtract(1, "d");
             temp_endDate = moment(endDate).subtract(1, "d");
           } else {
@@ -183,8 +199,8 @@ export default function TimeTable({ scheduleList }) {
             startDate,
             endDate,
             type,
-            unrepeatRealStartDate,
-            unrepeatRealEndDate,
+            realEndDate,
+            realStartDate,
           };
           temp.startDate = temp_startDate;
           temp.endDate = temp_endDate;
@@ -284,13 +300,18 @@ export default function TimeTable({ scheduleList }) {
         </Scheduler>
       </Paper>
       {isOpend && (
-        <MobileBottomSheet className={classname("side-bar")} close={close} />
+        <MobileBottomSheet
+          className={classname("side-bar")}
+          close={close}
+          refreshSchedule={refreshSchedule}
+        />
       )}
       {isUDOpend && (
         <MobileBottomSheetUD
           className={classname("side-bar")}
           close={UDclose}
           data={pickData}
+          refreshSchedule={refreshSchedule}
         />
       )}
     </div>
