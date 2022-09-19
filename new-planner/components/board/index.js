@@ -460,7 +460,7 @@ export default function Board({
           lookInsideSat,
         });
         alert("Look Inside가 저장되었습니다.");
-        router.reload();
+        // router.reload();
       } catch (err) {
         console.log(err);
       }
@@ -486,25 +486,9 @@ export default function Board({
     };
   };
 
-  // const DeleteSchedule = useCallback(() => {
-  //   return async (id) => {
-  //     let result = await req2srvPlan.deletePlan({
-  //       id: v.id,
-  //     });
-
-  //     alert(`${v.title}일정이 삭제 되었습니다.`);
-
-  //     router.reload();
-  //   };
-  // }, [router]);
-
-  // effect
-  // effect
-  // effect
-
-  //render
-  //render
-  //render
+  //effect
+  //effect
+  //effect
 
   /**
    * @template T
@@ -527,6 +511,10 @@ export default function Board({
       .value();
     setClickedList(result);
   }, [plan]);
+
+  // render
+  // render
+  // render
 
   const boardItem = useMemo(() => {
     return (value) => {
@@ -628,7 +616,7 @@ export default function Board({
       });
       return list;
     };
-  }, [plan, clickedList, updateStype, UDopen, router]);
+  }, [plan, clickedList, updateStype, UDopen, router, refreshSchedule]);
 
   return (
     <>

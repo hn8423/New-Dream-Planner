@@ -314,12 +314,22 @@ export default function Week({
     // 새롭게 data 값에 반복된 값들 추가된 값 넣기
   }, [Pickmonth, scheduleList]);
 
-  // useEffect(() => {
-  //   console.log(moment(Pickmonth).day(0).format("YYYY-MM-DD"));
-  // }, [Pickmonth]);
-
   const sItem = useMemo(() => {
-    return scheduleList.filter((v) => {
+    let weeklySchedule = scheduleList.filter((v) => {
+      if (
+        moment(moment(v.startDate).format("YYYY-MM-DD")).isSameOrAfter(
+          moment(Pickmonth).day(0).format("YYYY-MM-DD")
+        ) &&
+        moment(moment(v.startDate).format("YYYY-MM-DD")).isSameOrBefore(
+          moment(Pickmonth).day(6).format("YYYY-MM-DD")
+        )
+      ) {
+        return true;
+      } else {
+        return false;
+      }
+    });
+    return weeklySchedule.filter((v) => {
       let itemWeekOfMonth =
         weekOfMonth(moment(v.startDate).subtract("9", "h")) === 0
           ? weekOfMonth(moment(v.startDate).subtract("9", "h").day(0))
