@@ -10,6 +10,7 @@ import { useEffect, useState, useCallback, useMemo, useRef } from "react";
 
 import req2srv from "lib/req2srv/weekly";
 import req2srvReadSchedule from "lib/req2srv/weekly/refresh";
+import req2srvReadLookInSide from "lib/req2srv/weekly/lookInSideRefresh";
 import MobileBottomSheetS from "components/mobile/bottomSheetS";
 import DayBottomSheet from "components/mobile/bottomSheetDay";
 import BottomSheetStype from "components/mobile/bottomSheetSUD";
@@ -84,7 +85,7 @@ export default function Week({
   missionText,
   weeklyText,
   // scheduleList,
-  lookInsideText,
+  // lookInsideText,
   session,
 }) {
   const [Pickmonth, setPickMonth] = useState(new Date(moment()));
@@ -102,6 +103,7 @@ export default function Week({
   //data
   //data
   //data
+  const [lookInsideText, setLookInsideText] = useState([]);
   const [scheduleList, setScheduleList] = useState([]);
   const router = useRouter();
   const isLoading = useSignCheck();
@@ -126,6 +128,36 @@ export default function Week({
   useEffect(() => {
     refreshSchedule();
   }, [refreshSchedule]);
+
+  const refreshLookInSide = useCallback(() => {
+    let year = moment(Pickmonth).format("YYYY");
+    let month =
+      weekOfMonth(moment(Pickmonth)) === 0
+        ? moment(Pickmonth).day(0).format("M")
+        : moment(Pickmonth).format("M");
+    let week = String(
+      weekOfMonth(moment(Pickmonth)) === 0
+        ? weekOfMonth(moment(Pickmonth).day(0))
+        : weekOfMonth(moment(Pickmonth))
+    );
+    req2srvReadLookInSide
+      .readLookInSide({
+        userId: session.user.id,
+        year,
+        month,
+        week,
+      })
+      .then((v) => {
+        setLookInsideText(v);
+      });
+  }, [Pickmonth, session.user.id]);
+  useEffect(() => {
+    refreshLookInSide();
+  }, [refreshLookInSide]);
+
+  useEffect(() => {
+    console.log(lookInsideText);
+  }, [lookInsideText]);
 
   //memo
   //memo
@@ -314,12 +346,22 @@ export default function Week({
     // 새롭게 data 값에 반복된 값들 추가된 값 넣기
   }, [Pickmonth, scheduleList]);
 
-  // useEffect(() => {
-  //   console.log(moment(Pickmonth).day(0).format("YYYY-MM-DD"));
-  // }, [Pickmonth]);
-
   const sItem = useMemo(() => {
-    return scheduleList.filter((v) => {
+    let weeklySchedule = scheduleList.filter((v) => {
+      if (
+        moment(moment(v.startDate).format("YYYY-MM-DD")).isSameOrAfter(
+          moment(Pickmonth).day(0).format("YYYY-MM-DD")
+        ) &&
+        moment(moment(v.startDate).format("YYYY-MM-DD")).isSameOrBefore(
+          moment(Pickmonth).day(6).format("YYYY-MM-DD")
+        )
+      ) {
+        return true;
+      } else {
+        return false;
+      }
+    });
+    return weeklySchedule.filter((v) => {
       let itemWeekOfMonth =
         weekOfMonth(moment(v.startDate).subtract("9", "h")) === 0
           ? weekOfMonth(moment(v.startDate).subtract("9", "h").day(0))
