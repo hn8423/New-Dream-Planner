@@ -10,6 +10,7 @@ import { useEffect, useState, useCallback, useMemo, useRef } from "react";
 
 import req2srv from "lib/req2srv/weekly";
 import req2srvReadSchedule from "lib/req2srv/weekly/refresh";
+import req2srvReadLookInSide from "lib/req2srv/weekly/lookInSideRefresh";
 import MobileBottomSheetS from "components/mobile/bottomSheetS";
 import DayBottomSheet from "components/mobile/bottomSheetDay";
 import BottomSheetStype from "components/mobile/bottomSheetSUD";
@@ -84,7 +85,7 @@ export default function Week({
   missionText,
   weeklyText,
   // scheduleList,
-  lookInsideText,
+  // lookInsideText,
   session,
 }) {
   const [Pickmonth, setPickMonth] = useState(new Date(moment()));
@@ -102,6 +103,7 @@ export default function Week({
   //data
   //data
   //data
+  const [lookInsideText, setLookInsideText] = useState([]);
   const [scheduleList, setScheduleList] = useState([]);
   const router = useRouter();
   const isLoading = useSignCheck();
@@ -126,6 +128,36 @@ export default function Week({
   useEffect(() => {
     refreshSchedule();
   }, [refreshSchedule]);
+
+  const refreshLookInSide = useCallback(() => {
+    let year = moment(Pickmonth).format("YYYY");
+    let month =
+      weekOfMonth(moment(Pickmonth)) === 0
+        ? moment(Pickmonth).day(0).format("M")
+        : moment(Pickmonth).format("M");
+    let week = String(
+      weekOfMonth(moment(Pickmonth)) === 0
+        ? weekOfMonth(moment(Pickmonth).day(0))
+        : weekOfMonth(moment(Pickmonth))
+    );
+    req2srvReadLookInSide
+      .readLookInSide({
+        userId: session.user.id,
+        year,
+        month,
+        week,
+      })
+      .then((v) => {
+        setLookInsideText(v);
+      });
+  }, [Pickmonth, session.user.id]);
+  useEffect(() => {
+    refreshLookInSide();
+  }, [refreshLookInSide]);
+
+  useEffect(() => {
+    console.log(lookInsideText);
+  }, [lookInsideText]);
 
   //memo
   //memo

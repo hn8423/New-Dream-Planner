@@ -14,7 +14,7 @@ export default async function apiHandler(req, res) {
     return;
   }
 
-  const { userId } = req.body;
+  const { userId, year, month, week } = req.body;
 
   /**@type {import('next-auth').Session&{user:{id:string}}} */
   const session = await getSession({ req });
@@ -25,10 +25,13 @@ export default async function apiHandler(req, res) {
   }
 
   try {
-    let result = prisma.schedule
+    let result = prisma.dailyLookInside
       .findMany({
         where: {
           userId: userId,
+          year,
+          month,
+          week,
         },
       })
       .then((v) => {
