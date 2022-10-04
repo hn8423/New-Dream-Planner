@@ -85,12 +85,12 @@ export default function MobileBottomSheet({ className, close }) {
   };
 
   const clickClose = useCallback(() => {
-    if (sideBar.current) {
+    if (window.confirm("정말 삭제하시겠습니까? 쓰신 내용은 사라집니다.")) {
       sideBar.current.addEventListener("animationend", () => {
         close();
       });
+      setClosing(true);
     }
-    setClosing(true);
   }, [close]);
 
   const onClickTimeMetrix = (v) => {
