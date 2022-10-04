@@ -7,10 +7,10 @@ const errHandler = (err) => {
 };
 
 const req2srv = {
-  /**@type {(body:{userId: string})} */
-  async readSchedule(body) {
+  /**@type {(body:{userId: string, year: string,month: string,week: string})} */
+  async readText(body) {
     const result = await axios
-      .post("/api/plan/read", body)
+      .post("/api/plan/readText", body)
       .catch((err) => errHandler(err));
     return result.data;
   },

@@ -11,6 +11,7 @@ import { useEffect, useState, useCallback, useMemo, useRef } from "react";
 import req2srv from "lib/req2srv/weekly";
 import req2srvReadSchedule from "lib/req2srv/weekly/refresh";
 import req2srvReadLookInSide from "lib/req2srv/weekly/lookInSideRefresh";
+import req2srvReadText from "lib/req2srv/weekly/textRefresh";
 import MobileBottomSheetS from "components/mobile/bottomSheetS";
 import DayBottomSheet from "components/mobile/bottomSheetDay";
 import BottomSheetStype from "components/mobile/bottomSheetSUD";
@@ -76,8 +77,6 @@ export async function getServerSideProps(ctx) {
 /**
  * @type {(props:{missionText: (import('@prisma/client').Mission)[]
  * weeklyText: (import('@prisma/client').WeeklyAnalysis)[]
- * lookInsideText: (import('@prisma/client').DailyLookInside)[]
- * scheduleList: (import('@prisma/client').Schedule)[]
  * session: commons.session
  * })}
  */
@@ -116,6 +115,50 @@ export default function Week({
   const [lifeCoreMission, setLifeCoreMission] = useState("");
   const [lifeLookInside, setLifeLookInside] = useState("");
   const [lifeMainFocus, setLifeMainFocus] = useState("");
+
+  const refreshText = useCallback(async () => {
+    let year = moment(Pickmonth).format("YYYY");
+    let month =
+      weekOfMonth(moment(Pickmonth)) === 0
+        ? moment(Pickmonth).day(0).format("M")
+        : moment(Pickmonth).format("M");
+    let week = String(
+      weekOfMonth(moment(Pickmonth)) === 0
+        ? weekOfMonth(moment(Pickmonth).day(0))
+        : weekOfMonth(moment(Pickmonth))
+    );
+    let weeklyAnalysisText = await req2srvReadText.readText({
+      userId: session.user.id,
+      year,
+      month,
+      week,
+    });
+    console.log(weeklyAnalysisText);
+    if (weeklyAnalysisText !== []) {
+      setCoreMission(
+        weeklyAnalysisText[0] ? weeklyAnalysisText[0].coreMission : ""
+      );
+      setLookInside(
+        !!weeklyAnalysisText[0] ? weeklyAnalysisText[0].lookInside : ""
+      );
+      setMainFocus(
+        !!weeklyAnalysisText[0] ? weeklyAnalysisText[0].mainFocus : ""
+      );
+      setLifeCoreMission(
+        !!weeklyAnalysisText[0] ? weeklyAnalysisText[0].lifeCoreMission : ""
+      );
+      setLifeLookInside(
+        !!weeklyAnalysisText[0] ? weeklyAnalysisText[0].lifeLookInside : ""
+      );
+      setLifeMainFocus(
+        !!weeklyAnalysisText[0] ? weeklyAnalysisText[0].lifeMainFocus : ""
+      );
+    }
+  }, [Pickmonth, session.user.id]);
+  useEffect(() => {
+    refreshText();
+  }, [refreshText]);
+
   const refreshSchedule = useCallback(() => {
     req2srvReadSchedule
       .readSchedule({
@@ -155,76 +198,9 @@ export default function Week({
     refreshLookInSide();
   }, [refreshLookInSide]);
 
-  useEffect(() => {
-    console.log(lookInsideText);
-  }, [lookInsideText]);
-
   //memo
   //memo
   //memo
-
-  const weeklyAnalysisText = useMemo(() => {
-    let filter = weeklyText.filter((v) => {
-      if (
-        v.year === moment(Pickmonth).format("YYYY") &&
-        (v.month === weekOfMonth(moment(Pickmonth))) === 0
-          ? moment(Pickmonth).day(0).format("M")
-          : moment(Pickmonth).format("M") &&
-            v.week ===
-              String(
-                weekOfMonth(moment(Pickmonth)) === 0
-                  ? weekOfMonth(moment(Pickmonth).day(0))
-                  : weekOfMonth(moment(Pickmonth))
-              )
-      ) {
-        return true;
-      } else {
-        return false;
-      }
-    });
-
-    return filter;
-  }, [Pickmonth, weeklyText]);
-  useEffect(() => {
-    if (weeklyAnalysisText.length !== 0) {
-      setCoreMission(
-        !!weeklyAnalysisText[0].coreMission
-          ? weeklyAnalysisText[0].coreMission
-          : ""
-      );
-      setLookInside(
-        !!weeklyAnalysisText[0].lookInside
-          ? weeklyAnalysisText[0].lookInside
-          : ""
-      );
-      setMainFocus(
-        !!weeklyAnalysisText[0].mainFocus ? weeklyAnalysisText[0].mainFocus : ""
-      );
-      setLifeCoreMission(
-        !!weeklyAnalysisText[0].lifeCoreMission
-          ? weeklyAnalysisText[0].lifeCoreMission
-          : ""
-      );
-      setLifeLookInside(
-        !!weeklyAnalysisText[0].lifeLookInside
-          ? weeklyAnalysisText[0].lifeLookInside
-          : ""
-      );
-      setLifeMainFocus(
-        !!weeklyAnalysisText[0].lifeMainFocus
-          ? weeklyAnalysisText[0].lifeMainFocus
-          : ""
-      );
-    } else {
-      setCoreMission("");
-      setLookInside("");
-      setMainFocus("");
-      setLifeCoreMission("");
-      setLifeLookInside("");
-      setLifeMainFocus("");
-    }
-    // }, 1000);
-  }, [Pickmonth, weeklyAnalysisText]);
 
   const weeklyLookInSide = useMemo(() => {
     let filter = lookInsideText.filter((v) => {
@@ -448,7 +424,7 @@ export default function Week({
           lifeMainFocus,
         });
         alert("나의 선언서가 저장되었습니다.");
-        router.reload();
+        refreshText();
       } catch (err) {
         console.log(err);
         alert("나의 사명을 사명탭에서 먼저 써주시길 바랍니다.");
@@ -464,7 +440,7 @@ export default function Week({
       lifeCoreMission,
       lifeLookInside,
       lifeMainFocus,
-      router,
+      refreshText,
     ]
   );
 
