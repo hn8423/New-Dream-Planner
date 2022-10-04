@@ -136,7 +136,10 @@ export default function BottomSheetStype({
           }
         }
 
-        clickClose();
+        sideBar.current.addEventListener("animationend", () => {
+          close();
+        });
+        setClosing(true);
 
         let pickColor = "";
         switch (pickTimeMetrix) {
@@ -257,7 +260,6 @@ export default function BottomSheetStype({
       appointmentItem.id,
       appointmentItem.isRepeatComplete,
       appointmentItem.realId,
-      clickClose,
       close,
       day,
       endTime,

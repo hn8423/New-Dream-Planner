@@ -127,7 +127,10 @@ export default function MobileBottomSheet({
           }
         }
 
-        clickClose();
+        sideBar.current.addEventListener("animationend", () => {
+          close();
+        });
+        setClosing(true);
 
         let pickColor = "";
         switch (pickTimeMetrix) {
@@ -230,7 +233,6 @@ export default function MobileBottomSheet({
       }
     },
     [
-      clickClose,
       close,
       day,
       endTime,

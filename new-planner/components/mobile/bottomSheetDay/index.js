@@ -146,7 +146,10 @@ export default function DayBottomSheet({
           }
         }
 
-        clickClose();
+        sideBar.current.addEventListener("animationend", () => {
+          close();
+        });
+        setClosing(true);
 
         let pickColor = "";
         switch (pickTimeMetrix) {
@@ -332,7 +335,6 @@ export default function DayBottomSheet({
       }
     },
     [
-      clickClose,
       close,
       day,
       endTime,
