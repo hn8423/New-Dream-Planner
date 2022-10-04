@@ -475,7 +475,6 @@ export default function Board({
       lookInsideThu,
       lookInsideFri,
       lookInsideSat,
-      router,
     ]
   );
 

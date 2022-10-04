@@ -73,10 +73,6 @@ export default function MobileBottomSheet({
     };
   };
 
-  const onClickDatePick = () => {
-    setIsDatePick(!isDatePick);
-  };
-
   const onClickDay = (v) => {
     return () => {
       let copyArr = [...day];
@@ -91,12 +87,12 @@ export default function MobileBottomSheet({
   };
 
   const clickClose = useCallback(() => {
-    if (sideBar.current) {
+    if (window.confirm("수정을 안 하겠습니까? ")) {
       sideBar.current.addEventListener("animationend", () => {
         close();
       });
+      setClosing(true);
     }
-    setClosing(true);
   }, [close]);
 
   const onClickTimeMetrix = (v) => {
